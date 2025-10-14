@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs_app
+    # Mapeo de puertos para acceder desde el host
+    ports:
+      - "3000:3000"
+    # Mantiene sincronizados los cambios del código local con el contenedor
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://sigca_user:postgres@db:5432/sigca
+    depends_on:
+      - db
+    command: npm run dev
+
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      - POSTGRES_USER=sigca_user
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sigca
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

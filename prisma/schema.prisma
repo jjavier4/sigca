@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos según tu proyecto SIGCA
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  nombre    String
+  rol       Rol      @default(AUTOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  trabajos  Trabajo[]
+  revisiones Revision[]
+}
+
+model Trabajo {
+  id          String   @id @default(uuid())
+  titulo      String
+  resumen     String
+  pdfUrl      String
+  estado      EstadoTrabajo @default(EN_REVISION)
+  autorId     String
+  autor       Usuario  @relation(fields: [autorId], references: [id])
+  createdAt   DateTime @default(now())
+  
+  revisiones  Revision[]
+}
+
+model Revision {
+  id          String   @id @default(uuid())
+  comentarios String?
+  calificacion Int
+  trabajoId   String
+  trabajo     Trabajo  @relation(fields: [trabajoId], references: [id])
+  revisorId   String
+  revisor     Usuario  @relation(fields: [revisorId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum Rol {
+  AUTOR
+  REVISOR
+  COMITE
+  ADMIN
+}
+
+enum EstadoTrabajo {
+  EN_REVISION
+  ACEPTADO
+  RECHAZADO
+  CAMBIOS_REQUERIDOS
+}
