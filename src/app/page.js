@@ -1,103 +1,156 @@
-import Image from "next/image";
+import { FileText, Users, CheckCircle, Calendar } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Home() {
+export default function HomePage() {
+  const features = [
+    {
+      icon: <FileText className="w-8 h-8" />,
+      title: "Envío de Trabajos",
+      description: "Plataforma centralizada para la carga y gestión de manuscritos académicos con control de versiones."
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "Gestión de Revisores",
+      description: "Asignación automática de revisores por áreas temáticas con seguimiento en tiempo real."
+    },
+    {
+      icon: <CheckCircle className="w-8 h-8" />,
+      title: "Proceso de Revisión",
+      description: "Sistema estructurado de evaluación con retroalimentación directa y trazabilidad completa."
+    },
+    {
+      icon: <Calendar className="w-8 h-8" />,
+      title: "Gestión de Convocatorias",
+      description: "Publicación y administración dinámica de convocatorias con fechas límite y requisitos específicos."
+    }
+  ];
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white py-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              CIIDiCI
+            </h1>
+            <h2 className="text-2xl md:text-3xl font-light mb-8 text-blue-100">
+              Congreso Internacional de la Investigación y Divulgación<br />de la Ciencia y la Ingeniería
+            </h2>
+            <p className="text-xl mb-10 max-w-3xl mx-auto text-blue-50">
+              Sistema de Gestión de Conferencias Académicas del Instituto Tecnológico de Toluca
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                Explorar Convocatorias
+              </button>
+              <button className="bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300">
+                Conocer Más
+              </button>
+            </div>
+          </div>
+        </section>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        {/* Descripción del Congreso */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">
+              ¿Qué es el CIIDiCI?
+            </h2>
+            <div className="prose prose-lg mx-auto text-gray-600">
+              <p className="text-lg leading-relaxed mb-6">
+                El Congreso Internacional de la Investigación y Divulgación de la Ciencia y la Ingeniería
+                representa un espacio fundamental para la difusión del conocimiento, la colaboración científica
+                y el fortalecimiento de la comunidad académica del Instituto Tecnológico de Toluca.
+              </p>
+              <p className="text-lg leading-relaxed">
+                Este evento académico busca promover el intercambio de ideas, experiencias y resultados de
+                investigación entre estudiantes, docentes e investigadores de las áreas de ciencia e ingeniería,
+                fomentando el desarrollo científico y tecnológico en la región.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Características del Sistema */}
+        <section className="py-16 bg-gray-100">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
+              Sistema SIGCA
+            </h2>
+            <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+              Plataforma integral para la gestión eficiente de conferencias académicas con tecnología de código abierto
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                >
+                  <div className="text-blue-600 mb-4">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-gray-800">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Proceso del Congreso */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+              Proceso de Gestión
+            </h2>
+
+            <div className="space-y-6">
+              {[
+                { step: "1", title: "Publicación de Convocatoria", desc: "El comité organizador publica la convocatoria con fechas y requisitos específicos." },
+                { step: "2", title: "Envío de Propuestas", desc: "Los autores registran y envían sus trabajos académicos en formato PDF." },
+                { step: "3", title: "Asignación de Revisores", desc: "El sistema asigna revisores especializados según el área temática del trabajo." },
+                { step: "4", title: "Proceso de Revisión", desc: "Los revisores evalúan los trabajos y proporcionan retroalimentación estructurada." },
+                { step: "5", title: "Correcciones", desc: "Los autores realizan las modificaciones sugeridas dentro del plazo establecido." },
+                { step: "6", title: "Validación Final", desc: "El comité organizador valida y publica los trabajos aceptados." }
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-start space-x-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
+                    <p className="text-gray-600">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Call to Action */}
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold mb-6">
+              ¿Listo para participar?
+            </h2>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              Únete a la comunidad académica del Instituto Tecnológico de Toluca y comparte tu investigación
+            </p>
+            <button className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+              Registrarse Ahora
+            </button>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
