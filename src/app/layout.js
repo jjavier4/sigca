@@ -11,15 +11,15 @@ export const metadata = {
   description: 'Congreso Internacional de la Investigación y Divulgación de la Ciencia y la Ingeniería',
 };
 
-export default function RootLayout({children}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <Header />
         <main className="flex-grow">
+          <Header />
           {children}
+          <Footer />
         </main>
-        <Footer />
       </body>
     </html>
   );

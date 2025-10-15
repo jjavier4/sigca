@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelos según tu proyecto SIGCA
+// Modelos SIGCA
 model Usuario {
   id        String   @id @default(uuid())
   email     String   @unique
