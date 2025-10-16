@@ -75,6 +75,9 @@ export const authOptions = {
     },
   },
 
+  
+  secret: process.env.NEXTAUTH_SECRET,
+
   // Debug en desarrollo
   debug: process.env.NODE_ENV === 'development',
 };

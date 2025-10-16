@@ -15,9 +15,9 @@ export default function HomePage() {
               Sistema de Gestión de Conferencias Académicas del Instituto Tecnológico de Toluca
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+              <Link href={"7"} className="bg-white text-blue-900 hover:bg-blue-50 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
                 Explorar Convocatorias
-              </button>
+              </Link>
               <Link href={"/about"} className="bg-transparent border-2 border-white hover:bg-white hover:text-blue-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300">
                 Conocer Más
               </Link>

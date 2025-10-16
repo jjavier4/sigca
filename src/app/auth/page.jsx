@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-//import { signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
+import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Building, AlertCircle, CheckCircle } from 'lucide-react';
-import FormLabelInput from '@/components/ui/formLabel';
+import FormLabelInput from '@/components/ui/FormLabelInput';
 export default function AuthPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+  
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -33,17 +33,17 @@ export default function AuthPage() {
     setError('');
 
     try {
-      /**
+
       const result = await signIn('credentials', {
         email: loginData.email,
         password: loginData.password,
         redirect: false,
       });
- */
+      console.log('Resultado de signIn:', result);
       if (result?.error) {
         setError('Credenciales incorrectas. Verifica tu email y contraseña.');
-      } else {
-        router.push('/dashboard');
+      }else {
+        router.push('/');
         router.refresh();
       }
     } catch (err) {
@@ -72,7 +72,7 @@ export default function AuthPage() {
     }
 
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,7 +105,7 @@ export default function AuthPage() {
       setTimeout(() => {
         setIsLogin(true);
         setSuccess('');
-      }, 2000);
+      }, 5000);
 
     } catch (err) {
       setError(err.message || 'Error al registrar usuario');
@@ -267,7 +267,7 @@ export default function AuthPage() {
                 disabled={isLoading}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
               >
-                {isLoading ? 'Registrando...' : 'Registrarse'}
+                {isLoading ? 'Registrando...' :  success ? 'Registrado !!!': 'Registrarse'}
               </button>
             </form>
           )}

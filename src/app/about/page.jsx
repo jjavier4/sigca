@@ -66,7 +66,7 @@ export default function AboutPage() {
                         Plataforma integral para la gestión eficiente de conferencias académicas con tecnología de código abierto
                     </p>
 
-                    <div className="grid grid-cols-1 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                         {features.map((feature, index) => (
                             <div
                                 key={index}
