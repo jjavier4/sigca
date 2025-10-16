@@ -48,7 +48,7 @@ npx prisma init
 
 # 3. Generar migraciones
 npx prisma migrate dev --name "descripcion_cambio"
-
+npx prisma db push
 # 4. Generas el cliente actualizado (este paso se puede omitir al ejecutar paso 3)
 npx prisma generate
 

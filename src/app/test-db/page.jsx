@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 export default async function TestDB() {
   try {
     // Prueba simple de conexión
-    const count = await prisma.Usuario.count();
+    const count = await prisma.Usuarios.count();
     
     return (
       <div className="p-8">

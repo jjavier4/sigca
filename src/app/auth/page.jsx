@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+//import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, Building, AlertCircle, CheckCircle } from 'lucide-react';
 import FormLabelInput from '@/components/ui/formLabel';
@@ -33,12 +33,13 @@ export default function AuthPage() {
     setError('');
 
     try {
+      /**
       const result = await signIn('credentials', {
         email: loginData.email,
         password: loginData.password,
         redirect: false,
       });
-
+ */
       if (result?.error) {
         setError('Credenciales incorrectas. Verifica tu email y contraseña.');
       } else {
@@ -71,12 +72,13 @@ export default function AuthPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre: registerData.nombre,
-          apellido: registerData.apellido,
+          apellidoP: registerData.apellidoP,
+          apellidoM: registerData.apellidoM,
           email: registerData.email,
           institucion: registerData.institucion,
           password: registerData.password,
@@ -246,7 +248,7 @@ export default function AuthPage() {
                 title={"Contraseña"}
                 children={<Lock className="absolute left-3 top-3 text-black" size={20} />}
                 type={"password"} value={registerData.password}
-                change={(e) => setLoginData({ ...registerData, password: e.target.value })}
+                change={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                 placeholder={"••••••••"}
                 required={true}
               />
@@ -255,7 +257,7 @@ export default function AuthPage() {
                 title={"Confirmar Contraseña"}
                 children={<Lock className="absolute left-3 top-3 text-black" size={20} />}
                 type={"password"} value={registerData.confirmPassword}
-                change={(e) => setLoginData({ ...registerData, confirmPassword: e.target.value })}
+                change={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
                 placeholder={"••••••••"}
                 required={true}
               />

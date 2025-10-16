@@ -28,7 +28,7 @@ export const authOptions = {
         }
 
         // Buscar usuario en la base de datos
-        const usuario = await prisma.usuario.findUnique({
+        const usuario = await prisma.usuarios.findUnique({
           where: { email: credentials.email },
         });
 
