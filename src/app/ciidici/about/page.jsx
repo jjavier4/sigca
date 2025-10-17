@@ -1,7 +1,12 @@
+'use client';
 import { FileText, Users, CheckCircle, Calendar } from 'lucide-react';
 import React from 'react'
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { href } from '@/utils/route';
 export default function AboutPage() {
+    const { data: session } = useSession();
+    const baseUrl = session ? `${href(session.user.rol)}` : '/ciidici/auth';
     const features = [
         {
             icon: <FileText className="w-8 h-8" />,
@@ -120,7 +125,7 @@ export default function AboutPage() {
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Únete a la comunidad académica del Instituto Tecnológico de Toluca y comparte tu investigación
                     </p>
-                    <Link href="/auth" className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                    <Link href={baseUrl} className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
                         <span className="font-semibold text-lg hidden sm:inline">Comenzar Ahora</span>
                     </Link>
                 </div>

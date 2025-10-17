@@ -61,7 +61,7 @@ export default function Header() {
             ) : (
               // Usuario no autenticado
               <>
-                <Link href="/auth" className="flex items-center space-x-2 bg-white text-blue-900 hover:bg-blue-50 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg">
+                <Link href="/ciidici/auth" className="flex items-center space-x-2 bg-white text-blue-900 hover:bg-blue-50 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg">
                   <LogIn size={20} />
                   <span>Iniciar Sesión</span>
                 </Link>
