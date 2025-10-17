@@ -1,30 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Home, UserPlus, Settings, Users } from 'lucide-react';
 import Link from 'next/link';
-
+import { href } from '@/utils/route';
 export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
   const { data: session, status } = useSession();
 
   const menuitems = (role) => {
-    if (role === 'Admin') {
-      return [
-        { id: 'overview', icon: Home, label: 'Inicio', page: '/admin' },
-        { id: 'add-user', icon: UserPlus, label: 'Agregar Usuario', page: '/admin/addUser' },
-        { id: 'manage-users', icon: Users, label: 'Gestionar Usuarios', page: '/admin/manageusers' },
-        { id: 'settings', icon: Settings, label: 'Configuración', page: '/admin/settings' },
-      ];
+    let baseUrl = href(role);
+    let items = [];
+    if (role === 'COMITE' || role === 'ADMIN') {
+      items.push(        
+          { id: 'overview', icon: Home, label: 'Inicio', page: `${baseUrl}` },
+          { id: 'add-user', icon: UserPlus, label: 'Agregar Usuario', page: `${baseUrl}/addUser` },
+          { id: 'manage-users', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
+        )
     }
-    return [];
+    return items.push({ id: 'settings', icon: Settings, label: 'Configuración', page: `${baseUrl}/settings` }) && items;
   };
+
+  useEffect(() => {
+    if (session?.user?.rol) {
+      console.log('User role:', session.user.rol);
+    }
+  }, [status]);
 
 
   return (
     <>
       <aside
-        className={`fixed top-20 left-0 h-full bg-white shadow-lg z-20 transition-transform duration-300 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-64`}
+        className={`fixed top-20 left-0 h-full bg-white shadow-lg z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } w-64`}
       >
         <nav className="p-4">
           <ul className="space-y-2">

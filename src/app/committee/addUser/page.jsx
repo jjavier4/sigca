@@ -175,8 +175,6 @@ export default function AddUser() {
                     >
                         <option value="AUTOR">Autor</option>
                         <option value="REVISOR">Revisor</option>
-                        <option value="COMITE">Comité Organizador</option>
-                        <option value="ADMIN">Administrador</option>
                     </select>
                 </div>
 
