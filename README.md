@@ -54,6 +54,9 @@ npx prisma generate
 
 # 5. Ejecutar tu app
 npm run dev
+
+#6. ver ui 
+npx prisma studio
 ```
 ## Docker important!!
 ```bash

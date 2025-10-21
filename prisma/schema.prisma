@@ -28,3 +28,18 @@ enum Rol {
   COMITE
   ADMIN
 }
+
+model Convocatorias {
+  id              String   @id @default(uuid())
+  titulo          String
+  descripcion     String   @db.Text
+  fecha_inicio    DateTime
+  fecha_cierre    DateTime
+  areas_tematicas String[]
+  requisitos      String   @db.Text
+  activa          Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+}
