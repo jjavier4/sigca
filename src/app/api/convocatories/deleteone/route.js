@@ -15,38 +15,37 @@ export async function DELETE(request) {
       );
     }
     const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
+    const id= searchParams.get('id');
 
-    // Verificar que el usuario existe
-    const usuarioExistente = await prisma.usuarios.findUnique({
-      where: { email }
+    // Verificar que la convocatoria existe
+    const convocatoriaExistente = await prisma.convocatorias.findUnique({
+      where: { id }
     });
 
-    if (!usuarioExistente) {
+    if (!convocatoriaExistente) {
       return NextResponse.json(
-        { error: 'Usuario no encontrado' },
+        { error: 'Convocatoria no encontrada' },
         { status: 404 }
       );
     }
 
-    // Eliminar el usuario
-    await prisma.usuarios.delete({
-      where: { email }
+    // Eliminar la convocatoria
+    await prisma.convocatorias.delete({
+      where: { id }
     });
 
     return NextResponse.json(
       { 
         success: true,
-        message: 'Usuario eliminado correctamente',
-        usuario: email
+        message: 'Convocatoria eliminado correctamente',
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Error al eliminar usuario:', error);
+    console.error('Error al eliminar convocatoria:', error);
     return NextResponse.json(
-      { error: 'Error al eliminar el usuario' },
+      { error: 'Error al eliminar el convocatoria' },
       { status: 500 }
     );
   }

@@ -14,40 +14,36 @@ export async function GET(request) {
         { status: 401 }
       );
     }
-
-    if (session.user.rol !== 'ADMIN' || session.user.rol !== 'COMITE') {
+    if (session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
       return NextResponse.json(
-        { error: 'No autorizado para ver usuarios' },
+        { error: 'No autorizado. ' },
         { status: 403 }
       );
     }
 
-    const usuarios = await prisma.usuario.findMany({
+
+    const convocatorias = await prisma.convocatorias.findMany({
       select: {
         id: true,
-        email: true,
-        nombre: true,
-        rol: true,
-        // No incluir password por seguridad
-      },
-      orderBy: {
-        createdAt: 'desc'
+        titulo: true,
+        fecha_inicio: true,
+        fecha_cierre: true,
       }
     });
 
     return NextResponse.json(
       { 
         success: true,
-        count: usuarios.length,
-        usuarios 
+        count: convocatorias.length,
+        convocatorias 
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Error al obtener usuarios:', error);
+    console.error('Error al obtener convocatorias:', error);
     return NextResponse.json(
-      { error: 'Error al obtener usuarios', details: error.message },
+      { error: 'Error al obtener convocatorias', details: error.message },
       { status: 500 }
     );
   }

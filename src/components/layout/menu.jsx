@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Home, UserPlus, Settings, Users,LucideFileUp } from 'lucide-react';
+import { Home, UserPlus, Settings, Users,LucideFileUp,UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
 export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
@@ -15,6 +15,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
           { id: 'add-user', icon: UserPlus, label: 'Agregar Usuario', page: `${baseUrl}/addUser` },
           { id: 'manage-users', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
           { id: 'addcalls', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
+          { id: 'manage-convocatories', icon: UserCog, label: 'Gestionar Convocatorias', page: `${baseUrl}/manageconvocatorie` },
           
         )
     }
