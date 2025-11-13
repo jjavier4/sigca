@@ -28,7 +28,7 @@ export default function Header() {
                 </button>
               </div>
             }
-            <Link href="/" className="flex items-center space-x-2 hover:bg-blue-900 px-4 py-2 rounded-lg transition-all duration-300">
+            <Link href="/ciidici" className="flex items-center space-x-2 hover:bg-blue-900 px-4 py-2 rounded-lg transition-all duration-300">
               <Home size={24} />
               <span className="font-semibold text-lg hidden sm:inline">SIGCA</span>
             </Link>
@@ -51,7 +51,7 @@ export default function Header() {
                   <span>{session.user.rol}</span>
                 </Link>
                 <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={() => signOut({ callbackUrl: '/ciidici' })}
                   className="flex items-center bg-orange-400 text-blue-900 hover:bg-red-400 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg cursor-pointer "
                 >
                   <LogOut size={20} />

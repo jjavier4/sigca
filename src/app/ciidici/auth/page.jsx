@@ -43,7 +43,7 @@ export default function AuthPage() {
       if (result?.error) {
         setError('Credenciales incorrectas. Verifica tu email y contraseña.');
       }else {
-        router.push('/');
+        router.push('/ciidici');
         router.refresh();
       }
     } catch (err) {

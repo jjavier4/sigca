@@ -1,9 +1,9 @@
 export const  href = (key)=> {
     const routes = {
-    ADMIN:"/admin",
-    COMITE:"/committee",
-    AUTOR:"/author",
-    REVISOR:"/reviewer"
+    ADMIN:"ciidici/admin",
+    COMITE:"/ciidici/committee",
+    AUTOR:"/ciidici/author",
+    REVISOR:"/ciidici/reviewer"
     }
     return routes[key] || "/";
 }
