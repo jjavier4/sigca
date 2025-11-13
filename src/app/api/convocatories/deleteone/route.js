@@ -8,7 +8,13 @@ export async function DELETE(request) {
     // Verificar autenticación
     const session = await getServerSession(authOptions);
     
-    if (!session && session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
+    if (!session) {
+      return NextResponse.json(
+        { error: 'No autenticado' },
+        { status: 401 }
+      );
+    }
+    if (session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
       return NextResponse.json(
         { error: 'No autorizado. ' },
         { status: 403 }
@@ -29,6 +35,19 @@ export async function DELETE(request) {
       );
     }
 
+    /**
+     // Verificar si existen trabajos asociados
+        const trabajosAsociados = await prisma.trabajos.count({
+            where: { convocatoriaId: id }
+        })
+
+        if (trabajosAsociados > 0) {
+            return NextResponse.json(
+                { error: `No se puede eliminar. Hay ${trabajosAsociados} trabajos asociados a esta convocatoria` },
+                { status: 400 }
+            )
+        }
+     */
     // Eliminar la convocatoria
     await prisma.convocatorias.delete({
       where: { id }

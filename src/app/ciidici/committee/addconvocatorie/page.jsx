@@ -22,6 +22,7 @@ export default function ConvocatoriaForm() {
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false)
 
 
   const validateForm = () => {
@@ -66,6 +67,7 @@ export default function ConvocatoriaForm() {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
+      setIsLoading(true);
       try {
         const response = await fetch('/api/convocatories/register', {
           method: 'POST',
@@ -88,6 +90,8 @@ export default function ConvocatoriaForm() {
 
       } catch (err) {
         setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -292,7 +296,9 @@ export default function ConvocatoriaForm() {
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <FileText className="w-4 h-4" />
-              Crear Convocatoria
+              {
+                isLoading ? 'Guardando...' : 'Guardar Convocatoria'
+              }
             </button>
           </div>
         </form>

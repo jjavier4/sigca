@@ -1,93 +1,72 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import { getServerSession } from 'next-auth'
 
 export async function PATCH(request) {
   try {
-    // Verificar autenticación
-    const session = await getServerSession(authOptions);
-    
+    const session = await getServerSession()
+
     if (!session) {
       return NextResponse.json(
         { error: 'No autenticado' },
         { status: 401 }
       );
     }
-    const body = await request.json();
-    const {id,email, rol } = body;
-
-    // Verificar que el usuario existe
-    const usuarioExistente = await prisma.usuarios.findUnique({
-      where: { id }
-    });
-
-    if (!usuarioExistente) {
+    if (session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
       return NextResponse.json(
-        { error: 'Usuario no encontrado' },
-        { status: 404 }
+        { error: 'No autorizado. ' },
+        { status: 403 }
       );
     }
 
+    const body = await request.json()
+    const { id, titulo, descripcion, fecha_inicio, fecha_cierre, temas } = body
 
-    // Validar rol si se proporciona
-    if (rol) {
-      const rolesValidos = ['AUTOR', 'REVISOR', 'COMITE', 'ADMIN'];
-      if (!rolesValidos.includes(rol)) {
-        return NextResponse.json(
-          { error: 'Rol inválido', rolesValidos },
-          { status: 400 }
-        );
-      }
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID de convocatoria requerido' },
+        { status: 400 }
+      )
     }
 
-    // Si se cambia el email, verificar que no exista
-    if (email && email !== usuarioExistente.email) {
-      const emailExiste = await prisma.usuarios.findUnique({
-        where: { email }
-      });
-
-      if (emailExiste) {
-        return NextResponse.json(
-          { error: 'El email ya está registrado' },
-          { status: 400 }
-        );
-      }
+    if (!titulo || !fecha_inicio || !fecha_cierre) {
+      return NextResponse.json(
+        { error: 'Título, fecha de inicio y fecha de cierre son requeridos' },
+        { status: 400 }
+      )
     }
 
-    // Preparar datos para actualizar (solo campos proporcionados)
-    const datosActualizar = {};
-    if (email !== undefined) datosActualizar.email = email;
-    if (rol !== undefined) datosActualizar.rol = rol;
+    // Validar que la fecha de cierre sea posterior a la fecha de inicio
+    if (new Date(fecha_cierre) <= new Date(fecha_inicio)) {
+      return NextResponse.json(
+        { error: 'La fecha de cierre debe ser posterior a la fecha de inicio' },
+        { status: 400 }
+      )
+    }
 
-    // Actualizar usuario
-    const usuarioActualizado = await prisma.usuarios.update({
+    const convocatoriaActualizada = await prisma.convocatoria.update({
       where: { id },
-      data: datosActualizar,
-      select: {
-        id: true,
-        email: true,
-        nombre: true,
-        rol: true,
-        createdAt: true,
-        updatedAt: true
+      data: {
+        titulo,
+        descripcion: descripcion || null,
+        fecha_inicio: new Date(fecha_inicio),
+        fecha_cierre: new Date(fecha_cierre),
+        temas: temas || null
       }
-    });
+    })
 
     return NextResponse.json(
-      { 
-        success: true,
-        message: 'Usuario actualizado correctamente',
-        usuario: usuarioActualizado
+      {
+        message: 'Convocatoria actualizada exitosamente',
+        convocatoria: convocatoriaActualizada
       },
       { status: 200 }
-    );
-
+    )
   } catch (error) {
-    console.error('Error al actualizar usuario:', error);
+    console.error('Error al actualizar convocatoria:', error)
     return NextResponse.json(
-      { error: 'Error al actualizar el usuario', details: error.message },
+      { error: 'Error al actualizar convocatoria' },
       { status: 500 }
-    );
+    )
   }
 }
