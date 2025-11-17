@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, AlertCircle, AlertTriangle, X } from 'lucide-react';
 
 // Componente Alert reutilizable
-export default function Alert  ({ type = 'success', message, isVisible, onClose })  {
+export default function Alert  ({ type = 'success', message, isVisible })  {
   const alertConfig = {
     success: {
       bgColor: 'bg-green-500',
@@ -30,7 +30,7 @@ export default function Alert  ({ type = 'success', message, isVisible, onClose 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-slideDown">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-52 animate-slideDown">
       <div className={`${config.bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-4 min-w-96 max-w-2xl`}>
         <Icon className={config.iconColor} size={24} />
         <div className="flex-1">

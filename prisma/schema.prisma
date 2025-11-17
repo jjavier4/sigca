@@ -19,6 +19,8 @@ model Usuarios {
   rol       Rol      @default(AUTOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // Relación con Trabajos
+  trabajos  Trabajos[]
 
 }
 
@@ -41,5 +43,35 @@ model Convocatorias {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  // Relación con Trabajos
+  trabajos        Trabajos[]
 
+}
+
+model Trabajos {
+  id                String   @id @default(uuid())
+  archivo_url       String   // Ruta o URL del PDF subido
+  version           Int      @default(1)
+  estado            EstadoTrabajo @default(EN_REVISION)
+  
+  // Relaciones (Foreign Keys)
+  usuarioId         String
+  usuario           Usuarios @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  
+  convocatoriaId    String
+  convocatoria      Convocatorias @relation(fields: [convocatoriaId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([usuarioId])
+  @@index([convocatoriaId])
+  @@index([estado])
+}
+
+enum EstadoTrabajo {
+  EN_REVISION
+  ACEPTADO
+  CAMBIOS_SOLICITADOS
+  RECHAZADO
 }
