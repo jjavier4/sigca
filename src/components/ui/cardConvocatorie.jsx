@@ -238,7 +238,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
           {/* Botones de acción */}
           <div className="flex flex-col gap-3 pt-4 ">
             {
-              user && user.rol === 'AUTOR' &&
+               user && user.rol === 'AUTOR' &&
               (
                 <div className="flex-1 border border-gray-200 p-2 rounded-lg">
                   <form className="flex gap-3 pt-4 items-center" onSubmit={handleSubmit}>

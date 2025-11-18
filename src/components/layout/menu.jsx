@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Home, UserPlus, Settings, Users,LucideFileUp,UserCog } from 'lucide-react';
+import { Home, UserPlus, Settings, Users, LucideFileUp, UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
 export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
@@ -8,16 +8,20 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
 
   const menuitems = (role) => {
     let baseUrl = href(role);
-    let items = [];
+    let items = [{ id: 'overview', icon: Home, label: 'Inicio', page: `${baseUrl}` }];
     if (role === 'COMITE' || role === 'ADMIN') {
-      items.push(        
-          { id: 'overview', icon: Home, label: 'Inicio', page: `${baseUrl}` },
-          { id: 'add-user', icon: UserPlus, label: 'Agregar Usuario', page: `${baseUrl}/addUser` },
-          { id: 'manage-users', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
-          { id: 'addcalls', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
-          { id: 'manage-convocatories', icon: UserCog, label: 'Gestionar Convocatorias', page: `${baseUrl}/manageconvocatorie` },
-          
-        )
+      items.push(
+        { id: 'add-user', icon: UserPlus, label: 'Agregar Usuario', page: `${baseUrl}/addUser` },
+        { id: 'manage-users', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
+
+      )
+    }
+    if (role === 'COMITE') {
+      items.push(
+        { id: 'add-convocatorie', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
+        { id: 'manage-convocatories', icon: UserCog, label: 'Gestionar Convocatorias', page: `${baseUrl}/manageconvocatorie` },
+        { id: 'assign-convocatories', icon: LucideFileUp, label: 'Asignar Convocatorias', page: `${baseUrl}/assignconvocatorie` },
+      )
     }
     return items.push({ id: 'settings', icon: Settings, label: 'Configuración', page: `${baseUrl}/settings` }) && items;
   };
@@ -42,7 +46,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
               return (
                 <li key={item.id}>
                   <Link
-                  onClick={toggleSidebar}
+                    onClick={toggleSidebar}
                     href={item.page}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-blue-50 text-blue-600 font-semibold"
                   >

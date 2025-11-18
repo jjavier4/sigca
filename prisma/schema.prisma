@@ -7,21 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelos SIGCA
-
 model Usuarios {
-  id        String   @id @default(uuid())
+  id        String   @id // Formato: 2025-RFC/CURP-001
   email     String   @unique
+  rfc       String?  @unique // Opcional
+  curp      String?  @unique // Opcional
   nombre    String
-  apellidoP    String
-  apellidoM    String
+  apellidoP String
+  apellidoM String
   password  String
   rol       Rol      @default(AUTOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // Relación con Trabajos
+  
+  // Relación con Trabajos (como autor)
   trabajos  Trabajos[]
-
+  
+  // Relación con Asignaciones (como revisor)
+  asignacionesComoRevisor Asignaciones[] @relation("RevisorAsignaciones")
 }
 
 enum Rol {
@@ -43,14 +46,14 @@ model Convocatorias {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  
   // Relación con Trabajos
   trabajos        Trabajos[]
-
 }
 
 model Trabajos {
   id                String   @id @default(uuid())
-  archivo_url       String   // Ruta o URL del PDF subido
+  archivo_url       String
   version           Int      @default(1)
   estado            EstadoTrabajo @default(EN_REVISION)
   
@@ -61,12 +64,31 @@ model Trabajos {
   convocatoriaId    String
   convocatoria      Convocatorias @relation(fields: [convocatoriaId], references: [id], onDelete: Cascade)
   
+  // Relación con Asignaciones
+  asignaciones      Asignaciones[] @relation("TrabajoAsignaciones")
+  
+  // Relación con Comentarios
+  comentarios       Comentarios[]
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
+  
   @@index([usuarioId])
   @@index([convocatoriaId])
   @@index([estado])
+}
+
+model Comentarios {
+  id          String   @id @default(uuid())
+  contenido   String   @db.Text
+  
+  // Relación solo con Trabajo (anónimo)
+  trabajoId   String
+  trabajo     Trabajos @relation(fields: [trabajoId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([trabajoId])
 }
 
 enum EstadoTrabajo {
@@ -74,4 +96,24 @@ enum EstadoTrabajo {
   ACEPTADO
   CAMBIOS_SOLICITADOS
   RECHAZADO
+}
+
+model Asignaciones {
+  id          String   @id @default(uuid())
+  activa      Boolean  @default(true)
+  
+  // Relaciones (Foreign Keys)
+  trabajoId   String
+  trabajo     Trabajos @relation("TrabajoAsignaciones", fields: [trabajoId], references: [id], onDelete: Cascade)
+  
+  revisorId   String
+  revisor     Usuarios @relation("RevisorAsignaciones", fields: [revisorId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  closeAt     DateTime
+  
+  @@index([trabajoId])
+  @@index([revisorId])
+  @@index([activa])
+  @@unique([trabajoId, revisorId])
 }

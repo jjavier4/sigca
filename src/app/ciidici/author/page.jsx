@@ -1,16 +1,127 @@
-import React from 'react'
-
+"use client"
+import React, { useState, useEffect } from 'react'
+import  CardWork from '@/components/ui/cardWork';
+import CardInfo from '@/components/ui/cardInfo';
+import { FileText } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 export default function DashboardAuthor() {
+
+  const { data: session } = useSession();
+  const [trabajos, setTrabajos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [itemSelected, setItemSelected] = useState(null);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchTrabajos();
+    }
+  }, [session]);
+
+  const fetchTrabajos = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/works/findbyuser?userId=${session.user.id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setTrabajos(data.trabajos);
+      } else {
+        setError(data.error);
+      }
+    } catch (error) {
+      console.error('Error al cargar trabajos:', error);
+      setError('Error al cargar tus trabajos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const trabajosFiltrados = trabajos.filter((trabajo) => {
+    if (filtroEstado === 'TODOS') return true;
+    return trabajo.estado === filtroEstado;
+  });
+
+  const getEstadisticas = () => {
+    return {
+      total: trabajos.length,
+      enRevision: trabajos.filter(t => t.estado === 'EN_REVISION').length,
+      aceptados: trabajos.filter(t => t.estado === 'ACEPTADO').length,
+      cambios: trabajos.filter(t => t.estado === 'CAMBIOS_SOLICITADOS').length,
+      rechazados: trabajos.filter(t => t.estado === 'RECHAZADO').length
+    };
+  };
+
+  const stats = getEstadisticas();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando tus trabajos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+          <p className="text-red-800 font-medium">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col">
-        <section className="bg-blue-900 min-h-screen text-white py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              DashboarAuthor
-            </h1>
-            
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            Mis Trabajos
+          </h1>
+        </div>
+
+        {/* Estadísticas */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado==='TODOS'}/>
+          <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado==='EN_REVISION'}/>
+          <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado==='ACEPTADO'}/>
+          <CardInfo title="Con Cambios" stats={stats.cambios} classN="border-orange-400" onclick={() => setFiltroEstado('CAMBIOS_SOLICITADOS')} select={filtroEstado==='CAMBIOS_SOLICITADOS'}/>
+          <CardInfo title="Rechazados" stats={stats.rechazados} classN="border-red-400" onclick={() => setFiltroEstado('RECHAZADO')} select={filtroEstado==='RECHAZADO'}/>
+        </div>
+
+        {/* Grid de Cards */}
+        {trabajosFiltrados.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+            <FileText className="mx-auto mb-4 text-gray-400" size={64} />
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              No hay trabajos para mostrar
+            </h3>
+            <p className="text-gray-600">
+              {filtroEstado === 'TODOS'
+                ? 'Aún no has enviado ningún trabajo a una convocatoria'
+                : `No tienes trabajos con estado: ${filtroEstado.replace('_', ' ')}`}
+            </p>
           </div>
-        </section>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {trabajosFiltrados.map((trabajo,numWork) => (
+              <CardWork
+                key={trabajo.id}
+                numWork={numWork+1}
+                trabajo={trabajo}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+    
     </div>
-  )
+  );
 }

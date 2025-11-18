@@ -88,8 +88,9 @@ export async function POST(request) {
             );
         }
 
-        // 1. Crear directorio del usuario si no existe
-        const documentsPath = path.join(process.cwd(), 'documents');
+        // 1. Crear directorio en public/documents/userId
+        const publicPath = path.join(process.cwd(), 'public');
+        const documentsPath = path.join(publicPath, 'documents');
         const userDirectoryPath = path.join(documentsPath, userId);
 
         // Crear carpeta 'documents' si no existe
@@ -112,7 +113,7 @@ export async function POST(request) {
         await writeFile(filePath, buffer);
 
         // 3. Crear registro en la tabla trabajos
-        const relativePath = `documents/${userId}/${fileName}`;
+        const relativePath = `/documents/${userId}/${fileName}`;
 
         const trabajo = await prisma.trabajos.create({
             data: {
