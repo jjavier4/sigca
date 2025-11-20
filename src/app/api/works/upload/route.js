@@ -17,10 +17,12 @@ export async function POST(request) {
         }
 
         const formData = await request.formData();
+        const dataConvocatoria = formData.get('dataConvocatoria');
+        const dataConvocatoriaParsed = JSON.parse(dataConvocatoria);
         const file = formData.get('file');
         const convocatoriaId = formData.get('convocatoriaId');
         const userId = formData.get('userId');
-
+        console.log('dataConvocatoria:', dataConvocatoria);
         // Validaciones
         if (!file) {
             return NextResponse.json(
@@ -35,7 +37,12 @@ export async function POST(request) {
                 { status: 400 }
             );
         }
-
+         if (!dataConvocatoriaParsed) {
+            return NextResponse.json(
+                { error: 'Faltan datos de registro' },
+                { status: 400 }
+            );
+        }
         // Validar que el archivo sea PDF
         if (!file.name.endsWith('.pdf')) {
             return NextResponse.json(
@@ -114,9 +121,13 @@ export async function POST(request) {
 
         // 3. Crear registro en la tabla trabajos
         const relativePath = `/documents/${userId}/${fileName}`;
-
+        // 4. Unir auores con comas
+        const coautoresString = dataConvocatoriaParsed.coautores.join(', ');
         const trabajo = await prisma.trabajos.create({
             data: {
+                titulo : dataConvocatoriaParsed.tituloPropuesta,
+                tipo : dataConvocatoriaParsed.tipo,
+                coautores : coautoresString,
                 convocatoriaId: convocatoriaId,
                 usuarioId: userId,  
                 archivo_url: relativePath,

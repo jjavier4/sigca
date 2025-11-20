@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from 'react';
-import { Calendar, FileText, Clock, Tag, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, FileText, Clock, Tag, ChevronRight, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
 import FormLabelInput from '@/components/ui/FormLabelInput';
 import Alert from '@/components/ui/alert';
 // Componente Card de Convocatoria
@@ -133,6 +133,12 @@ export function CardConvocatorie({ convocatoria, onClick }) {
 // Modal de Detalle
 export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   const [file, setFile] = useState(null);
+  const [countCoauthors, setCountCoauthors] = useState(1);
+  const [dataConvocatoria, setDataConvocatoria] = useState({
+    tituloPropuesta: '',
+    tipo: 'Divulgacion',
+    coautores: []
+  });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
@@ -142,18 +148,14 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   const temas = convocatoria.temas ? convocatoria.temas.split(',').map(t => t.trim()) : [];
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file || !user) {
-      setUploadError('Debes seleccionar un archivo y estar autenticado');
-      return;
-    }
-
+    
     setUploading(true);
     setUploadError('');
     setUploadSuccess('');
 
     try {
-      const data = await sendFile(file, convocatoria.id, user.id);
-      
+      const data = await sendFile(dataConvocatoria,file, convocatoria.id, user.id);
+
       if (!data) {
         setUploadSuccess('Propuesta enviada exitosamente');
       } else {
@@ -238,26 +240,93 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
           {/* Botones de acción */}
           <div className="flex flex-col gap-3 pt-4 ">
             {
-               user && user.rol === 'AUTOR' &&
+              user && user.rol === 'AUTOR' &&
               (
-                <div className="flex-1 border border-gray-200 p-2 rounded-lg">
-                  <form className="flex gap-3 pt-4 items-center" onSubmit={handleSubmit}>
+                <>
+                  <div className="flex-1 border border-gray-200 p-2 rounded-lg">
+                    <form className="space-y-4" onSubmit={handleSubmit}> {/**handleSubmit */}
 
-                    <FormLabelInput
-                      title="PDF de tu propuesta"
-                      children={<FileText size={10} />}
-                      type="file"
-                      required={true}
-                      change={(e) => setFile(e.target.files[0])}
-                      placeholder="Selecciona tu archivo"
-                      accept=".pdf"
-                      multiple={false}
-                      disabled={uploading} />
-                    <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors">
-                      {uploading ? 'Enviando...' : 'Enviar Propuesta'}
-                    </button>
-                  </form>
-                </div>
+                      <FormLabelInput
+                        title="Título de tu propuesta"
+                        children={<Pen className="absolute left-3 top-3 text-black" size={20} />}
+                        type="text"
+                        required={true}
+                        value={dataConvocatoria.tituloPropuesta}
+                        change={(e) => setDataConvocatoria({ ...dataConvocatoria, tituloPropuesta: e.target.value })}
+                        placeholder="Ingresa el título de tu propuesta"
+                        disabled={uploading}
+                      />
+                      <div>
+                        <label className="block text-sm font-medium text-black mb-2" >
+                          Tipo Trabajo
+                        </label>
+
+                        <select
+                          value={dataConvocatoria.tipo}
+                          onChange={(e) => setDataConvocatoria({ ...dataConvocatoria, tipo: e.target.value })}
+                          className="w-full pl-2 pr-4 py-3 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        >
+                          <option value="Divulgacion">Divulgacion</option>
+                          <option value="Difusion">Difusion</option>
+                        </select>
+                      </div>
+
+                      {Array.from({ length: countCoauthors }).map((_, index) => {
+                        return (
+                          <FormLabelInput
+                            key={index}
+                            title={`Coautor ${index + 1}`}
+                            children={<User className="absolute left-3 top-3 text-black" size={20} />}
+                            type="text"
+                            required={true}
+                            value={dataConvocatoria.coautores[index] || ''} // Manejo seguro si es undefined
+                            change={(e) => {
+                              const nuevosCoautores = [...dataConvocatoria.coautores];
+                              nuevosCoautores[index] = e.target.value;
+                              setDataConvocatoria({ ...dataConvocatoria, coautores: nuevosCoautores });
+                            }}
+                            placeholder="Ingresa el nombre del coautor"
+                            disabled={uploading}
+                          />
+                        );
+                      })}
+                      <label className="block text-sm font-medium text-black mb-2">Control de Coautores</label>
+
+                      <div className='flex justify-between w-1/3 mb-4'>
+                        <button
+                          type="button"
+                          className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-lg transition-colors"
+                          onClick={() => setCountCoauthors(countCoauthors + 1)}>
+                          <PlusCircle className="text-white" size={25} />
+
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-lg transition-colors"
+                          onClick={() => { countCoauthors > 1 && setCountCoauthors(countCoauthors - 1) }}>
+                          <MinusCircleIcon className="text-white " size={25} />
+                        </button>
+                      </div>
+
+                      <FormLabelInput
+                        title="PDF de tu propuesta"
+                        children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
+                        type="file"
+                        required={true}
+                        change={(e) => setFile(e.target.files[0])}
+                        placeholder="Selecciona tu archivo"
+                        accept=".pdf"
+                        multiple={false}
+                        disabled={uploading} />
+
+
+                      <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
+                        {uploading ? 'Enviando...' : 'Enviar Propuesta'}
+                      </button>
+                    </form>
+                  </div>
+
+                </>
               )
 
             }

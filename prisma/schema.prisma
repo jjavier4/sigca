@@ -56,7 +56,9 @@ model Trabajos {
   archivo_url       String
   version           Int      @default(1)
   estado            EstadoTrabajo @default(EN_REVISION)
-  
+  titulo            String
+  tipo              String
+  coautores         String
   // Relaciones (Foreign Keys)
   usuarioId         String
   usuario           Usuarios @relation(fields: [usuarioId], references: [id], onDelete: Cascade)

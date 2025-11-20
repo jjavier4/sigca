@@ -68,8 +68,9 @@ export default function ViewConvocatorias() {
     );
   }
 
-  const sendFile = async (file, convocatoriaId, userId) => {
+  const sendFile = async (dataConvocatoria,file, convocatoriaId, userId) => {
     const formData = new FormData();
+    formData.append('dataConvocatoria',  JSON.stringify(dataConvocatoria));
     formData.append('file', file);
     formData.append('convocatoriaId', convocatoriaId);
     formData.append('userId', userId);

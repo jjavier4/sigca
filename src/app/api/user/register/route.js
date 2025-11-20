@@ -49,7 +49,7 @@ export async function POST(request) {
     } = body;
 
     // Validaciones básicas
-    if (!nombre || !apellidoP || !apellidoM || !email || !institucion || !password || !tipoIdentificacion) {
+    if (!nombre || !apellidoP || !apellidoM || !email || !institucion || !password ) {
       return NextResponse.json(
         { error: 'Todos los campos obligatorios deben ser completados' },
         { status: 400 }
