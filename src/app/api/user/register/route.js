@@ -20,8 +20,7 @@ async function generarUsuarioId(identificador) {
 // Función para validar RFC
 function validarRFC(rfc) {
   // RFC de persona física: 13 caracteres (4 letras + 6 dígitos + 3 caracteres)
-  // RFC de persona moral: 12 caracteres (3 letras + 6 dígitos + 3 caracteres)
-  const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+  const rfcRegex = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
   return rfcRegex.test(rfc.toUpperCase());
 }
 
