@@ -85,7 +85,7 @@ export default function AuthPage() {
         return;
       }
     } else {
-      const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}\d{2}$/;
+      const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}\d{3}$/;
       if (!curpRegex.test(registerData.curp.toUpperCase())) {
         setError('El CURP no tiene un formato válido. Debe tener 18 caracteres. Ejemplo: PAJA850101HMCLRV09');
         setIsLoading(false);

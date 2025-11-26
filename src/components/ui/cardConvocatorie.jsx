@@ -133,7 +133,7 @@ export function CardConvocatorie({ convocatoria, onClick }) {
 // Modal de Detalle
 export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   const [file, setFile] = useState(null);
-  const [countCoauthors, setCountCoauthors] = useState(1);
+  const [countCoauthors, setCountCoauthors] = useState(0);
   const [dataConvocatoria, setDataConvocatoria] = useState({
     tituloPropuesta: '',
     tipo: 'Divulgacion',
@@ -295,17 +295,18 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                       <div className='flex justify-between w-1/3 mb-4'>
                         <button
                           type="button"
-                          className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-lg transition-colors"
-                          onClick={() => setCountCoauthors(countCoauthors + 1)}>
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"                          onClick={() => setCountCoauthors(countCoauthors + 1)}>
                           <PlusCircle className="text-white" size={25} />
 
                         </button>
+                        {countCoauthors >= 1 && (
                         <button
                           type="button"
-                          className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-lg transition-colors"
-                          onClick={() => { countCoauthors > 1 && setCountCoauthors(countCoauthors - 1) }}>
+                          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
+                          onClick={() => { countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1) }}>
                           <MinusCircleIcon className="text-white " size={25} />
                         </button>
+                        )}
                       </div>
 
                       <FormLabelInput

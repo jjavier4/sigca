@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
+import { emailPropuestaRecibida, sendEmail } from '@/lib/email';
 
 export async function POST(request) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
 
         if (!session) {
             return NextResponse.json(
@@ -37,7 +39,7 @@ export async function POST(request) {
                 { status: 400 }
             );
         }
-         if (!dataConvocatoriaParsed) {
+        if (!dataConvocatoriaParsed) {
             return NextResponse.json(
                 { error: 'Faltan datos de registro' },
                 { status: 400 }
@@ -125,16 +127,30 @@ export async function POST(request) {
         const coautoresString = dataConvocatoriaParsed.coautores.join(', ');
         const trabajo = await prisma.trabajos.create({
             data: {
-                titulo : dataConvocatoriaParsed.tituloPropuesta,
-                tipo : dataConvocatoriaParsed.tipo,
-                coautores : coautoresString,
+                titulo: dataConvocatoriaParsed.tituloPropuesta,
+                tipo: dataConvocatoriaParsed.tipo,
+                coautores: coautoresString,
                 convocatoriaId: convocatoriaId,
-                usuarioId: userId,  
+                usuarioId: userId,
                 archivo_url: relativePath,
-                estado: "EN_REVISION",  
+                estado: "EN_REVISION",
                 version: 1
             }
         });
+
+        // Enviar correo de confirmación a todos los autores
+        const { html, text } = emailPropuestaRecibida({
+            nombreAutor:session.user.name,
+            tituloTrabajo: trabajo.titulo,
+        });
+
+        const emailResult = await sendEmail({
+            to: session.user.email,
+            subject: `Propuesta Recibida - ${trabajo.estado}`,
+            html,
+            text,
+        });
+
 
         return NextResponse.json(
             {

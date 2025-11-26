@@ -121,7 +121,7 @@ export default function MisAsignaciones() {
         {/* Contenedor principal dividido */}
         <div className="flex-1 flex overflow-hidden">
           {/* Panel izquierdo: PDF */}
-          <div className="w-1/2 p-4 flex flex-col">
+          <div className="w-4/7 p-4 flex flex-col">
             <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
               <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
               <p className="text-blue-100 text-sm">
@@ -138,7 +138,7 @@ export default function MisAsignaciones() {
           </div>
 
           {/* Panel derecho: Rúbrica */}
-          <div className="w-1/2 flex flex-col p-4">
+          <div className="w-3/7 flex flex-col p-4">
             <CardRubric
               asignacion={selectedAsignacion}
               onSubmit={handleSubmitEvaluacion}

@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@prisma/client": "^6.17.1",
+    "@react-email/components": "^1.0.1",
     "bcryptjs": "^3.0.2",
     "lucide-react": "^0.545.0",
     "next": "15.5.5",
     "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-email": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
