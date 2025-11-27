@@ -1,17 +1,19 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { FileText, User, UserCheck} from 'lucide-react';
+import { FileText, User, UserCheck } from 'lucide-react';
 import { CardNotAssignmet, CardReviewer } from '@/components/ui/cards/cardAssignment';
 import ModalComfirm from '@/components/ui/utils/modalComfirm';
 import Alert from '@/components/ui/utils/alert';
+import Loading from '@/components/ui/utils/loading';
+import LoadError from '@/components/ui/utils/loadingError';
 // Componente Principal
 export default function AsignarRevisores() {
   const [trabajosSinAsignar, setTrabajosSinAsignar] = useState([]);
   const [revisores, setRevisores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);// Estado de carga inicial
+  const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showAlert, setShowAlert] = useState(false);
   const [selectedTrabajo, setSelectedTrabajo] = useState(null);
   const [selectedRevisor, setSelectedRevisor] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -47,7 +49,7 @@ export default function AsignarRevisores() {
 
     } catch (error) {
       console.error('Error al cargar datos:', error);
-      setError('Error al cargar la información');
+      setErrorLoading(true);
     } finally {
       setLoading(false);
     }
@@ -108,15 +110,14 @@ export default function AsignarRevisores() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando información...</p>
-        </div>
-      </div>
+      <Loading />
     );
   }
-
+  if (errorLoading) {
+    return (
+      <LoadError error="Error al cargar los datos." />
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -137,9 +138,6 @@ export default function AsignarRevisores() {
           type={error ? 'error' : 'success'}
           message={error || success}
           isVisible={error || success}
-          onClose={() => {
-            setTimeout(() => { setShowAlert(!showAlert); }, 300)
-          }}
         />
 
 

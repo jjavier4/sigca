@@ -6,11 +6,13 @@ import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import FormTextArea from '@/components/ui/form/FormTextArea'
 import { FileText, Calendar, AlertCircle } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-
+import Loading from '@/components/ui/utils/loading'
+import LoadingError from '@/components/ui/utils/loadingError'
 export default function ManageConvocatories() {
     const { data: session } = useSession()
-
-    const [isLoading, setIsLoading] = useState(false)
+    const [loading, setLoading] = useState(false) // Estado de carga inicial
+    const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
+    const [isLoading, setIsLoading] = useState(false) // Estado de carga para las operaciones de actualización
     const [convocatories, setConvocatories] = useState([])
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
@@ -41,6 +43,7 @@ export default function ManageConvocatories() {
     }
 
     const findConvocatories = async () => {
+        setLoading(true)
         try {
             const response = await fetch('/api/convocatories/findall', {
                 method: 'GET',
@@ -58,7 +61,9 @@ export default function ManageConvocatories() {
             }, 3000)
         } catch (error) {
             console.error('Error al traer convocatorias:', error)
-            setError('Error al cargar convocatorias')
+            setErrorLoading(true)
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -113,7 +118,16 @@ export default function ManageConvocatories() {
     useEffect(() => {
         findConvocatories()
     }, [error, success])
-
+    if (loading) {
+        return (
+            <Loading />
+        )
+    }
+    if (errorLoading) {
+        return (
+            <LoadingError error="Error al cargar las convocatorias." />
+        )
+    }
     return (
         <div>
             <Alert

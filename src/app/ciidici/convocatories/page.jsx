@@ -3,10 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, FileText, Clock, Tag, ChevronRight } from 'lucide-react';
 import { CardConvocatorie, ModalConvocatorie } from '@/components/ui/cards/cardConvocatorie';
 import { useSession } from 'next-auth/react';
+import Loading from '@/components/ui/utils/loading';
+import LoadingError from '@/components/ui/utils/loadingError';
 export default function ViewConvocatorias() {
   const { data: session, status } = useSession();
   const [convocatorias, setConvocatorias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedConvocatoria, setSelectedConvocatoria] = useState(null);
   const [filtro, setFiltro] = useState('todas'); // todas, abiertas, cerradas
@@ -28,7 +31,7 @@ export default function ViewConvocatorias() {
       }
     } catch (error) {
       console.error('Error al cargar convocatorias:', error);
-      setError('Error al cargar convocatorias');
+      setErrorLoading(true);
     } finally {
       setLoading(false);
     }
@@ -49,22 +52,13 @@ export default function ViewConvocatorias() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando convocatorias...</p>
-        </div>
-      </div>
-    );
+      <Loading />
+    )
   }
 
-  if (error) {
+  if (errorLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <p className="text-red-800 font-medium">{error}</p>
-        </div>
-      </div>
+      <LoadingError error={'Error al cargar convocatorias '} />
     );
   }
 

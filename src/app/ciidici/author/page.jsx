@@ -1,14 +1,17 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import  CardWork from '@/components/ui/cards/cardWork';
+import CardWork from '@/components/ui/cards/cardWork';
 import CardInfo from '@/components/ui/cards/cardInfo';
+import Loading from '@/components/ui/utils/loading';
+import LoadingError from '@/components/ui/utils/loadingError';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 export default function DashboardAuthor() {
 
   const { data: session } = useSession();
   const [trabajos, setTrabajos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);// Estado de carga inicial
+  const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
   const [error, setError] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
   const [itemSelected, setItemSelected] = useState(null);
@@ -32,7 +35,7 @@ export default function DashboardAuthor() {
       }
     } catch (error) {
       console.error('Error al cargar trabajos:', error);
-      setError('Error al cargar tus trabajos');
+      setErrorLoading(true);
     } finally {
       setLoading(false);
     }
@@ -57,24 +60,16 @@ export default function DashboardAuthor() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando tus trabajos...</p>
-        </div>
-      </div>
+      <Loading />
     );
   }
 
-  if (error) {
+  if (errorLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <p className="text-red-800 font-medium">{error}</p>
-        </div>
-      </div>
+      <LoadingError error="Error al cargar los trabajos." />
     );
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -88,11 +83,11 @@ export default function DashboardAuthor() {
 
         {/* Estadísticas */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado==='TODOS'}/>
-          <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado==='EN_REVISION'}/>
-          <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado==='ACEPTADO'}/>
-          <CardInfo title="Con Cambios" stats={stats.cambios} classN="border-orange-400" onclick={() => setFiltroEstado('CAMBIOS_SOLICITADOS')} select={filtroEstado==='CAMBIOS_SOLICITADOS'}/>
-          <CardInfo title="Rechazados" stats={stats.rechazados} classN="border-red-400" onclick={() => setFiltroEstado('RECHAZADO')} select={filtroEstado==='RECHAZADO'}/>
+          <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado === 'TODOS'} />
+          <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado === 'EN_REVISION'} />
+          <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado === 'ACEPTADO'} />
+          <CardInfo title="Con Cambios" stats={stats.cambios} classN="border-orange-400" onclick={() => setFiltroEstado('CAMBIOS_SOLICITADOS')} select={filtroEstado === 'CAMBIOS_SOLICITADOS'} />
+          <CardInfo title="Rechazados" stats={stats.rechazados} classN="border-red-400" onclick={() => setFiltroEstado('RECHAZADO')} select={filtroEstado === 'RECHAZADO'} />
         </div>
 
         {/* Grid de Cards */}
@@ -110,10 +105,10 @@ export default function DashboardAuthor() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trabajosFiltrados.map((trabajo,numWork) => (
+            {trabajosFiltrados.map((trabajo, numWork) => (
               <CardWork
                 key={trabajo.id}
-                numWork={numWork+1}
+                numWork={numWork + 1}
                 trabajo={trabajo}
               />
             ))}
@@ -121,7 +116,7 @@ export default function DashboardAuthor() {
         )}
       </div>
 
-    
+
     </div>
   );
 }

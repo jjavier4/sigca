@@ -6,12 +6,15 @@ import Alert from '@/components/ui/utils/alert';
 import CardInfo from '@/components/ui/cards/cardInfo';
 import CardAssigment from '@/components/ui/reviewer/cardAssigment';
 import CardRubric from '@/components/ui/reviewer/cardRubric';
+import Loading from '@/components/ui/utils/loading';
+import LoadError from '@/components/ui/utils/loadingError';
 
 
 export default function MisAsignaciones() {
   const { data: session } = useSession();
   const [asignaciones, setAsignaciones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODAS');
@@ -39,7 +42,7 @@ export default function MisAsignaciones() {
     } catch (error) {
       console.error('Error al cargar asignaciones:', error);
       setShowAlert(true);
-      setError('Error al cargar las asignaciones');
+      setErrorLoading(true);
     } finally {
       setLoading(false);
     }
@@ -95,12 +98,13 @@ export default function MisAsignaciones() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando asignaciones...</p>
-        </div>
-      </div>
+      <Loading />
+    );
+  }
+
+  if (errorLoading) {
+    return (
+      <LoadError error="Error al cargar las asignaciones." />
     );
   }
 

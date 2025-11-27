@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { FileText, Calendar, RefreshCw, CheckCircle, XCircle, Clock, AlertCircle, Eye,Settings } from 'lucide-react';
+import { FileText, Calendar, RefreshCw, CheckCircle, XCircle, Clock, AlertCircle, Eye, Settings, Coins, } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo,numWork }) {
+export default function CardWork({ trabajo, numWork }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -13,7 +13,7 @@ export default function CardWork({ trabajo,numWork }) {
       minute: '2-digit'
     });
   };
-
+  const estadoPago = true; // cambiar a trabajo.estadoPago cuando esté implementado
   const getEstadoConfig = (estado) => {
     const configs = {
       EN_REVISION: {
@@ -40,7 +40,19 @@ export default function CardWork({ trabajo,numWork }) {
     return configs[estado] || configs.EN_REVISION;
   };
 
+  const getEstadoPago = (estadoPago) => {
+    if (estadoPago) return {
+      color: 'bg-green-100 text-green-800 border-green-200',
+      icon: <CheckCircle size={18} />
+    }
+    return {
+      color: 'bg-red-100 text-red-800 border-red-200',
+      icon: <XCircle size={18} />
+    };
+  }
+
   const estadoConfig = getEstadoConfig(trabajo.estado);
+  const estadoPagoConfig = getEstadoPago(estadoPago);
 
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -51,6 +63,15 @@ export default function CardWork({ trabajo,numWork }) {
             <FileText size={20} />
             <span className="font-semibold">Trabajo # {numWork}</span>
           </div>
+          {
+            trabajo.estado === 'ACEPTADO' && (
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoPagoConfig.color}`}>
+                <span className="text-sm font-semibold">Pagado</span>
+                {estadoPagoConfig.icon}
+              </div>
+            )
+          }
+
           <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoConfig.color}`}>
             {estadoConfig.icon}
             <span className="text-sm font-semibold">{estadoConfig.texto}</span>
@@ -100,16 +121,18 @@ export default function CardWork({ trabajo,numWork }) {
           </div>
         </div>
 
-        {/* Botón ver detalles */}
-        <div className="pt-4 border-t border-gray-200">
-          <button
-            onClick={() => onViewDetails(trabajo)}
-            className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors group"
-          >
-            <Settings className="mr-2" size={18} />
-            Modificar Trabajo
-          </button>
-        </div>
+        {
+          trabajo.estado === 'ACEPTADO' && (
+            <div className="pt-4 border-t border-gray-200">
+              <button
+                onClick={() => onViewDetails(trabajo)}
+                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors group"
+              >
+                <Coins className="mr-2" size={18} />
+                Generar referencia de pago
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );

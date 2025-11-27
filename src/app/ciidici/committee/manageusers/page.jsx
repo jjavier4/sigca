@@ -6,10 +6,14 @@ import { href } from '@/utils/route'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import { useSession } from 'next-auth/react';
+import Loading from '@/components/ui/utils/loading';
+import LoadingError from '@/components/ui/utils/loadingError';
 export default function ManageUsers() {
     const { data: session } = useSession();
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false) // Estado de carga inicial
+    const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
+    const [isLoading, setIsLoading] = useState(false) // Estado de carga para las operaciones de actualización
     const [users, setUsers] = useState([]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -39,6 +43,7 @@ export default function ManageUsers() {
     }
 
     const findUserforRole = async () => {
+        setLoading(true);
         try {
             const response = await fetch(`/api/user/findforroles?roles=REVISOR,AUTOR`, {
                 method: 'GET',
@@ -57,6 +62,9 @@ export default function ManageUsers() {
 
         } catch (error) {
             console.error('Error al traer usuarios:', error);
+            setErrorLoading(true);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -73,7 +81,7 @@ export default function ManageUsers() {
                 body: JSON.stringify({
                     id: selectedUserEdit.id,
                     email: selectedUserEdit.email,
-                    rol:selectedUserEdit.rol,
+                    rol: selectedUserEdit.rol,
                 }),
             });
 
@@ -81,12 +89,12 @@ export default function ManageUsers() {
 
             if (response.ok) {
                 setSuccess(data.message);
-            }else {
+            } else {
                 setError(data.error);
-            }            
+            }
 
             setSelectedUserEdit({
-                id:'',
+                id: '',
                 nombre: '',
                 institucion: '',
                 rol: '',
@@ -99,7 +107,7 @@ export default function ManageUsers() {
             }, 3000);
 
         } catch (err) {
-            setError( 'Error al registrar usuario');
+            setError('Error al registrar usuario');
         } finally {
             setIsLoading(false);
         }
@@ -108,6 +116,17 @@ export default function ManageUsers() {
     useEffect(() => {
         findUserforRole();
     }, [error, success]);
+    if (loading) {
+        return (
+            <Loading />
+        )
+    }
+    if (errorLoading) {
+        return (
+            <LoadingError error="Error al cargar los usuarios." />
+        )
+    }
+
     return (
         <div>
             <Alert
