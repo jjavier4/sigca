@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Calendar, FileText, Clock, Tag, ChevronRight, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
-import FormLabelInput from '@/components/ui/FormLabelInput';
-import Alert from '@/components/ui/alert';
+import FormLabelInput from '@/components/ui/form/FormLabelInput';
+import Alert from '@/components/ui/utils/alert';
 // Componente Card de Convocatoria
 export function CardConvocatorie({ convocatoria, onClick }) {
   const formatDate = (dateString) => {

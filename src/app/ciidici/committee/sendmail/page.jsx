@@ -1,9 +1,9 @@
 // app/dashboard/comite/invitar-revisores/page.jsx
 "use client";
 import React, { useState } from 'react';
-import FormLabelInput from '@/components/ui/FormLabelInput';
+import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import { User, Mail, PlusCircle, MinusCircleIcon, Send, Loader } from 'lucide-react';
-import Alert from '@/components/ui/alert';
+import Alert from '@/components/ui/utils/alert';
 
 export default function InvitarRevisoresPage() {
   const [revisores, setRevisores] = useState([

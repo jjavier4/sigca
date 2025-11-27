@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Calendar, FileText, Clock, Tag, ChevronRight } from 'lucide-react';
-import { CardConvocatorie, ModalConvocatorie } from '@/components/ui/cardConvocatorie';
+import { CardConvocatorie, ModalConvocatorie } from '@/components/ui/cards/cardConvocatorie';
 import { useSession } from 'next-auth/react';
 export default function ViewConvocatorias() {
   const { data: session, status } = useSession();

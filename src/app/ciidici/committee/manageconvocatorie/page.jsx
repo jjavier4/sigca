@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import RowConvocatorie from '@/components/ui/rowConvocatorie'
-import Alert from '@/components/ui/alert'
-import FormLabelInput from '@/components/ui/FormLabelInput'
-import FormTextArea from '@/components/ui/FormTextArea'
+import RowConvocatorie from '@/components/ui/utils/rowConvocatorie'
+import Alert from '@/components/ui/utils/alert'
+import FormLabelInput from '@/components/ui/form/FormLabelInput'
+import FormTextArea from '@/components/ui/form/FormTextArea'
 import { FileText, Calendar, AlertCircle } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 

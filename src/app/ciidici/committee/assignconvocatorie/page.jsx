@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { FileText, User, UserCheck} from 'lucide-react';
-import { CardNotAssignmet, CardReviewer } from '@/components/ui/cardAssignment';
-import ModalComfirm from '@/components/ui/modalComfirm';
-import Alert from '@/components/ui/alert';
+import { CardNotAssignmet, CardReviewer } from '@/components/ui/cards/cardAssignment';
+import ModalComfirm from '@/components/ui/utils/modalComfirm';
+import Alert from '@/components/ui/utils/alert';
 // Componente Principal
 export default function AsignarRevisores() {
   const [trabajosSinAsignar, setTrabajosSinAsignar] = useState([]);

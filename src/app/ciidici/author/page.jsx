@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import  CardWork from '@/components/ui/cardWork';
-import CardInfo from '@/components/ui/cardInfo';
+import  CardWork from '@/components/ui/cards/cardWork';
+import CardInfo from '@/components/ui/cards/cardInfo';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 export default function DashboardAuthor() {

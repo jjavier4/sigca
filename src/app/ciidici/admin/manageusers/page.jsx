@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import RowUser from '@/components/ui/rowUser'
-import Alert from '@/components/ui/alert'
+import RowUser from '@/components/ui/utils/rowUser'
+import Alert from '@/components/ui/utils/alert'
 import { href } from '@/utils/route'
-import FormLabelInput from '@/components/ui/FormLabelInput'
+import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
 import { useSession } from 'next-auth/react';
 export default function ManageUsers() {

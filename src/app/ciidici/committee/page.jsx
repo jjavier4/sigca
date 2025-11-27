@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import Alert from '@/components/ui/alert'
+import Alert from '@/components/ui/utils/alert'
 import { href } from '@/utils/route'
 import { useSession } from 'next-auth/react';
 

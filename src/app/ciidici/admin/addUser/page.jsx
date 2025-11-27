@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import FormLabelInput from '@/components/ui/FormLabelInput';
+import FormLabelInput from '@/components/ui/form/FormLabelInput';
 
 export default function AddUser() {
     const [isLoading, setIsLoading] = useState(false);

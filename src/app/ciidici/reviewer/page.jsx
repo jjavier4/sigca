@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { FileText} from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import Alert from '@/components/ui/alert';
-import CardInfo from '@/components/ui/cardInfo';
+import Alert from '@/components/ui/utils/alert';
+import CardInfo from '@/components/ui/cards/cardInfo';
 import CardAssigment from '@/components/ui/reviewer/cardAssigment';
 import CardRubric from '@/components/ui/reviewer/cardRubric';
 

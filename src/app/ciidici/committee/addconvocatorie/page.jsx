@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Calendar, FileText, Users, Tag, AlertCircle, CheckCircle, Edit2Icon } from 'lucide-react';
-import Alert from '@/components/ui/alert';
+import Alert from '@/components/ui/utils/alert';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import FormLabelInput from '@/components/ui/FormLabelInput';
-import FormTextArea from '@/components/ui/FormTextArea';
+import FormLabelInput from '@/components/ui/form/FormLabelInput';
+import FormTextArea from '@/components/ui/form/FormTextArea';
 import { href } from '@/utils/route';
 export default function ConvocatoriaForm() {
   const router = useRouter();

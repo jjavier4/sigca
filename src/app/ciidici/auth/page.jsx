@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, User, AlertCircle, CheckCircle, FileText, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import FormLabelInput from '@/components/ui/FormLabelInput';
+import FormLabelInput from '@/components/ui/form/FormLabelInput';
 
 export default function AuthPage() {
   const router = useRouter();
