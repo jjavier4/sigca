@@ -1,14 +1,13 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { FileText} from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Alert from '@/components/ui/utils/alert';
 import CardInfo from '@/components/ui/cards/cardInfo';
 import CardAssigment from '@/components/ui/reviewer/cardAssigment';
 import CardRubric from '@/components/ui/reviewer/cardRubric';
 import Loading from '@/components/ui/utils/loading';
-import LoadError from '@/components/ui/utils/loadingError';
-
+import LoadingError from '@/components/ui/utils/loadingError';
 
 export default function MisAsignaciones() {
   const { data: session } = useSession();
@@ -36,6 +35,7 @@ export default function MisAsignaciones() {
 
       if (response.ok) {
         setAsignaciones(data.asignaciones);
+        console.log(data.asignaciones);
       } else {
         setError(data.error);
       }
@@ -82,15 +82,14 @@ export default function MisAsignaciones() {
   const asignacionesFiltradas = asignaciones.filter((asig) => {
     if (filtroEstado === 'TODAS') return true;
     if (filtroEstado === 'ACTIVAS') return asig.activa;
-    return asig.trabajo.estado === filtroEstado;
+    if (filtroEstado === 'EVALUADAS') return asig.activa === false;
   });
 
   const getEstadisticas = () => {
     return {
       total: asignaciones.length,
       activas: asignaciones.filter(a => a.activa).length,
-      enRevision: asignaciones.filter(a => a.trabajo.estado === 'EN_REVISION').length,
-      evaluadas: asignaciones.filter(a => a.trabajo.estado !== 'EN_REVISION').length
+      evaluadas: asignaciones.filter(a => a.activa == false).length
     };
   };
 
@@ -104,7 +103,7 @@ export default function MisAsignaciones() {
 
   if (errorLoading) {
     return (
-      <LoadError error="Error al cargar las asignaciones." />
+      <LoadingError error="Error al cargar las asignaciones." />
     );
   }
 
@@ -125,21 +124,28 @@ export default function MisAsignaciones() {
         {/* Contenedor principal dividido */}
         <div className="flex-1 flex overflow-hidden">
           {/* Panel izquierdo: PDF */}
-          <div className="w-4/7 p-4 flex flex-col">
-            <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
-              <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
-              <p className="text-blue-100 text-sm">
-                Versión {selectedAsignacion.trabajo.version}
-              </p>
-            </div>
-            <div className="flex-1 bg-white rounded-b-lg overflow-hidden">
-              <iframe
-                src={selectedAsignacion.trabajo.archivo_url}
-                className="w-full h-full"
-                title="PDF Viewer"
-              />
-            </div>
-          </div>
+          {
+            selectedAsignacion.trabajo.archivo_url ? (
+              <div className="w-4/7 p-4 flex flex-col">
+                <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
+                  <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
+                  <p className="text-blue-100 text-sm">
+                    Versión {selectedAsignacion.trabajo.version}
+                  </p>
+                </div>
+                <div className="flex-1 bg-white rounded-b-lg overflow-hidden">
+                  <iframe
+                    src={selectedAsignacion.trabajo.archivo_url}
+                    className="w-full h-full"
+                    title="PDF Viewer"
+                  />
+                </div>
+              </div>
+            ) : (
+              <LoadingError error="Error al cargar el PDF" />
+            )
+          }
+          
 
           {/* Panel derecho: Rúbrica */}
           <div className="w-3/7 flex flex-col p-4">
@@ -179,12 +185,11 @@ export default function MisAsignaciones() {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODAS')} select={filtroEstado === 'TODAS'} />
-          <CardInfo title="Activas" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('ACTIVAS')} select={filtroEstado === 'ACTIVAS'} />
-          <CardInfo title="En revision" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado === 'EN_REVISION'} />
-          <CardInfo title="Evaluadas" stats={stats.cambios} classN="border-orange-400" onclick={() => setFiltroEstado('EVALUADAS')} select={filtroEstado === 'EVALUADAS'} />
+          <CardInfo title="Activas" stats={stats.activas} classN="border-blue-400" onclick={() => setFiltroEstado('ACTIVAS')} select={filtroEstado === 'ACTIVAS'} />
+          <CardInfo title="Evaluadas" stats={stats.evaluadas} classN="border-orange-400" onclick={() => setFiltroEstado('EVALUADAS')} select={filtroEstado === 'EVALUADAS'} />
         </div>
 
-        
+
 
         {/* Grid de Cards */}
         {asignacionesFiltradas.length === 0 ? (

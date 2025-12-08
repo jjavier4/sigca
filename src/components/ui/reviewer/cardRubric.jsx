@@ -1,41 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Send, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Send, AlertCircle, Loader2 } from 'lucide-react';
+import Loading from '../utils/loading';
+import LoadingError from '@/components/ui/utils/loadingError';
 export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }) {
-    // Criterios de evaluación predefinidos
-    const CRITERIOS_EVALUACION = [
-        {
-            id: 'originalidad',
-            nombre: 'Originalidad y aporte científico',
-            descripcion: 'El trabajo presenta contribuciones novedosas y relevantes'
-        },
-        {
-            id: 'metodologia',
-            nombre: 'Metodología',
-            descripcion: 'La metodología es clara, apropiada y bien fundamentada'
-        },
-        {
-            id: 'claridad',
-            nombre: 'Claridad y organización',
-            descripcion: 'El documento está bien estructurado y es fácil de comprender'
-        },
-        {
-            id: 'fundamentacion',
-            nombre: 'Fundamentación teórica',
-            descripcion: 'El marco teórico es sólido y las referencias son apropiadas'
-        },
-        {
-            id: 'resultados',
-            nombre: 'Resultados y análisis',
-            descripcion: 'Los resultados son claros y el análisis es profundo'
-        },
-        {
-            id: 'redaccion',
-            nombre: 'Redacción y formato',
-            descripcion: 'La redacción es académica y el formato cumple los requisitos'
-        }
-    ];
-
     const OPCIONES_RUBRICA = [
         { valor: 5, etiqueta: 'Siempre' },
         { valor: 4, etiqueta: 'Casi siempre' },
@@ -43,18 +11,48 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         { valor: 2, etiqueta: 'A veces' },
         { valor: 1, etiqueta: 'Nunca' }
     ];
+
+    const [criteriosEvaluacion, setCriteriosEvaluacion] = useState([]);
+    const [loadingCriterios, setLoadingCriterios] = useState(true);
+    const [errorLoadingCriterios, setErrorLoadingCriterios] = useState('');
     const [evaluaciones, setEvaluaciones] = useState({});
     const [comentarios, setComentarios] = useState('');
     const [error, setError] = useState('');
 
-    // Inicializar evaluaciones vacías
+    // Cargar criterios activos desde la API
     useEffect(() => {
-        const initialEvaluaciones = {};
-        CRITERIOS_EVALUACION.forEach(criterio => {
-            initialEvaluaciones[criterio.id] = null;
-        });
-        setEvaluaciones(initialEvaluaciones);
+        fetchCriteriosActivos();
     }, []);
+
+    const fetchCriteriosActivos = async () => {
+        try {
+            const response = await fetch('/api/rubric/findall');
+            
+            if (response.ok) {
+                const result = await response.json();
+                const criteriosActivos = result.data.activas;
+                
+                if (criteriosActivos.length === 0) {
+                    setErrorLoadingCriterios('No hay criterios de evaluación activos. Por favor contacta al administrador.');
+                } else {
+                    setCriteriosEvaluacion(criteriosActivos);
+                    // Inicializar evaluaciones vacías
+                    const initialEvaluaciones = {};
+                    criteriosActivos.forEach(criterio => {
+                        initialEvaluaciones[criterio.id] = null;
+                    });
+                    setEvaluaciones(initialEvaluaciones);
+                }
+            } else {
+                setErrorLoadingCriterios('Error al cargar los criterios de evaluación');
+            }
+        } catch (error) {
+            console.error('Error al cargar criterios:', error);
+            setErrorLoadingCriterios('Error de conexión al cargar criterios');
+        } finally {
+            setLoadingCriterios(false);
+        }
+    };
 
     const handleEvaluacionChange = (criterioId, valor) => {
         setEvaluaciones(prev => ({
@@ -68,13 +66,13 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         const valores = Object.values(evaluaciones).filter(v => v !== null);
         if (valores.length === 0) return 0;
         const suma = valores.reduce((acc, val) => acc + val, 0);
-        const maximo = CRITERIOS_EVALUACION.length * 5;
+        const maximo = criteriosEvaluacion.length * 5;
         return (suma / maximo) * 100;
     };
 
     const handleSubmit = () => {
         // Validar que todos los criterios estén evaluados
-        const criteriosVacios = CRITERIOS_EVALUACION.filter(
+        const criteriosVacios = criteriosEvaluacion.filter(
             criterio => evaluaciones[criterio.id] === null
         );
 
@@ -109,14 +107,28 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         });
     };
 
+    // Mostrar loading mientras se cargan los criterios
+    if (loadingCriterios) {
+        return (
+            <Loading />
+        );
+    }
+
+    // Mostrar error si no hay criterios
+    if (errorLoadingCriterios) {
+        return (
+            <LoadingError error={errorLoadingCriterios} />
+        );
+    }
+
     const puntajeTotal = calcularPuntajeTotal();
     const criteriosEvaluados = Object.values(evaluaciones).filter(v => v !== null).length;
-    const totalCriterios = CRITERIOS_EVALUACION.length;
+    const totalCriterios = criteriosEvaluacion.length;
 
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Header */}
-            <div className="bg-gradient-to-r rounded-t-lg bg-green-700 p-4 ">
+            <div className="bg-gradient-to-r rounded-t-lg bg-green-700 p-4">
                 <div className="flex items-center justify-between mb-2">
                     <h2 className="text-xl font-bold text-white">Rúbrica de Evaluación</h2>
                     <button
@@ -176,7 +188,7 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                                 </tr>
                             </thead>
                             <tbody>
-                                {CRITERIOS_EVALUACION.map((criterio, index) => (
+                                {criteriosEvaluacion.map((criterio, index) => (
                                     <tr key={criterio.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                         <td className="px-4 py-4 border-b border-r">
                                             <div className="font-semibold text-sm text-gray-800 mb-1">
@@ -223,7 +235,7 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                     </p>
                 </div>
 
-                {/* Resumen de Puntaje 
+                {/* Resumen de Evaluación */}
                 <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-5">
                     <h3 className="text-lg font-bold text-purple-900 mb-3">Resumen de Evaluación</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -249,7 +261,6 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                         <p>• 0-59%: Rechazado</p>
                     </div>
                 </div>
-                */}
             </div>
 
             {/* Footer con botones */}
