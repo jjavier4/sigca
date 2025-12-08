@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Home, UserPlus, Settings, Users, LucideFileUp, UserCog,Mail } from 'lucide-react';
+import { Home, UserPlus, Settings, Users, LucideFileUp, UserCog,Mail,FileDiff } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
 export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
@@ -21,6 +21,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'add-convocatorie', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
         { id: 'manage-convocatories', icon: UserCog, label: 'Gestionar Convocatorias', page: `${baseUrl}/manageconvocatorie` },
         { id: 'assign-convocatories', icon: LucideFileUp, label: 'Asignar Convocatorias', page: `${baseUrl}/assignconvocatorie` },
+        { id: 'rubric', icon: FileDiff, label: 'Citerios Evaluacion', page: `${baseUrl}/rubric` },
         { id: 'send-mail', icon: Mail, label: 'Invitar revisores', page: `${baseUrl}/sendmail` },
       )
     }

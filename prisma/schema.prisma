@@ -102,3 +102,14 @@ model Asignaciones {
   @@index([activa])
   @@unique([trabajoId, revisorId])
 }
+
+model Rubrica {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String
+  estado      Boolean  @default(false) // false = inactivo (izquierda), true = activo (derecha)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("rubricas")
+}
