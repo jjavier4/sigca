@@ -35,13 +35,7 @@ export async function GET(request) {
                         convocatoria: {
                             select: {
                                 titulo: true,
-                                descripcion: true,
-                                areas_tematicas: true
-                            }
-                        },
-                        comentarios: {
-                            orderBy: {
-                                createdAt: 'desc'
+                                descripcion: true
                             }
                         }
                     }

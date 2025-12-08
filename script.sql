@@ -65,9 +65,51 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Comentarios para documentación
-COMMENT ON SEQUENCE usuario_sequence IS 'Secuencia para numeración de usuarios del 1 al 100, se reinicia automáticamente';
-COMMENT ON FUNCTION generar_usuario_id(TEXT) IS 'Genera un ID único para usuario con formato: año-identificador-numero donde identificador puede ser RFC o CURP';
-COMMENT ON FUNCTION reiniciar_secuencia_anual() IS 'Reinicia la secuencia de usuarios a 1, debe ejecutarse al inicio de cada año';
-COMMENT ON FUNCTION validar_formato_rfc(TEXT) IS 'Valida que un RFC tenga el formato correcto (12 o 13 caracteres)';
-COMMENT ON FUNCTION validar_formato_curp(TEXT) IS 'Valida que un CURP tenga el formato correcto (18 caracteres)';
+-- ============================================
+-- SECUENCIAS Y FUNCIONES PARA CONVOCATORIAS
+-- ============================================
+
+-- Crear la secuencia de convocatorias
+CREATE SEQUENCE IF NOT EXISTS convocatoria_sequence
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999
+  CYCLE;
+
+-- Función para generar ID de convocatoria: año-numero
+CREATE OR REPLACE FUNCTION generar_convocatoria_id()
+RETURNS TEXT AS $$
+DECLARE
+  anio_actual TEXT;
+  numero_secuencia TEXT;
+  nuevo_id TEXT;
+BEGIN
+  anio_actual := EXTRACT(YEAR FROM CURRENT_DATE)::TEXT;
+  numero_secuencia := LPAD(nextval('convocatoria_sequence')::TEXT, 3, '0');
+  nuevo_id := anio_actual || '-' || numero_secuencia;
+  
+  RETURN nuevo_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Función para reiniciar secuencia de convocatorias (ejecutar anualmente)
+CREATE OR REPLACE FUNCTION reiniciar_secuencia_convocatorias()
+RETURNS void AS $$
+BEGIN
+  ALTER SEQUENCE convocatoria_sequence RESTART WITH 1;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ============================================
+-- COMENTARIOS DE DOCUMENTACIÓN
+-- ============================================
+
+COMMENT ON SEQUENCE usuario_sequence IS 'Secuencia para numeración de usuarios del 1 al 100';
+COMMENT ON SEQUENCE convocatoria_sequence IS 'Secuencia para numeración de convocatorias del 1 al 999';
+COMMENT ON FUNCTION generar_usuario_id(TEXT) IS 'Genera ID único: año-identificador-numero (ej: 2025-PAJA850101XXX-001)';
+COMMENT ON FUNCTION generar_convocatoria_id() IS 'Genera ID único: año-numero (ej: 2025-001)';
+COMMENT ON FUNCTION reiniciar_secuencia_anual() IS 'Reinicia secuencia de usuarios al inicio del año';
+COMMENT ON FUNCTION reiniciar_secuencia_convocatorias() IS 'Reinicia secuencia de convocatorias al inicio del año';
+COMMENT ON FUNCTION validar_formato_rfc(TEXT) IS 'Valida formato RFC de 13 caracteres';
+COMMENT ON FUNCTION validar_formato_curp(TEXT) IS 'Valida formato CURP de 18 caracteres';

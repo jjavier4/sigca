@@ -102,7 +102,7 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
 
             <p>Puede consultar el estado de su propuesta en cualquier momento ingresando a su panel de autor.</p>
 
-            <a href="${process.env.NEXTAUTH_URL}/dashboard/autor" class="button">Ver mis propuestas</a>
+            <a href="${process.env.NEXTAUTH_URL}/ciidici/auth" class="button">Ver mis propuestas</a>
 
             <p>Si tiene alguna pregunta, no dude en contactarnos.</p>
 

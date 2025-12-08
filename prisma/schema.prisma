@@ -35,13 +35,12 @@ enum Rol {
 }
 
 model Convocatorias {
-  id              String   @id @default(uuid())
+  id              String   @id // Formato: 2025-001
   titulo          String
   descripcion     String   @db.Text
   fecha_inicio    DateTime
   fecha_cierre    DateTime
-  areas_tematicas String[]
-  requisitos      String   @db.Text
+  archivo_url     String   // PDF de la convocatoria
   activa          Boolean  @default(true)
   
   createdAt       DateTime @default(now())
@@ -54,11 +53,11 @@ model Convocatorias {
 model Trabajos {
   id                String   @id @default(uuid())
   archivo_url       String
-  version           Int      @default(1)
   estado            EstadoTrabajo @default(EN_REVISION)
   titulo            String
   tipo              String
-  coautores         String
+  coautores         String[] @default([]) // Array de nombres de coautores
+  
   // Relaciones (Foreign Keys)
   usuarioId         String
   usuario           Usuarios @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
@@ -69,9 +68,6 @@ model Trabajos {
   // Relación con Asignaciones
   asignaciones      Asignaciones[] @relation("TrabajoAsignaciones")
   
-  // Relación con Comentarios
-  comentarios       Comentarios[]
-  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   
@@ -80,29 +76,16 @@ model Trabajos {
   @@index([estado])
 }
 
-model Comentarios {
-  id          String   @id @default(uuid())
-  contenido   String   @db.Text
-  
-  // Relación solo con Trabajo (anónimo)
-  trabajoId   String
-  trabajo     Trabajos @relation(fields: [trabajoId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([trabajoId])
-}
-
 enum EstadoTrabajo {
   EN_REVISION
   ACEPTADO
-  CAMBIOS_SOLICITADOS
   RECHAZADO
 }
 
 model Asignaciones {
   id          String   @id @default(uuid())
   activa      Boolean  @default(true)
+  comentario  String?  @db.Text // Comentario del revisor
   
   // Relaciones (Foreign Keys)
   trabajoId   String
@@ -112,7 +95,7 @@ model Asignaciones {
   revisor     Usuarios @relation("RevisorAsignaciones", fields: [revisorId], references: [id], onDelete: Cascade)
   
   createdAt   DateTime @default(now())
-  closeAt     DateTime
+  closeAt     DateTime?
   
   @@index([trabajoId])
   @@index([revisorId])

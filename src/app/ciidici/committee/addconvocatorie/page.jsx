@@ -15,8 +15,7 @@ export default function ConvocatoriaForm() {
     descripcion: '',
     fecha_inicio: '',
     fecha_cierre: '',
-    areas_tematicas: '',
-    requisitos: '',
+    archivo_url: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -50,10 +49,6 @@ export default function ConvocatoriaForm() {
       }
     }
 
-
-    if (!registerData.areas_tematicas) {
-      newErrors.areas_tematicas = 'Debe especificar al menos un área temática';
-    }
 
     return newErrors;
   };
@@ -105,8 +100,6 @@ export default function ConvocatoriaForm() {
       descripcion: '',
       fecha_inicio: '',
       fecha_cierre: '',
-      areas_tematicas: '',
-      requisitos: '',
     });
     setErrors({});
     router.push(href(session?.user?.rol || '/'));
@@ -229,60 +222,6 @@ export default function ConvocatoriaForm() {
               </div>
             </div>
           </div>
-
-          <div >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Tag className="w-5 h-5 text-blue-600" />
-              Áreas Temáticas
-            </h2>
-
-            <div>
-              <FormTextArea
-                title={"Áreas Temáticas Aceptadas"}
-                children={<Edit2Icon className="absolute left-3 top-3 text-black" size={20} />}
-                value={registerData.areas_tematicas}
-                change={(e) => setRegisterData({ ...registerData, areas_tematicas: e.target.value })}
-                rows={4}
-                placeholder={"Ingrese las áreas temáticas separadas por líneas"}
-                required={true}
-              />
-              {errors.areas_tematicas && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4" />
-                  {errors.areas_tematicas}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-600" />
-              Requisitos y Documentos
-            </h2>
-
-            <div className="space-y-4">
-              <FormTextArea
-                title={"Requisitos de Participación"}
-                children={<Edit2Icon className="absolute left-3 top-3 text-black" size={20} />}
-                value={registerData.requisitos}
-                change={(e) => setRegisterData({ ...registerData, requisitos: e.target.value })}
-                rows={4}
-                placeholder={"Describa los requisitos que deben cumplir los participantes..."}
-                required={true}
-              />
-              <FormTextArea
-                title={"Criterios de Evaluación"}
-                children={<Edit2Icon className="absolute left-3 top-3 text-black" size={20} />}
-                value={registerData.criteriosEvaluacion}
-                change={(e) => setRegisterData({ ...registerData, criteriosEvaluacion: e.target.value })}
-                rows={4}
-                placeholder={"Describa los criterios que se utilizarán para evaluar las propuestas..."}
-                required={true}
-              />
-            </div>
-          </div>
-
 
           <div className="flex justify-end gap-3">
             <button

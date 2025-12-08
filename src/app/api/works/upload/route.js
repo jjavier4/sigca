@@ -129,12 +129,10 @@ export async function POST(request) {
             data: {
                 titulo: dataConvocatoriaParsed.tituloPropuesta,
                 tipo: dataConvocatoriaParsed.tipo,
-                coautores: coautoresString,
+                coautores: dataConvocatoriaParsed.coautores || [],
                 convocatoriaId: convocatoriaId,
                 usuarioId: userId,
-                archivo_url: relativePath,
-                estado: "EN_REVISION",
-                version: 1
+                archivo_url: relativePath
             }
         });
 

@@ -26,11 +26,6 @@ export default function CardWork({ trabajo, numWork }) {
         icon: <CheckCircle size={18} />,
         texto: 'Aceptado'
       },
-      CAMBIOS_SOLICITADOS: {
-        color: 'bg-orange-100 text-orange-800 border-orange-200',
-        icon: <AlertCircle size={18} />,
-        texto: 'Cambios Solicitados'
-      },
       RECHAZADO: {
         color: 'bg-red-100 text-red-800 border-red-200',
         icon: <XCircle size={18} />,
@@ -93,14 +88,17 @@ export default function CardWork({ trabajo, numWork }) {
 
         {/* Información del trabajo */}
         <div className="space-y-3 pt-3 border-t border-gray-200">
-          {/* Versión/Intentos */}
-          <div className="flex items-center text-gray-700">
-            <RefreshCw className="mr-3 text-purple-600" size={18} />
-            <div className="flex-1">
-              <span className="text-sm font-medium">Intento:</span>
-              <span className="ml-2 text-sm">{trabajo.version}</span>
+          {/* coautores*/}
+          {trabajo.coautores.length > 0 && (
+            <div>
+              <strong>Coautores:</strong>
+              <ul>
+                {trabajo.coautores.map((coautor, index) => (
+                  <li key={index}>{coautor}</li>
+                ))}
+              </ul>
             </div>
-          </div>
+          )}
 
           {/* Fecha de creación */}
           <div className="flex items-center text-gray-700">
