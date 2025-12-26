@@ -2,68 +2,53 @@ import { prisma } from '@/lib/db';
 
 export async function POST(request) {
   try {
-    const { trabajoId, revisor1Id, revisor2Id } = await request.json();
+    const { trabajoId, revisoresIds } = await request.json();
 
-    // Validaciones
-    if (!trabajoId || !revisor1Id || !revisor2Id) {
+    if (!trabajoId) {
       return Response.json(
-        { error: 'Debe proporcionar un trabajo y dos revisores' },
+        { error: 'Debe proporcionar un trabajo' },
         { status: 400 }
       );
     }
 
-    if (revisor1Id === revisor2Id) {
+    if (!revisoresIds || !Array.isArray(revisoresIds) || revisoresIds.length === 0) {
       return Response.json(
-        { error: 'Debe seleccionar dos revisores diferentes' },
+        { error: 'Debe proporcionar al menos un revisor' },
         { status: 400 }
       );
     }
 
-    
-    // Verificar disponibilidad de ambos revisores
-    const cargaRevisor1 = await prisma.asignaciones.count({
-      where: {
-        revisorId: revisor1Id,
-        activa: true,
-        
+    // Verificar que no haya IDs duplicados
+    const revisoresUnicos = new Set(revisoresIds);
+    if (revisoresUnicos.size !== revisoresIds.length) {
+      return Response.json(
+        { error: 'No se pueden asignar revisores duplicados' },
+        { status: 400 }
+      );
+    }
+
+    // Verificar disponibilidad de cada revisor (máximo 4 trabajos activos)
+    for (const revisorId of revisoresIds) {
+      const cargaRevisor = await prisma.asignaciones.count({
+        where: {
+          revisorId: revisorId,
+          activa: true
+        }
+      });
+
+      if (cargaRevisor >= 4) {
+        const revisor = await prisma.usuarios.findUnique({
+          where: { id: revisorId },
+          select: { nombre: true, apellidoP: true }
+        });
+
+        return Response.json(
+          { 
+            error: `El revisor ${revisor?.nombre} ${revisor?.apellidoP} ha alcanzado su límite de 4 trabajos activos` 
+          },
+          { status: 400 }
+        );
       }
-    });
-
-    const cargaRevisor2 = await prisma.asignaciones.count({
-      where: {
-        revisorId: revisor2Id,
-        activa: true,
-       
-      }
-    });
-
-    if (cargaRevisor1 >= 4) {
-      return Response.json(
-        { error: 'El primer revisor ha alcanzado su límite de 4 trabajos' },
-        { status: 400 }
-      );
-    }
-
-    if (cargaRevisor2 >= 4) {
-      return Response.json(
-        { error: 'El segundo revisor ha alcanzado su límite de 4 trabajos' },
-        { status: 400 }
-      );
-    }
-
-    // Verificar que el trabajo no tenga ya 2 asignaciones activas
-    const asignacionesExistentes = await prisma.asignaciones.count({
-      where: {
-        trabajoId: trabajoId,
-        activa: true
-      }
-    });
-
-    if (asignacionesExistentes >= 2) {
-      return Response.json(
-        { error: 'Este trabajo ya tiene 2 revisores asignados' },
-        { status: 400 }
-      );
     }
 
     // Verificar que ninguno de los revisores ya esté asignado a este trabajo
@@ -71,72 +56,71 @@ export async function POST(request) {
       where: {
         trabajoId: trabajoId,
         activa: true,
-        OR: [
-          { revisorId: revisor1Id },
-          { revisorId: revisor2Id }
-        ]
+        revisorId: {
+          in: revisoresIds
+        }
+      },
+      include: {
+        revisor: {
+          select: {
+            nombre: true,
+            apellidoP: true
+          }
+        }
       }
     });
 
     if (revisorYaAsignado) {
       return Response.json(
-        { error: 'Uno de los revisores seleccionados ya está asignado a este trabajo' },
+        { 
+          error: `El revisor ${revisorYaAsignado.revisor.nombre} ${revisorYaAsignado.revisor.apellidoP} ya está asignado a este trabajo` 
+        },
         { status: 400 }
       );
     }
 
-    // Crear ambas asignaciones en una transacción
-    const asignaciones = await prisma.$transaction([
-      prisma.asignaciones.create({
-        data: {
-          trabajoId: trabajoId,
-          revisorId: revisor1Id,
-          activa: true
+    // Crear todas las asignaciones en una transacción usando la función SQL
+    const asignaciones = await prisma.$transaction(
+      revisoresIds.map(revisorId =>
+        prisma.$executeRaw`
+          INSERT INTO "Asignaciones" (id, "trabajoId", "revisorId")
+          VALUES (generar_asignacion_id(), ${trabajoId}, ${revisorId})
+        `
+      )
+    );
+
+    // Obtener las asignaciones recién creadas para retornarlas
+    const asignacionesCreadas = await prisma.asignaciones.findMany({
+      where: {
+        trabajoId: trabajoId,
+        revisorId: {
+          in: revisoresIds
         },
-        include: {
-          revisor: {
-            select: {
-              nombre: true,
-              apellidoP: true,
-              apellidoM: true,
-              email: true
-            }
-          },
-          trabajo: {
-            select: {
-              titulo: true
-            }
+        activa: true
+      },
+      include: {
+        revisor: {
+          select: {
+            nombre: true,
+            apellidoP: true,
+            apellidoM: true,
+            email: true
+          }
+        },
+        trabajo: {
+          select: {
+            titulo: true
           }
         }
-      }),
-      prisma.asignaciones.create({
-        data: {
-          trabajoId: trabajoId,
-          revisorId: revisor2Id,
-          activa: true
-        },
-        include: {
-          revisor: {
-            select: {
-              nombre: true,
-              apellidoP: true,
-              apellidoM: true,
-              email: true
-            }
-          },
-          trabajo: {
-            select: {
-              titulo: true
-            }
-          }
-        }
-      })
-    ]);
+      },
+      take: revisoresIds.length
+    });
 
     return Response.json({
-      message: 'Asignaciones creadas exitosamente',
-      asignaciones: asignaciones,
-      success: true
+      message: `${revisoresIds.length} asignación(es) creada(s) exitosamente`,
+      asignaciones: asignacionesCreadas,
+      success: true,
+      total: revisoresIds.length
     });
 
   } catch (error) {

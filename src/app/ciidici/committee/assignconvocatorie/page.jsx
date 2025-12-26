@@ -17,8 +17,7 @@ export default function AsignarRevisores() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedTrabajo, setSelectedTrabajo] = useState(null);
-  const [selectedRevisor1, setSelectedRevisor1] = useState(null);
-  const [selectedRevisor2, setSelectedRevisor2] = useState(null);
+  const [selectedRevisores, setSelectedRevisores] = useState([]); // Arreglo de revisores
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
@@ -74,14 +73,16 @@ export default function AsignarRevisores() {
       return;
     }
 
-    if (!selectedRevisor1 || !selectedRevisor2) {
-      setError('Debes seleccionar exactamente 2 revisores');
+    if (selectedRevisores.length === 0) {
+      setError('Debes seleccionar al menos un revisor');
       setTimeout(() => setError(''), 3000);
       return;
     }
 
-    if (selectedRevisor1.id === selectedRevisor2.id) {
-      setError('Debes seleccionar dos revisores diferentes');
+    // Verificar que no haya revisores duplicados
+    const revisoresUnicos = new Set(selectedRevisores.map(r => r.id));
+    if (revisoresUnicos.size !== selectedRevisores.length) {
+      setError('Has seleccionado el mismo revisor más de una vez');
       setTimeout(() => setError(''), 3000);
       return;
     }
@@ -98,21 +99,19 @@ export default function AsignarRevisores() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           trabajoId: selectedTrabajo.id,
-          revisor1Id: selectedRevisor1.id,
-          revisor2Id: selectedRevisor2.id
+          revisoresIds: selectedRevisores.map(r => r.id) // Enviar arreglo de IDs
         })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess('Asignaciones creadas exitosamente para ambos revisores');
+        setSuccess(`Asignaciones creadas exitosamente para ${selectedRevisores.length} revisor(es)`);
         setShowConfirmModal(false);
         setSelectedTrabajo(null);
-        setSelectedRevisor1(null);
-        setSelectedRevisor2(null);
+        setSelectedRevisores([]);
         await fetchData();
-        setTimeout(() => setSuccess(''), 1000);
+        setTimeout(() => setSuccess(''), 3000);
       } else {
         setError(data.error);
         setTimeout(() => setError(''), 5000);
@@ -121,7 +120,8 @@ export default function AsignarRevisores() {
 
     } catch (error) {
       console.error('Error al crear asignaciones:', error);
-      setTimeout(() => setError(''), 1000);
+      setError('Error al crear las asignaciones');
+      setTimeout(() => setError(''), 3000);
     } finally {
       setIsAssigning(false);
     }
@@ -131,19 +131,14 @@ export default function AsignarRevisores() {
     // No permitir seleccionar revisores indispuestos
     if (revisor.estado === 'INDISPUESTO') return;
 
-    if (!selectedRevisor1) {
-      // Seleccionar como revisor 1
-      setSelectedRevisor1(revisor);
-    } else if (!selectedRevisor2 && revisor.id !== selectedRevisor1.id) {
-      // Seleccionar como revisor 2
-      setSelectedRevisor2(revisor);
-    } else if (selectedRevisor1.id === revisor.id) {
-      // Si ya es revisor 1, deseleccionarlo y mover revisor 2 a revisor 1
-      setSelectedRevisor1(selectedRevisor2);
-      setSelectedRevisor2(null);
-    } else if (selectedRevisor2?.id === revisor.id) {
-      // Si ya es revisor 2, deseleccionarlo
-      setSelectedRevisor2(null);
+    const isSelected = selectedRevisores.some(r => r.id === revisor.id);
+
+    if (isSelected) {
+      // Deseleccionar revisor
+      setSelectedRevisores(selectedRevisores.filter(r => r.id !== revisor.id));
+    } else {
+      // Agregar revisor al arreglo
+      setSelectedRevisores([...selectedRevisores, revisor]);
     }
   };
 
@@ -167,7 +162,7 @@ export default function AsignarRevisores() {
             Asignar Revisores
           </h1>
           <p className="text-gray-600">
-            Selecciona un trabajo y <strong>dos revisores</strong> para crear asignaciones
+            Selecciona un trabajo y <strong>uno o más revisores</strong> para crear asignaciones
           </p>
         </div>
 
@@ -188,7 +183,7 @@ export default function AsignarRevisores() {
                 Trabajos Pendientes
               </h2>
               <p className="text-sm text-gray-600">
-                Los trabajos necesitan la asignación de 2 revisores
+                Selecciona un trabajo para asignar revisores
               </p>
             </div>
 
@@ -210,7 +205,6 @@ export default function AsignarRevisores() {
                     trabajo={trabajo}
                     isSelected={selectedTrabajo?.id === trabajo.id}
                     onSelect={setSelectedTrabajo}
-                    asignacionesCount={asignacionesPorTrabajo[trabajo.id] || 0}
                   />
                 ))
               )}
@@ -222,10 +216,10 @@ export default function AsignarRevisores() {
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center">
                 <Users className="mr-2 text-green-600" size={24} />
-                Seleccionar Revisores ({(selectedRevisor1 ? 1 : 0) + (selectedRevisor2 ? 1 : 0)}/2)
+                Seleccionar Revisores ({selectedRevisores.length} seleccionados)
               </h2>
               <p className="text-sm text-gray-600">
-                Selecciona 2 revisores diferentes para el trabajo
+                Selecciona uno o más revisores diferentes para el trabajo
               </p>
             </div>
 
@@ -241,10 +235,7 @@ export default function AsignarRevisores() {
                       <CardReviewer
                         key={revisor.id}
                         revisor={revisor}
-                        isSelected={
-                          selectedRevisor1?.id === revisor.id ||
-                          selectedRevisor2?.id === revisor.id
-                        }
+                        isSelected={selectedRevisores.some(r => r.id === revisor.id)}
                         onSelect={handleSelectRevisor}
                         disabled={false}
                       />
@@ -294,11 +285,11 @@ export default function AsignarRevisores() {
             <div className="flex flex-col lg:flex-row items-center justify-end gap-4">
               <button
                 onClick={handleAsignarClick}
-                disabled={!selectedTrabajo || !selectedRevisor1 || !selectedRevisor2}
+                disabled={!selectedTrabajo || selectedRevisores.length === 0}
                 className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center gap-2"
               >
                 <UserCheck size={20} />
-                Asignar 2 Revisores
+                Asignar {selectedRevisores.length > 0 ? selectedRevisores.length : ''} Revisor{selectedRevisores.length !== 1 ? 'es' : ''}
               </button>
             </div>
           </div>
@@ -306,9 +297,9 @@ export default function AsignarRevisores() {
       </div>
 
       {/* Modal de Confirmación */}
-      {showConfirmModal && selectedTrabajo && selectedRevisor1 && selectedRevisor2 && (
+      {showConfirmModal && selectedTrabajo && selectedRevisores.length > 0 && (
         <ModalComfirm
-          txt={`¿Confirmas asignar el trabajo "${selectedTrabajo.titulo}" a los revisores ${selectedRevisor1.nombre} y ${selectedRevisor2.nombre}?`}
+          txt={`¿Confirmas asignar el trabajo "${selectedTrabajo.titulo}" a ${selectedRevisores.length} revisor${selectedRevisores.length !== 1 ? 'es' : ''}? (${selectedRevisores.map(r => r.nombre).join(', ')})`}
           onConfirm={handleConfirmAsignacion}
           onCancel={() => setShowConfirmModal(false)}
           isLoading={isAssigning}

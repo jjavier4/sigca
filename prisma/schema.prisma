@@ -19,6 +19,7 @@ model Usuarios {
   rol       Rol      @default(AUTOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  activa          Boolean  @default(false)
   
   // Relación con Trabajos (como autor)
   trabajos  Trabajos[]
@@ -57,7 +58,8 @@ model Trabajos {
   titulo            String
   tipo              String
   coautores         String[] @default([]) // Array de nombres de coautores
-  
+  calificacion_final  Float
+
   // Relaciones (Foreign Keys)
   usuarioId         String
   usuario           Usuarios @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
@@ -86,7 +88,7 @@ model Asignaciones {
   id          String   @id @default(uuid())
   activa      Boolean  @default(true)
   comentario  String?  @db.Text // Comentario del revisor
-  
+  calificacion  Float
   // Relaciones (Foreign Keys)
   trabajoId   String
   trabajo     Trabajos @relation("TrabajoAsignaciones", fields: [trabajoId], references: [id], onDelete: Cascade)

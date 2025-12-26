@@ -1,7 +1,7 @@
 import { FileText, User, UserCheck, Calendar, CheckCircle, XCircle, AlertCircle, Users } from 'lucide-react';
 
 // Componente Card de Trabajo Sin Asignar
-export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesCount }) {
+export function CardNotAssignment({ trabajo, isSelected, onSelect }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -11,7 +11,7 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
     });
   };
 
-  const yaAsignado = asignacionesCount >= 2;
+  const yaAsignado = asignacionesCount > 0;
   const autorPrincipal = trabajo.autores?.find(a => a.esAutorPrincipal);
   const nombreAutor = autorPrincipal?.usuario?.nombre || 'Sin autor principal';
 
@@ -70,10 +70,6 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
                 <span className="font-semibold">Pendiente</span>
               </>
             )}
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-600">
-            <Users size={14} />
-            <span className="font-semibold">{asignacionesCount}/2</span>
           </div>
         </div>
       </div>

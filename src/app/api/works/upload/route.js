@@ -97,7 +97,7 @@ export async function POST(request) {
             );
         }
 
-        // 1. Crear directorio en public/documents/userId
+        //Crear directorio en public/documents/userId
         const publicPath = path.join(process.cwd(), 'public');
         const documentsPath = path.join(publicPath, 'documents');
         const userDirectoryPath = path.join(documentsPath, userId);
@@ -112,7 +112,7 @@ export async function POST(request) {
             await mkdir(userDirectoryPath, { recursive: true });
         }
 
-        // 2. Nombrar el archivo con el ID de la convocatoria
+        // Nombrar el archivo con el ID de la convocatoria
         const fileName = `${convocatoriaId}.pdf`;
         const filePath = path.join(userDirectoryPath, fileName);
 
@@ -121,24 +121,36 @@ export async function POST(request) {
         const buffer = Buffer.from(bytes);
         await writeFile(filePath, buffer);
 
-        // 3. Crear registro en la tabla trabajos
         const relativePath = `/documents/${userId}/${fileName}`;
-        // 4. Unir auores con comas
-        const coautoresString = dataConvocatoriaParsed.coautores.join(', ');
-        const trabajo = await prisma.trabajos.create({
-            data: {
-                titulo: dataConvocatoriaParsed.tituloPropuesta,
-                tipo: dataConvocatoriaParsed.tipo,
-                coautores: dataConvocatoriaParsed.coautores || [],
-                convocatoriaId: convocatoriaId,
-                usuarioId: userId,
-                archivo_url: relativePath
+
+        async function generarTrabajoId() {
+            try {
+                const result = await prisma.$queryRaw`
+                SELECT generar_trabajo_id() as id
+                `;
+                return result[0].id;
+            } catch (error) {
+                console.error('Error al generar ID:', error);
+                throw new Error('No se pudo generar el ID del trabajo');
             }
+        }
+
+        const trabajoData = {
+            id: await generarTrabajoId(),
+            titulo: dataConvocatoriaParsed.tituloPropuesta,
+            tipo: dataConvocatoriaParsed.tipo,
+            coautores: dataConvocatoriaParsed.coautores || [],
+            convocatoriaId: convocatoriaId,
+            usuarioId: userId,
+            archivo_url: relativePath
+        }
+        const trabajo = await prisma.trabajos.create({
+            data: trabajoData
         });
 
         // Enviar correo de confirmación a todos los autores
         const { html, text } = emailPropuestaRecibida({
-            nombreAutor:session.user.name,
+            nombreAutor: session.user.name,
             tituloTrabajo: trabajo.titulo,
         });
 
