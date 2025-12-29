@@ -12,7 +12,7 @@ export async function PATCH(request) {
         { status: 401 }
       );
     }
-    if (session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
+    if (session?.user?.rol) {
       return NextResponse.json(
         { error: 'No autorizado. ' },
         { status: 403 }
@@ -20,8 +20,8 @@ export async function PATCH(request) {
     }
 
     const body = await request.json()
-    const { id, titulo, descripcion, fecha_inicio, fecha_cierre, temas } = body
-
+    const { id, titulo, descripcion, fecha_inicio, fecha_cierre } = body
+    console.log(body)
     if (!id) {
       return NextResponse.json(
         { error: 'ID de convocatoria requerido' },
@@ -44,14 +44,13 @@ export async function PATCH(request) {
       )
     }
 
-    const convocatoriaActualizada = await prisma.convocatoria.update({
+    const convocatoriaActualizada = await prisma.convocatorias.update({
       where: { id },
       data: {
         titulo,
         descripcion: descripcion || null,
         fecha_inicio: new Date(fecha_inicio),
-        fecha_cierre: new Date(fecha_cierre),
-        temas: temas || null
+        fecha_cierre: new Date(fecha_cierre)
       }
     })
 

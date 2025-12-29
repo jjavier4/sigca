@@ -83,7 +83,6 @@ export default function ManageConvocatories() {
                     descripcion: selectedConvocatorieEdit.descripcion,
                     fecha_inicio: selectedConvocatorieEdit.fecha_inicio,
                     fecha_cierre: selectedConvocatorieEdit.fecha_cierre,
-                    temas: selectedConvocatorieEdit.temas,
                 }),
             })
 
@@ -96,12 +95,13 @@ export default function ManageConvocatories() {
                 setError(data.error)
             }
 
-            setSelectedConvocatorieEdit(null)
+            
 
             setTimeout(() => {
                 setSuccess('')
                 setError('')
                 setOnEdit(false)
+                setSelectedConvocatorieEdit(null)
             }, 3000)
         } catch (err) {
             setError('Error al actualizar convocatoria')
@@ -208,19 +208,6 @@ export default function ManageConvocatories() {
                             }
                             placeholder={''}
                             required={true}
-                        />
-                        <FormTextArea
-                            title={'Temas (separados por comas)'}
-                            children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
-                            formData={selectedConvocatorieEdit.temas || ''}
-                            change={(e) =>
-                                setSelectedConvocatorieEdit({
-                                    ...selectedConvocatorieEdit,
-                                    temas: e.target.value,
-                                })}
-                            rows={3}
-                            placeholder="Inteligencia Artificial, Desarrollo Web, IoT"
-                            requiered={false}
                         />
 
                         <div className="flex gap-4">
