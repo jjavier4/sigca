@@ -1,26 +1,35 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { signIn } from 'next-auth/react';
-import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, CheckCircle, FileText, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
-
+import Alert from '@/components/ui/utils/alert';
 export default function AddUser() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
- 
+    const [tipoIdentificacion, setTipoIdentificacion] = useState('rfc'); // 'rfc' o 'curp'
     const [registerData, setRegisterData] = useState({
         nombre: '',
         apellidoP: '',
         apellidoM: '',
         email: '',
-        institucion: '',
+        rfc: '',
+        curp: '',
         password: '',
         confirmPassword: '',
-        rol: 'AUTOR',
+        rol: 'AUTOR', // Rol por defecto
     });
-
+    useEffect(() => {
+        if (error || success) {
+            const timer = setTimeout(() => {
+                setError('');
+                setSuccess('');
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [error, success]);
     const handleRegister = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -39,6 +48,23 @@ export default function AddUser() {
             return;
         }
 
+        // Validar según el tipo de identificación seleccionado
+        if (tipoIdentificacion === 'rfc') {
+            const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+            if (!rfcRegex.test(registerData.rfc.toUpperCase())) {
+                setError('El RFC no tiene un formato válido. Ejemplo: PAJA850101XXX (12-13 caracteres)');
+                setIsLoading(false);
+                return;
+            }
+        } else {
+            const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
+            if (!curpRegex.test(registerData.curp.toUpperCase())) {
+                setError('El CURP no tiene un formato válido. Debe tener 18 caracteres. Ejemplo: PAJA850101HMCLRV09');
+                setIsLoading(false);
+                return;
+            }
+        }
+
         try {
             const response = await fetch('/api/user/register', {
                 method: 'POST',
@@ -48,35 +74,34 @@ export default function AddUser() {
                     apellidoP: registerData.apellidoP,
                     apellidoM: registerData.apellidoM,
                     email: registerData.email,
-                    institucion: registerData.institucion,
+                    tipoIdentificacion: tipoIdentificacion,
+                    rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
+                    curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
                     password: registerData.password,
-                    rol:registerData.rol,
+                    rol:registerData.rol
                 }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
+                setError(data.error || 'Error al registrar usuario');
                 throw new Error(data.error || 'Error al registrar usuario');
             }
 
-            setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+            setSuccess(`¡Registro exitoso! Tu ID de usuario es: ${data.user.id}. Ahora puedes iniciar sesión.`);
 
             setRegisterData({
                 nombre: '',
                 apellidoP: '',
                 apellidoM: '',
                 email: '',
-                institucion: '',
+                rfc: '',
+                curp: '',
                 password: '',
                 confirmPassword: '',
-                rol: 'AUTOR',
+                rol: 'AUTOR', // Rol por defecto
             });
-
-            setTimeout(() => {
-                setSuccess('');
-            }, 5000);
-
         } catch (err) {
             setError(err.message || 'Error al registrar usuario');
         } finally {
@@ -86,19 +111,12 @@ export default function AddUser() {
     return (
         <div className='flex flex-col items-center w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md'>
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Agregar Nuevo Usuario</h2>
-            {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-                    <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-                    <p className="text-red-800 text-sm">{error}</p>
-                </div>
-            )}
-
-            {success && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-2">
-                    <CheckCircle className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-                    <p className="text-green-800 text-sm">{success}</p>
-                </div>
-            )}
+            {/* Alertas */}
+            <Alert
+                type={error ? 'error' : 'success'}
+                message={error || success}
+                isVisible={error || success}
+            />
             <form onSubmit={handleRegister} className="space-y-4">
 
                 {/* Registration Form */}
@@ -136,16 +154,59 @@ export default function AddUser() {
                     placeholder={"tu@email.com"}
                     required={true}
                 />
+                {/* Selector de tipo de identificación */}
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tipo de Identificación
+                    </label>
+                    <div className="flex gap-4 mb-3">
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                value="rfc"
+                                checked={tipoIdentificacion === 'rfc'}
+                                onChange={(e) => setTipoIdentificacion(e.target.value)}
+                                className="w-4 h-4 text-blue-600"
+                            />
+                            <span className="text-sm text-gray-700">RFC</span>
+                        </label>
+                        <label className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                value="curp"
+                                checked={tipoIdentificacion === 'curp'}
+                                onChange={(e) => setTipoIdentificacion(e.target.value)}
+                                className="w-4 h-4 text-blue-600"
+                            />
+                            <span className="text-sm text-gray-700">CURP</span>
+                        </label>
+                    </div>
+                </div>
 
-                <FormLabelInput
-                    title={"Institucion"}
-                    children={<User className="absolute left-3 top-3 text-black" size={20} />}
-                    type={"text"} value={registerData.institucion}
-                    change={(e) => setRegisterData({ ...registerData, institucion: e.target.value })}
-                    placeholder={"Intituto Tecnologico de Toluca"}
-                    required={true}
-                />
-
+                {/* Mostrar campo RFC o CURP según selección */}
+                {tipoIdentificacion === 'rfc' ? (
+                    <FormLabelInput
+                        title="RFC"
+                        children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
+                        type="text"
+                        value={registerData.rfc}
+                        change={(e) => setRegisterData({ ...registerData, rfc: e.target.value.toUpperCase() })}
+                        placeholder="PAJA850101XXX"
+                        required={true}
+                        maxLength="13"
+                    />
+                ) : (
+                    <FormLabelInput
+                        title="CURP"
+                        children={<CreditCard className="absolute left-3 top-3 text-black" size={20} />}
+                        type="text"
+                        value={registerData.curp}
+                        change={(e) => setRegisterData({ ...registerData, curp: e.target.value.toUpperCase() })}
+                        placeholder="PAJA850101HMCLRV09"
+                        required={true}
+                        maxLength="18"
+                    />
+                )}
                 <FormLabelInput
                     title={"Contraseña"}
                     children={<Lock className="absolute left-3 top-3 text-black" size={20} />}
@@ -175,6 +236,7 @@ export default function AddUser() {
                     >
                         <option value="AUTOR">Autor</option>
                         <option value="REVISOR">Revisor</option>
+                        <option value="COMITE">Comite</option>
                     </select>
                 </div>
 

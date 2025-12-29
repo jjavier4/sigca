@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { Mail, Lock, User, AlertCircle, CheckCircle, FileText, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
-
+import Alert from '@/components/ui/utils/alert';
 export default function AuthPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
@@ -13,7 +13,7 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [tipoIdentificacion, setTipoIdentificacion] = useState('rfc'); // 'rfc' o 'curp'
-  
+
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -26,11 +26,19 @@ export default function AuthPage() {
     email: '',
     rfc: '',
     curp: '',
-    institucion: '',
     password: '',
     confirmPassword: '',
   });
-
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError('');
+        setSuccess('');
+      }, 5000);
+      setIsLoading(false);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -42,9 +50,9 @@ export default function AuthPage() {
         password: loginData.password,
         redirect: false,
       });
-      
+
       console.log('Resultado de signIn:', result);
-      
+
       if (result?.error) {
         setError('Credenciales incorrectas. Verifica tu email y contraseña.');
       } else {
@@ -85,7 +93,7 @@ export default function AuthPage() {
         return;
       }
     } else {
-      const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}\d{3}$/;
+      const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
       if (!curpRegex.test(registerData.curp.toUpperCase())) {
         setError('El CURP no tiene un formato válido. Debe tener 18 caracteres. Ejemplo: PAJA850101HMCLRV09');
         setIsLoading(false);
@@ -105,14 +113,15 @@ export default function AuthPage() {
           tipoIdentificacion: tipoIdentificacion,
           rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
           curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
-          institucion: registerData.institucion,
           password: registerData.password,
+          rol: 'AUTOR', // Rol por defecto
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        setError(data.error || 'Error al registrar usuario');
         throw new Error(data.error || 'Error al registrar usuario');
       }
 
@@ -125,7 +134,6 @@ export default function AuthPage() {
         email: '',
         rfc: '',
         curp: '',
-        institucion: '',
         password: '',
         confirmPassword: '',
       });
@@ -180,19 +188,12 @@ export default function AuthPage() {
             </button>
           </div>
 
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
-              <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-              <p className="text-red-800 text-sm">{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start space-x-2">
-              <CheckCircle className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
-              <p className="text-green-800 text-sm">{success}</p>
-            </div>
-          )}
+          {/* Alertas */}
+          <Alert
+            type={error ? 'error' : 'success'}
+            message={error || success}
+            isVisible={error || success}
+          />
 
           {isLogin ? (
             <form onSubmit={handleLogin} className="space-y-6">
@@ -245,7 +246,7 @@ export default function AuthPage() {
                 placeholder="Pérez"
                 required={true}
               />
-              
+
               <FormLabelInput
                 title="Apellido Materno"
                 children={<User className="absolute left-3 top-3 text-black" size={20} />}
@@ -320,15 +321,6 @@ export default function AuthPage() {
                 />
               )}
 
-              <FormLabelInput
-                title="Institución"
-                children={<User className="absolute left-3 top-3 text-black" size={20} />}
-                type="text"
-                value={registerData.institucion}
-                change={(e) => setRegisterData({ ...registerData, institucion: e.target.value })}
-                placeholder="Instituto Tecnológico de Toluca"
-                required={true}
-              />
 
               <FormLabelInput
                 title="Contraseña"

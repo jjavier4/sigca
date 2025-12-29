@@ -30,17 +30,7 @@ export async function PATCH(request) {
     }
 
 
-    // Validar rol si se proporciona
-    if (rol) {
-      const rolesValidos = ['AUTOR', 'REVISOR', 'COMITE', 'ADMIN'];
-      if (!rolesValidos.includes(rol)) {
-        return NextResponse.json(
-          { error: 'Rol inválido', rolesValidos },
-          { status: 400 }
-        );
-      }
-    }
-
+  
     // Si se cambia el email, verificar que no exista
     if (email && email !== usuarioExistente.email) {
       const emailExiste = await prisma.usuarios.findUnique({
@@ -58,7 +48,6 @@ export async function PATCH(request) {
     // Preparar datos para actualizar (solo campos proporcionados)
     const datosActualizar = {};
     if (email !== undefined) datosActualizar.email = email;
-    if (rol !== undefined) datosActualizar.rol = rol;
 
     // Actualizar usuario
     const usuarioActualizado = await prisma.usuarios.update({

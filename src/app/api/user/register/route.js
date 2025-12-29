@@ -1,5 +1,3 @@
-// src/app/api/user/register/route.js
-
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
@@ -28,7 +26,7 @@ function validarRFC(rfc) {
 function validarCURP(curp) {
   // CURP: 18 caracteres
   // 4 letras + 6 dígitos + H/M + 2 letras (estado) + 3 letras + 2 dígitos
-  const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}\d{2}$/;
+  const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
   return curpRegex.test(curp.toUpperCase());
 }
 
@@ -43,12 +41,12 @@ export async function POST(request) {
       tipoIdentificacion, // 'rfc' o 'curp'
       rfc, 
       curp,
-      institucion, 
-      password 
+      password,
+      rol
     } = body;
 
     // Validaciones básicas
-    if (!nombre || !apellidoP || !apellidoM || !email || !institucion || !password ) {
+    if (!nombre || !apellidoP || !apellidoM || !email || !password ) {
       return NextResponse.json(
         { error: 'Todos los campos obligatorios deben ser completados' },
         { status: 400 }
@@ -167,7 +165,7 @@ export async function POST(request) {
       apellidoM,
       email: email.toLowerCase(),
       password: hashedPassword,
-      rol: 'AUTOR', // Rol por defecto
+      rol: rol || 'AUTOR', // Asignar rol por defecto si no se proporciona
     };
 
     // Agregar RFC o CURP según corresponda
