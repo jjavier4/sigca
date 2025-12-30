@@ -54,7 +54,7 @@ export default function MisAsignaciones() {
       setError('');
 
       const response = await fetch('/api/assignments/assess', {
-        method: 'POST',
+        method: 'PATCH',  
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(evaluacion)
       });
@@ -120,20 +120,19 @@ export default function MisAsignaciones() {
             setTimeout(() => { setShowAlert(!showAlert); }, 3000)
           }}
         />
+        <div className="flex-1 flex flex-col overflow-y-auto">
 
-        {/* Contenedor principal dividido */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Panel izquierdo: PDF */}
+          {/* Sección superior: PDF - Altura fija grande */}
           {
             selectedAsignacion.trabajo.archivo_url ? (
-              <div className="w-4/7 p-4 flex flex-col">
+              <div className="min-h-[500px] flex flex-col p-4 border-b-2 border-gray-300">
                 <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
                   <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
                   <p className="text-blue-100 text-sm">
-                    Versión {selectedAsignacion.trabajo.version}
+                    Versión {selectedAsignacion.trabajo.version} - {selectedAsignacion.trabajo.tipo}
                   </p>
                 </div>
-                <div className="flex-1 bg-white rounded-b-lg overflow-hidden">
+                <div className="flex-1 bg-white rounded-b-lg overflow-hidden shadow-lg">
                   <iframe
                     src={selectedAsignacion.trabajo.archivo_url}
                     className="w-full h-full"
@@ -142,20 +141,23 @@ export default function MisAsignaciones() {
                 </div>
               </div>
             ) : (
-              <LoadingError error="Error al cargar el PDF" />
+              <div className="h-[800px] p-4">
+                <LoadingError error="Error al cargar el PDF" />
+              </div>
             )
           }
-          
 
-          {/* Panel derecho: Rúbrica */}
-          <div className="w-3/7 flex flex-col p-4">
+          {/* Sección inferior: Rúbrica - Altura automática según contenido */}
+          <div className="min-h-[500px] p-4 bg-gray-50">
             <CardRubric
               asignacion={selectedAsignacion}
+              tipoTrabajo={selectedAsignacion.trabajo.tipo}
               onSubmit={handleSubmitEvaluacion}
               isLoading={isSubmitting}
               onCancel={() => setSelectedAsignacion(null)}
             />
           </div>
+
         </div>
       </div>
     );
@@ -176,9 +178,7 @@ export default function MisAsignaciones() {
           type={error ? 'error' : 'success'}
           message={error || success}
           isVisible={error || success}
-          onClose={() => {
-            setTimeout(() => { setShowAlert(!showAlert); }, 3000)
-          }}
+          
         />
 
         {/* Estadísticas Y  filtros*/}

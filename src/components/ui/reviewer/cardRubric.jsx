@@ -1,15 +1,16 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Send, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, AlertCircle } from 'lucide-react';
 import Loading from '../utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
+
 export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }) {
+    // Nueva estructura de opciones con ponderación 10, 8, 6, 0
     const OPCIONES_RUBRICA = [
-        { valor: 5, etiqueta: 'Siempre' },
-        { valor: 4, etiqueta: 'Casi siempre' },
-        { valor: 3, etiqueta: 'Regularmente' },
-        { valor: 2, etiqueta: 'A veces' },
-        { valor: 1, etiqueta: 'Nunca' }
+        { valor: 10, etiqueta: '10 puntos', indice: 0 },
+        { valor: 8, etiqueta: '8 puntos', indice: 1 },
+        { valor: 6, etiqueta: '6 puntos', indice: 2 },
+        { valor: 0, etiqueta: '0 puntos', indice: 3 }
     ];
 
     const [criteriosEvaluacion, setCriteriosEvaluacion] = useState([]);
@@ -19,32 +20,35 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
     const [comentarios, setComentarios] = useState('');
     const [error, setError] = useState('');
 
-    // Cargar criterios activos desde la API
+    // Cargar criterios según el tipo de trabajo (DIFUSION o DIVULGACION)
     useEffect(() => {
-        fetchCriteriosActivos();
+        if (asignacion?.trabajo?.tipo) {
+            fetchCriteriosPorGrupo();
+        }
     }, []);
 
-    const fetchCriteriosActivos = async () => {
+    const fetchCriteriosPorGrupo = async () => {
         try {
-            const response = await fetch('/api/rubric/findall');
+            setLoadingCriterios(true);
+            const response = await fetch(`/api/rubric/findbygroup?tipo=${asignacion?.trabajo?.tipo}`);
             
             if (response.ok) {
                 const result = await response.json();
-                const criteriosActivos = result.data.activas;
                 
-                if (criteriosActivos.length === 0) {
-                    setErrorLoadingCriterios('No hay criterios de evaluación activos. Por favor contacta al administrador.');
+                if (result.criterios.length === 0) {
+                    setErrorLoadingCriterios(`No hay criterios de evaluación configurados para ${asignacion?.trabajo?.tipo}. Por favor contacta al administrador.`);
                 } else {
-                    setCriteriosEvaluacion(criteriosActivos);
+                    setCriteriosEvaluacion(result.criterios);
                     // Inicializar evaluaciones vacías
                     const initialEvaluaciones = {};
-                    criteriosActivos.forEach(criterio => {
+                    result.criterios.forEach(criterio => {
                         initialEvaluaciones[criterio.id] = null;
                     });
                     setEvaluaciones(initialEvaluaciones);
                 }
             } else {
-                setErrorLoadingCriterios('Error al cargar los criterios de evaluación');
+                const errorData = await response.json();
+                setErrorLoadingCriterios(errorData.error || 'Error al cargar los criterios de evaluación');
             }
         } catch (error) {
             console.error('Error al cargar criterios:', error);
@@ -62,11 +66,14 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         setError('');
     };
 
+    // Calcular puntaje total con nueva ponderación (10, 8, 6, 0)
     const calcularPuntajeTotal = () => {
         const valores = Object.values(evaluaciones).filter(v => v !== null);
         if (valores.length === 0) return 0;
+        
         const suma = valores.reduce((acc, val) => acc + val, 0);
-        const maximo = criteriosEvaluacion.length * 5;
+        const maximo = criteriosEvaluacion.length * 10; // Máximo ahora es 10 por criterio
+        
         return (suma / maximo) * 100;
     };
 
@@ -87,38 +94,23 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         }
 
         const puntajeTotal = calcularPuntajeTotal();
-        let estadoSugerido;
 
-        if (puntajeTotal >= 80) {
-            estadoSugerido = 'ACEPTADO';
-        } else if (puntajeTotal >= 60) {
-            estadoSugerido = 'CAMBIOS_SOLICITADOS';
-        } else {
-            estadoSugerido = 'RECHAZADO';
-        }
-
+        // Solo enviar datos de evaluación, sin estados
         onSubmit({
-            trabajoId: asignacion.trabajo.id,
-            asignacionId: asignacion.id,
-            evaluaciones,
+            id: asignacion.id,
             comentarios: comentarios.trim(),
-            puntajeTotal: puntajeTotal.toFixed(2),
-            nuevoEstado: estadoSugerido
+            calificacion: parseFloat(puntajeTotal.toFixed(2))
         });
     };
 
     // Mostrar loading mientras se cargan los criterios
     if (loadingCriterios) {
-        return (
-            <Loading />
-        );
+        return <Loading />;
     }
 
     // Mostrar error si no hay criterios
     if (errorLoadingCriterios) {
-        return (
-            <LoadingError error={errorLoadingCriterios} />
-        );
+        return <LoadingError error={errorLoadingCriterios} />;
     }
 
     const puntajeTotal = calcularPuntajeTotal();
@@ -130,7 +122,9 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
             {/* Header */}
             <div className="bg-gradient-to-r rounded-t-lg bg-green-700 p-4">
                 <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-xl font-bold text-white">Rúbrica de Evaluación</h2>
+                    <h2 className="text-xl font-bold text-white">
+                        Rúbrica de Evaluación - {asignacion?.trabajo?.tipo}
+                    </h2>
                     <button
                         onClick={onCancel}
                         className="text-white hover:bg-green-950 hover:bg-opacity-20 rounded-lg px-3 py-1 transition-colors flex items-center"
@@ -170,7 +164,7 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                     </div>
                 )}
 
-                {/* Tabla de Rúbrica */}
+                {/* Tabla de Rúbrica con descripciones dinámicas */}
                 <div className="mb-6 border border-gray-300 rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -182,7 +176,6 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                                     {OPCIONES_RUBRICA.map(opcion => (
                                         <th key={opcion.valor} className="px-3 py-3 text-center text-sm font-bold text-gray-700 border-b border-r last:border-r-0">
                                             <div>{opcion.etiqueta}</div>
-                                            <div className="text-xs text-gray-500 font-normal">({opcion.valor} pts)</div>
                                         </th>
                                     ))}
                                 </tr>
@@ -199,16 +192,23 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                                             </div>
                                         </td>
                                         {OPCIONES_RUBRICA.map(opcion => (
-                                            <td key={opcion.valor} className="px-3 py-4 text-center border-b border-r last:border-r-0">
-                                                <input
-                                                    type="radio"
-                                                    name={`criterio-${criterio.id}`}
-                                                    value={opcion.valor}
-                                                    checked={evaluaciones[criterio.id] === opcion.valor}
-                                                    onChange={() => handleEvaluacionChange(criterio.id, opcion.valor)}
-                                                    className="w-5 h-5 cursor-pointer"
-                                                    disabled={isLoading}
-                                                />
+                                            <td key={opcion.valor} className="px-3 py-4 border-b border-r last:border-r-0">
+                                                <div className="flex flex-col items-center">
+                                                    <input
+                                                        type="radio"
+                                                        name={`criterio-${criterio.id}`}
+                                                        value={opcion.valor}
+                                                        checked={evaluaciones[criterio.id] === opcion.valor}
+                                                        onChange={() => handleEvaluacionChange(criterio.id, opcion.valor)}
+                                                        className="w-5 h-5 cursor-pointer mb-2"
+                                                        disabled={isLoading}
+                                                    />
+                                                    {criterio.descripcion_puntaje && criterio.descripcion_puntaje[opcion.indice] && (
+                                                        <div className="text-xs text-gray-600 text-center px-2">
+                                                            {criterio.descripcion_puntaje[opcion.indice]}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                         ))}
                                     </tr>
@@ -235,7 +235,7 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                     </p>
                 </div>
 
-                {/* Resumen de Evaluación */}
+                {/* Resumen de Evaluación - SIN estados de decisión */}
                 <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-5">
                     <h3 className="text-lg font-bold text-purple-900 mb-3">Resumen de Evaluación</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -244,21 +244,15 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                             <p className="text-3xl font-bold text-purple-700">{puntajeTotal.toFixed(1)}%</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-600 mb-1">Decisión Sugerida</p>
-                            <p className={`text-lg font-bold ${puntajeTotal >= 80 ? 'text-green-600' :
-                                puntajeTotal >= 60 ? 'text-orange-600' :
-                                    'text-red-600'
-                                }`}>
-                                {puntajeTotal >= 80 ? 'Aceptar' :
-                                    puntajeTotal >= 60 ? 'Solicitar Cambios' :
-                                        'Rechazar'}
+                            <p className="text-sm text-gray-600 mb-1">Calificación Numérica</p>
+                            <p className="text-3xl font-bold text-purple-700">
+                                {(puntajeTotal / 10).toFixed(1)}
                             </p>
                         </div>
                     </div>
                     <div className="mt-3 text-xs text-gray-600">
-                        <p>• 80-100%: Aceptado</p>
-                        <p>• 60-79%: Cambios solicitados</p>
-                        <p>• 0-59%: Rechazado</p>
+                        <p>• Máximo: 100 puntos ({totalCriterios} criterios × 10 pts)</p>
+                        <p>• Tipo de trabajo: {asignacion?.trabajo?.tipo}</p>
                     </div>
                 </div>
             </div>
