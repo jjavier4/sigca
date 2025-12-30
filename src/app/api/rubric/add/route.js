@@ -1,4 +1,5 @@
 // src/app/api/rubricas/add/route.js
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -6,55 +7,66 @@ import { prisma } from '@/lib/db';
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
-      return Response.json({ error: 'No autorizado' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 401 }
+      );
     }
 
+   
     const body = await request.json();
-    const { nombre, descripcion } = body;
+    const { nombre, descripcion, grupo, descripcion_puntaje } = body;
 
     // Validaciones
-    if (!nombre || !descripcion) {
-      return Response.json(
-        { error: 'Nombre y descripción son requeridos' },
+    if (!nombre || !descripcion || !grupo) {
+      return NextResponse.json(
+        { error: 'Faltan campos obligatorios' },
         { status: 400 }
       );
     }
 
-    if (nombre.trim().length < 3) {
-      return Response.json(
-        { error: 'El nombre debe tener al menos 3 caracteres' },
+    // Validar que grupo sea válido
+    if (!['DIFUSION', 'DIVULGACION'].includes(grupo)) {
+      return NextResponse.json(
+        { error: 'Grupo inválido. Debe ser DIFUSION o DIVULGACION' },
         { status: 400 }
       );
     }
 
-    if (descripcion.trim().length < 10) {
-      return Response.json(
-        { error: 'La descripción debe tener al menos 10 caracteres' },
+    // Validar que descripcion_puntaje sea un array de 4 elementos
+    if (!Array.isArray(descripcion_puntaje) || descripcion_puntaje.length !== 4) {
+      return NextResponse.json(
+        { error: 'descripcion_puntaje debe ser un array de 4 elementos (10, 8, 6, 0 puntos)' },
         { status: 400 }
       );
     }
 
-    // Crear la rúbrica (por defecto estado = false)
-    const nuevaRubrica = await prisma.rubrica.create({
+    // Validar que todos los elementos del array tengan contenido
+    if (descripcion_puntaje.some(desc => !desc || desc.trim() === '')) {
+      return NextResponse.json(
+        { error: 'Todas las descripciones de puntaje son obligatorias' },
+        { status: 400 }
+      );
+    }
+
+    // Crear el criterio
+    const nuevoCriterio = await prisma.criteriosEvaluacion.create({
       data: {
         nombre: nombre.trim(),
         descripcion: descripcion.trim(),
-        estado: false
+        grupo,
+        descripcion_puntaje: descripcion_puntaje.map(desc => desc.trim())
       }
     });
 
-    return Response.json({
-      success: true,
-      message: 'Criterio de evaluación creado exitosamente',
-      data: nuevaRubrica
-    }, { status: 201 });
+    return NextResponse.json(nuevoCriterio, { status: 201 });
 
   } catch (error) {
-    console.error('Error al crear rúbrica:', error);
-    return Response.json(
-      { error: 'Error al crear rúbrica' },
+    console.error('Error al crear criterio:', error);
+    return NextResponse.json(
+      { error: 'Error al crear criterio de evaluación' },
       { status: 500 }
     );
   }

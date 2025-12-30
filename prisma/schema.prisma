@@ -58,7 +58,7 @@ model Trabajos {
   titulo            String
   tipo              String
   coautores         String[] @default([]) // Array de nombres de coautores
-  calificacion_final  Float
+  calificacion_final  Float?
 
   // Relaciones (Foreign Keys)
   usuarioId         String
@@ -88,7 +88,7 @@ model Asignaciones {
   id          String   @id @default(uuid())
   activa      Boolean  @default(true)
   comentario  String?  @db.Text // Comentario del revisor
-  calificacion  Float
+  calificacion  Float?
   // Relaciones (Foreign Keys)
   trabajoId   String
   trabajo     Trabajos @relation("TrabajoAsignaciones", fields: [trabajoId], references: [id], onDelete: Cascade)
@@ -105,13 +105,17 @@ model Asignaciones {
   @@unique([trabajoId, revisorId])
 }
 
-model Rubrica {
+model CriteriosEvaluacion {
   id          String   @id @default(cuid())
   nombre      String
   descripcion String
-  estado      Boolean  @default(false) // false = inactivo (izquierda), true = activo (derecha)
+  grupo       GrupoRubrica
+  descripcion_puntaje         String[] @default([]) // Array de descripcion de puntajes
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
 
-  @@map("rubricas")
+enum GrupoRubrica {
+  DIFUSION
+  DIVULGACION
 }
