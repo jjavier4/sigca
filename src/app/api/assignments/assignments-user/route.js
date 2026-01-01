@@ -45,7 +45,7 @@ export async function GET(request) {
                 createdAt: 'desc'
             }
         });
-
+        console.log('Asignaciones encontradas:', asignaciones);
         return NextResponse.json(
             { 
                 asignaciones,

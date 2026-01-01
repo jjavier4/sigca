@@ -266,8 +266,8 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                           onChange={(e) => setDataConvocatoria({ ...dataConvocatoria, tipo: e.target.value })}
                           className="w-full pl-2 pr-4 py-3 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                         >
-                          <option value="Divulgacion">Divulgacion</option>
-                          <option value="Difusion">Difusion</option>
+                          <option value="DIVULGACION">Divulgacion</option>
+                          <option value="DIFUSION">Difusion</option>
                         </select>
                       </div>
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FileText, Calendar, RefreshCw, CheckCircle, XCircle, Clock, AlertCircle, Eye, Settings, Coins, } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo, numWork }) {
+export default function CardWork({ trabajo }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -52,11 +52,18 @@ export default function CardWork({ trabajo, numWork }) {
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r bg-gray-900 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-white">
+      <div className="bg-gradient-to-r bg-gray-900 p-4 ">
+        
+          <div className="flex items-center space-x-2 text-white mb-4">
             <FileText size={20} />
-            <span className="font-semibold">Trabajo # {numWork}</span>
+            <span className="font-semibold">Trabajo: {trabajo.titulo}</span>
+          </div>       
+        
+        <div className="flex items-center justify-between">        
+          
+          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoConfig.color}`}>
+            {estadoConfig.icon}
+            <span className="text-sm font-semibold">{estadoConfig.texto}</span>
           </div>
           {
             trabajo.estado === 'ACEPTADO' && (
@@ -66,11 +73,6 @@ export default function CardWork({ trabajo, numWork }) {
               </div>
             )
           }
-
-          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoConfig.color}`}>
-            {estadoConfig.icon}
-            <span className="text-sm font-semibold">{estadoConfig.texto}</span>
-          </div>
         </div>
       </div>
 

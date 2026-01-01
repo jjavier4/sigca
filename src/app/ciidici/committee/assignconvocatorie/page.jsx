@@ -205,6 +205,7 @@ export default function AsignarRevisores() {
                     trabajo={trabajo}
                     isSelected={selectedTrabajo?.id === trabajo.id}
                     onSelect={setSelectedTrabajo}
+                    asignacionesCount={asignacionesPorTrabajo[trabajo.id] || 0}
                   />
                 ))
               )}

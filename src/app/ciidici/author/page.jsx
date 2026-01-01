@@ -105,10 +105,9 @@ export default function DashboardAuthor() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trabajosFiltrados.map((trabajo, numWork) => (
+            {trabajosFiltrados.map((trabajo) => (
               <CardWork
                 key={trabajo.id}
-                numWork={numWork + 1}
                 trabajo={trabajo}
               />
             ))}

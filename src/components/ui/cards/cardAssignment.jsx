@@ -1,7 +1,7 @@
 import { FileText, User, UserCheck, Calendar, CheckCircle, XCircle, AlertCircle, Users } from 'lucide-react';
 
 // Componente Card de Trabajo Sin Asignar
-export function CardNotAssignment({ trabajo, isSelected, onSelect }) {
+export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesCount }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {

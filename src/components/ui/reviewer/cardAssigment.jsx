@@ -21,13 +21,18 @@ export default function CardAssigment({ asignacion, onSelect, isSelected }) {
             disabled={!asignacion.activa}
         >
             <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-sm line-clamp-2 flex-1 text-black">
-                    {asignacion.trabajo.convocatoria.titulo}
+                <h3 className="text-sm font-semibold line-clamp-2 flex-1 text-black">
+                    {`Trabajo: ${asignacion.trabajo.titulo}`}
                 </h3>
                 <span className={`text-xs px-2 py-1 rounded-full ml-2 ${asignacion.activa ? 'text-blue-800 bg-blue-100 ' : 'text-green-800 bg-green-100 '}`}>
-                    {asignacion.activa ? <CircleXIcon size={12} className="inline mr-1" /> : <CircleCheck size={12} className="inline mr-1" />}
+                    {asignacion.activa ? <Clock size={12} className="inline mr-1" /> : <CircleCheck size={12} className="inline mr-1" />}
                     {asignacion.activa ? 'Activa' : 'Evaluada'}
                 </span>
+            </div>
+            <div className="flex mb-2">
+                <h3 className="text-sm line-clamp-2 text-black">
+                    {`Convocatoria: ${asignacion.trabajo.convocatoria.titulo}`}
+                </h3>
             </div>
             <div className="flex items-center text-xs text-gray-600">
                 <Clock size={12} className="mr-1" />
