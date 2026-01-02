@@ -2,9 +2,8 @@
 import React, { useEffect, useState } from 'react'
 import RowUser from '@/components/ui/utils/rowUser'
 import Alert from '@/components/ui/utils/alert'
-import { href } from '@/utils/route'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
-import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react'
+import { Mail,ListChecks} from 'lucide-react'
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/ui/utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
@@ -181,35 +180,46 @@ export default function ManageUsers() {
                             </form>
                         </>
                     ) : (
-                        <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                        {
-                                            users?.map((user) => (
-                                                <RowUser
-                                                    key={user.id}
-                                                    name={user.nombre}
-                                                    email={user.email}
-                                                    role={user.rol}
-                                                    onEdit={() => { setOnEdit(true); setSelectedUserEdit(user) }}
-                                                    onDelete={() => deleteUser(user.email)}
-                                                />
-                                            ))
-                                        }
-                                    </tbody>
-                                </table>
+                        users.length === 0 ? (
+                            <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+                                <div className="text-center py-12 px-6">
+                                    <ListChecks className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                                    <p className="text-gray-500 text-lg">
+                                        No hay usuarios registrados.
+                                    </p>
+                                </div>
                             </div>
-                        </div >
+                        ) : (
+                            <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {
+                                                users?.map((user) => (
+                                                    <RowUser
+                                                        key={user.id}
+                                                        name={user.nombre}
+                                                        email={user.email}
+                                                        role={user.rol}
+                                                        onEdit={() => { setOnEdit(true); setSelectedUserEdit(user) }}
+                                                        onDelete={() => deleteUser(user.email)}
+                                                    />
+                                                ))
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div >
+                        )
                     )
             }
 

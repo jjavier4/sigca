@@ -4,7 +4,7 @@ import RowConvocatorie from '@/components/ui/utils/rowConvocatorie'
 import Alert from '@/components/ui/utils/alert'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import FormTextArea from '@/components/ui/form/FormTextArea'
-import { FileText, Calendar, AlertCircle } from 'lucide-react'
+import { FileText, Calendar, ListChecks } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import Loading from '@/components/ui/utils/loading'
 import LoadingError from '@/components/ui/utils/loadingError'
@@ -62,7 +62,7 @@ export default function ManageConvocatories() {
         } catch (error) {
             console.error('Error al traer convocatorias:', error)
             setErrorLoading(true)
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
@@ -95,7 +95,7 @@ export default function ManageConvocatories() {
                 setError(data.error)
             }
 
-            
+
 
             setTimeout(() => {
                 setSuccess('')
@@ -151,7 +151,7 @@ export default function ManageConvocatories() {
                     <form onSubmit={updateConvocatorie} className="space-y-4">
                         <FormLabelInput
                             title={'Título'}
-                            children={ <FileText className="absolute left-3 top-3 text-black" size={20} />
+                            children={<FileText className="absolute left-3 top-3 text-black" size={20} />
                             }
                             type={'text'}
                             value={selectedConvocatorieEdit.titulo}
@@ -196,7 +196,7 @@ export default function ManageConvocatories() {
 
                         <FormLabelInput
                             title={'Fecha de Cierre'}
-                            children={ <Calendar className="absolute left-3 top-3 text-black" size={20} />
+                            children={<Calendar className="absolute left-3 top-3 text-black" size={20} />
                             }
                             type={'date'}
                             value={selectedConvocatorieEdit.fecha_cierre?.split('T')[0]}
@@ -236,52 +236,58 @@ export default function ManageConvocatories() {
                     </form>
                 </>
             ) : (
-                <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
-                    <div className="p-4 border-b">
-                        <input
-                            type="text"
-                            placeholder="Buscar convocatoria por título o descripción..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                        />
+
+                filteredConvocatories.length === 0 ? (
+                    <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+                        <div className="text-center py-12 px-6">
+                            <ListChecks className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+                            <p className="text-gray-500 text-lg">
+                                No hay convocatorias registradas.
+                            </p>
+                        </div>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Título
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Fecha Inicio
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Fecha Fin
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {filteredConvocatories?.map((convocatorie) => (
-                                    <RowConvocatorie
-                                        key={convocatorie.id}
-                                        titulo={convocatorie.titulo}
-                                        fecha_inicio={convocatorie.fecha_inicio}
-                                        fecha_cierre={convocatorie.fecha_cierre}
-                                        onEdit={() => {
-                                            setOnEdit(true)
-                                            setSelectedConvocatorieEdit(convocatorie)
-                                        }}
-                                        onDelete={() => deleteConvocatorie(convocatorie.id)}
-                                    />
-                                ))}
-                            </tbody>
-                        </table>
+                ) : (
+                    <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Título
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Fecha Inicio
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Fecha Fin
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {filteredConvocatories?.map((convocatorie) => (
+                                        <RowConvocatorie
+                                            key={convocatorie.id}
+                                            titulo={convocatorie.titulo}
+                                            fecha_inicio={convocatorie.fecha_inicio}
+                                            fecha_cierre={convocatorie.fecha_cierre}
+                                            onEdit={() => {
+                                                setOnEdit(true)
+                                                setSelectedConvocatorieEdit(convocatorie)
+                                            }}
+                                            onDelete={() => deleteConvocatorie(convocatorie.id)}
+                                        />
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                )
+
+
             )}
         </div>
     )
