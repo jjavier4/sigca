@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
 export async function GET(request) {
-    try {        
-
+    try {
+        const anioActual = new Date().getFullYear();
         const convocatorias = await prisma.convocatorias.findMany({
+            where: {
+                id: {
+                    startsWith: `${anioActual}-`
+                }
+            },
             orderBy: {
                 fecha_inicio: 'desc'
             }

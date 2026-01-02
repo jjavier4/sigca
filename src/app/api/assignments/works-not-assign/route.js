@@ -5,13 +5,16 @@ import { prisma } from '@/lib/db';
 export async function GET(request) {
     try {
         const session = await getServerSession();
-        
-        
 
+
+        const anioActual = new Date().getFullYear();
         // Obtener todos los trabajos en revisión con sus asignaciones
         const trabajosEnRevision = await prisma.trabajos.findMany({
             where: {
-                estado: 'EN_REVISION'
+                estado: 'EN_REVISION',
+                id: {
+                    startsWith: `${anioActual}-`
+                }
             },
             include: {
                 usuario: {
@@ -45,7 +48,7 @@ export async function GET(request) {
         );
 
         return NextResponse.json(
-            { 
+            {
                 trabajos: trabajosSinAsignar,
                 total: trabajosSinAsignar.length
             },

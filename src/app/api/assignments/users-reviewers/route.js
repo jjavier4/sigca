@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
-
+    const anioActual = new Date().getFullYear();
     const revisores = await prisma.usuarios.findMany({
       where: { rol: 'REVISOR' },
       select: {
@@ -13,7 +13,12 @@ export async function GET() {
         email: true,
         asignacionesComoRevisor: {
           where: {
-            activa: true
+            activa: true,
+            trabajo: {
+              id: {
+                startsWith: `${anioActual}-`
+              }
+            }
           },
           select: {
             id: true,
@@ -30,7 +35,7 @@ export async function GET() {
     const revisoresFormateados = revisores.map(revisor => {
       const trabajosActivos = revisor.asignacionesComoRevisor.length;
       const nombreCompleto = `${revisor.nombre} ${revisor.apellidoP} ${revisor.apellidoM}`;
-      
+
       return {
         id: revisor.id,
         nombre: nombreCompleto,
@@ -41,9 +46,9 @@ export async function GET() {
       };
     });
 
-    return Response.json({ 
+    return Response.json({
       revisores: revisoresFormateados,
-      success: true 
+      success: true
     });
 
   } catch (error) {

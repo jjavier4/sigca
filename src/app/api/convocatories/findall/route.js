@@ -7,7 +7,7 @@ export async function GET(request) {
   try {
     // Verificar autenticación
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json(
         { error: 'No autenticado' },
@@ -21,8 +21,13 @@ export async function GET(request) {
       );
     }
 
-
+    const anioActual = new Date().getFullYear();
     const convocatorias = await prisma.convocatorias.findMany({
+      where: {
+        id: {
+          startsWith: `${anioActual}-`
+        }
+      },
       select: {
         id: true,
         titulo: true,
@@ -33,10 +38,10 @@ export async function GET(request) {
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
         count: convocatorias.length,
-        convocatorias 
+        convocatorias
       },
       { status: 200 }
     );
