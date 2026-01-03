@@ -5,28 +5,27 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nextjs_app
-    # Mapeo de puertos para acceder desde el host
+    container_name: nextjs_app_prod
+    restart: always  
     ports:
       - "3000:3000"
-    # Mantiene sincronizados los cambios del código local con el contenedor
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./uploads:/app/public/uploads/documents
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://sigca_user:postgres@db:5432/sigca
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://sigca_user:${DB_PASSWORD}@db:5432/sigca
     depends_on:
       - db
-    command: npm run dev
+    # En producción solemos usar 'start' en lugar de 'dev'
+    command: npm run start
 
   db:
     image: postgres:16-alpine
-    container_name: postgres_db
+    container_name: postgres_db_prod
     restart: always
     environment:
       - POSTGRES_USER=sigca_user
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=sigca
     volumes:
       - postgres_data:/var/lib/postgresql/data
