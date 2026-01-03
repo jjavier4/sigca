@@ -111,6 +111,9 @@ export default function TrabajosCalificados() {
                                         Promedio
                                     </th>
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                        Nivel de plagio e IA
+                                    </th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                         Estado
                                     </th>
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">

@@ -28,43 +28,49 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar }) {
 
                             {
                                 trabajo.calificaciones.length === 0 ? (
-                                    <div className="text-gray-400 text-sm">Sin asignaciones</div>
+                                    <div className="text-gray-400 text-sm text-center">Sin asignaciones</div>
                                 ) :
                                     (
-                                        trabajo.calificaciones.map((cal, index) => (
-                                            <div className="flex gap-2 items-center justify-between">
-                                                <div
-                                                    key={index}
-                                                    className={`px-3 py-1 rounded-lg text-sm font-semibold  ${cal.calificacion !== null
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-gray-100 text-gray-500'
-                                                        }`}
-                                                >
-                                                    {cal.calificacion !== null
-                                                        ? `${cal.calificacion.toFixed(1)}%`
-                                                        : 'Sin calificar'
-                                                    }
-                                                </div>
-                                                <div
-                                                    key={index + 10}
-                                                    className={`px-1 py-1 text-xs border border-gray-300 rounded ${cal.comentario !== null
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-gray-100 text-gray-500'
-                                                        }`}
-                                                >
-                                                    {cal.comentario !== null
-                                                        ? `${cal.comentario}`
-                                                        : 'Sin comentario'
-                                                    }
-                                                </div>
+                                        <>
+                                            {
+                                                trabajo.calificaciones.map((cal, index) => (
+                                                    <div className="flex gap-2 items-center justify-between">
+                                                        <div
+                                                            key={index}
+                                                            className={`px-3 py-1 rounded-lg text-sm font-semibold  ${cal.calificacion !== null
+                                                                ? 'bg-green-100 text-green-800'
+                                                                : 'bg-gray-100 text-gray-500'
+                                                                }`}
+                                                        >
+                                                            {cal.calificacion !== null
+                                                                ? `${cal.calificacion.toFixed(1)}%`
+                                                                : 'Sin calificar'
+                                                            }
+                                                        </div>
+                                                        <div
+                                                            key={index + 10}
+                                                            className={`px-1 py-1 text-xs border border-gray-300 rounded ${cal.comentario !== null
+                                                                ? 'bg-blue-100 text-blue-800'
+                                                                : 'bg-gray-100 text-gray-500'
+                                                                }`}
+                                                        >
+                                                            {cal.comentario !== null
+                                                                ? `${cal.comentario}`
+                                                                : 'Sin comentario'
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            }
+                                            <div className="text-xs text-center text-gray-500 mt-2">
+                                                {trabajo.asignacionesCalificadas} de {trabajo.totalAsignaciones} evaluadas
                                             </div>
-                                        ))
+
+                                        </>
                                     )
                             }
                         </div>
-                        <div className="text-xs text-center text-gray-500 mt-2">
-                            {trabajo.asignacionesCalificadas} de {trabajo.totalAsignaciones} evaluadas
-                        </div>
+
                     </td>
                     <td className="px-6 py-4 text-center">
                         {trabajo.promedioCalificacion !== null ? (
@@ -72,8 +78,18 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar }) {
                                 {trabajo.promedioCalificacion}%
                             </div>
                         ) : (
-                            <span className="text-gray-400 text-sm">-</span>
+                            <span className="text-gray-400 font-semibold text-sm">?</span>
                         )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-xs font-semibold">
+                                Plagio: {trabajo.nvl_plagio !== null ? `${trabajo.nvl_plagio}%` : '?'}
+                            </span>
+                            <span className="text-xs font-semibold">
+                                IA: {trabajo.nvl_ia !== null ? `${trabajo.nvl_ia}%` : '?'}
+                            </span>
+                        </div>
                     </td>
                     <td className="px-6 py-4 text-center">
                         <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${trabajo.estado === 'ACEPTADO'

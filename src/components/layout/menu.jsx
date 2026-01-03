@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { 
   Home, UserPlus, Settings, Users, LucideFileUp, 
-  UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers,FileCheck
+  UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers,FileCheck, AlignEndHorizontalIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
@@ -35,7 +35,8 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'assign-work', group: 'work', icon: LucideFileUp, label: 'Asignar Trabajo', page: `${baseUrl}/assignconvocatorie` },
         { id: 'rubric', icon: FileDiff, group: 'settings', label: 'Criterios Evaluacion', page: `${baseUrl}/rubric` },
         { id: 'send-mail', icon: Mail, group: 'settings', label: 'Invitar revisores', page: `${baseUrl}/sendmail` },
-        { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` }
+        { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` },
+        { id: 'assessed-ia', icon: AlignEndHorizontalIcon, group: 'work', label: 'Niveles de IA y Plagio', page: `${baseUrl}/assessed-ia` },
       )
     }
     return items;
