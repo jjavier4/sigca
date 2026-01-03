@@ -99,6 +99,7 @@ export async function GET(request) {
         estado: trabajo.estado,
         nvl_ia: trabajo.nvl_ia,
         nvl_plagio: trabajo.nvl_plagio,
+        presencial: trabajo.presencial,
         autor: `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`,
         autorEmail: trabajo.usuario.email,
         convocatoria: trabajo.convocatoria.titulo,

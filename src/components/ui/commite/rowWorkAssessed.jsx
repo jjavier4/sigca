@@ -1,6 +1,7 @@
 import React from 'react'
 import { CheckCircle, XCircle } from 'lucide-react';
-export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar }) {
+
+export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPresencialChange }) {
     return (
         <>
             {
@@ -34,9 +35,8 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar }) {
                                         <>
                                             {
                                                 trabajo.calificaciones.map((cal, index) => (
-                                                    <div className="flex gap-2 items-center justify-between">
-                                                        <div
-                                                            key={index}
+                                                    <div key={index} className="flex gap-2 items-center justify-between">
+                                                        <div                                                            
                                                             className={`px-3 py-1 rounded-lg text-sm font-semibold  ${cal.calificacion !== null
                                                                 ? 'bg-green-100 text-green-800'
                                                                 : 'bg-gray-100 text-gray-500'
@@ -89,6 +89,17 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar }) {
                             <span className="text-xs font-semibold">
                                 IA: {trabajo.nvl_ia !== null ? `${trabajo.nvl_ia}%` : '?'}
                             </span>
+                        </div>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center">
+                            <input
+                                type="checkbox"
+                                checked={trabajo.presencial}
+                                onChange={(e) => onPresencialChange(trabajo.id, e.target.checked)}
+                                disabled={trabajo.estado !== 'EN_REVISION'}
+                                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                            />
                         </div>
                     </td>
                     <td className="px-6 py-4 text-center">

@@ -6,7 +6,7 @@ import Alert from '@/components/ui/utils/alert';
 import Loading from '@/components/ui/utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
 import RowWorkAssessed from '@/components/ui/commite/rowWorkAssessed';
-import { Row } from '@react-email/components';
+
 export default function TrabajosCalificados() {
     const { data: session } = useSession();
 
@@ -43,9 +43,21 @@ export default function TrabajosCalificados() {
         }
     };
 
+    const handlePresencialChange = (trabajoId, presencial) => {
+        setTrabajos(prevTrabajos => 
+            prevTrabajos.map(trabajo => 
+                trabajo.id === trabajoId 
+                    ? { ...trabajo, presencial } 
+                    : trabajo
+            )
+        );
+    };
+
     const handleAceptar = (trabajoId) => {
+        const trabajo = trabajos.find(t => t.id === trabajoId);
         console.log('Aceptar trabajo:', trabajoId);
-        // TODO: Implementar lógica de aceptación
+        console.log('Presencial:', trabajo.presencial);
+        // TODO: Implementar lógica de aceptación con el dato presencial
         setSuccess(`Trabajo ${trabajoId} marcado para aceptación`);
         setTimeout(() => setSuccess(''), 3000);
     };
@@ -95,23 +107,23 @@ export default function TrabajosCalificados() {
                         <table className="w-full">
                             <thead className="bg-gray-50">
                                 <tr>
-
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Título y Convocatoria
                                     </th>
-
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Tipo
                                     </th>
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                         Calificaciones y Comentarios por Revisor
                                     </th>
-
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                         Promedio
                                     </th>
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                         Nivel de plagio e IA
+                                    </th>
+                                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                                        Presencial
                                     </th>
                                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                                         Estado
@@ -124,11 +136,13 @@ export default function TrabajosCalificados() {
                             <tbody className="divide-y divide-gray-200">
                                 {trabajos.map((trabajo) => (
                                     <RowWorkAssessed
-                                    key={trabajo.id}
-                                    trabajo={trabajo}
-                                    onAceptar={() => handleAceptar(trabajo.id)}
-                                    onRechazar={() => handleRechazar(trabajo.id)}
-                                />))}
+                                        key={trabajo.id}
+                                        trabajo={trabajo}
+                                        onAceptar={() => handleAceptar(trabajo.id)}
+                                        onRechazar={() => handleRechazar(trabajo.id)}
+                                        onPresencialChange={handlePresencialChange}
+                                    />
+                                ))}
                             </tbody>
                         </table>
                     </div>
