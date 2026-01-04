@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { FileText, Calendar, RefreshCw, CheckCircle, XCircle, Clock, AlertCircle, Eye, Settings, Coins, } from 'lucide-react';
+import React from 'react';
+import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo }) {
+export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -125,7 +125,7 @@ export default function CardWork({ trabajo }) {
           trabajo.estado === 'ACEPTADO' && (
             <div className="pt-4 border-t border-gray-200">
               <button
-                onClick={() => onViewDetails(trabajo)}
+                onClick={() => getReferenciaPagoPDF()}
                 className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors group"
               >
                 <Coins className="mr-2" size={18} />

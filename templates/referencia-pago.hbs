@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referencia de Pago - CIIDICI</title>
+    <style>
+        @page {
+            margin: 2cm;
+            size: letter;
+        }
+
+        body {
+            /* Fuente estándar para documentos oficiales, similar a Arial/Helvetica */
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000;
+            font-size: 11pt;
+            line-height: 1.3;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header-top {
+            color: #696868;
+            text-transform: uppercase;
+            font-size: 12pt;
+            margin-bottom: 15px;
+        }
+
+
+        /* --- LOGO ÚNICO --- */
+        .logo-container {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo-img {
+            max-width: 100%;
+            height: auto;
+            max-height: 120px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- TÍTULO DEL EVENTO --- */
+        .congreso-section {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .congreso-title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #333; /* Gris muy oscuro para el texto del cuerpo */
+        }
+
+        /* --- FECHA Y VIGENCIA --- */
+        .fecha-centro {
+            text-align: right;
+            font-weight: bold;
+            margin: 15px 0;
+            text-transform: uppercase;
+        }
+
+        .vigencia-container {
+            text-align: right; /* Alineado a la derecha como en el PDF */
+            margin: 20px 0;
+        }
+
+        /* --- DATOS BANCARIOS --- */
+        .concepto-pago {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .banco-titulo {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #003366; /* Azul Institucional Banamex */
+            margin: 15px 0;
+        }
+
+        /* TABLA DE REFERENCIA - CLAVE PARA EL PARECIDO */
+        .tabla-datos {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .tabla-datos td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        .celda-label {
+            width: 20%;
+            font-weight: bold;
+            background-color: #fff; /* Fondo blanco, no gris */
+        }
+
+        .celda-valor {
+            /* Fuente monoespaciada para evitar errores de lectura en números */
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        /* --- PIE DE PÁGINA --- */
+        .aviso-ventanilla {
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .nota-final {
+            font-size: 12pt;
+            text-align: justify;
+        }
+
+        .email-link {
+            color: #0000EE;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-top">Tecnológico Nacional de México-Instituto Tecnológico de Toluca </div>
+    </div>
+
+    <div class="logo-container">
+        {{#if logoITT}}
+        <img src="{{logoITT}}" alt="Logo logoITT" class="logo-img">
+        {{/if}}
+    </div>
+
+    <div class="congreso-section">
+        <div class="congreso-title">
+            Congreso Internacional de Investigación y<br>
+            Divulgación de la Ciencia y la Ingeniería
+        </div>
+    </div>
+
+    <div class="fecha-centro">
+        Metepec, Estado de México a {{anio}}
+    </div>
+
+    <div class="vigencia-container">
+        <strong>Vigencia: </strong>  {{vigencia}}
+    </div>
+
+    <div class="concepto-pago">
+        <strong>PAGO DE INSCRIPCIÓN: </strong> {{pagoInscripcion}}
+    </div>
+
+    <div class="banco-titulo">BANAMEX</div>
+
+    <table class="tabla-datos">
+        <tr>
+            <td class="celda-label">REFERENCIA:</td>
+            <td class="celda-valor">{{referencia}}</td>
+        </tr>
+        <tr>
+            <td class="celda-label">PAGO:</td>
+            <td class="celda-valor">{{pago}}</td>
+        </tr>
+    </table>
+
+    <div class="aviso-ventanilla">
+        PAGO EXCLUSIVO EN VENTANILLA.
+    </div>
+
+    <div class="nota-final">
+        <strong>Nota:</strong> Si requiere factura deberá enviar al correo: 
+        <a href="mailto:rf.ingresos@toluca.tecnm.mx" class="email-link">rf.ingresos@toluca.tecnm.mx</a>
+        adjuntando la constancia de situación fiscal vigente y el uso del CFDI.
+    </div>
+
+</body>
+</html>

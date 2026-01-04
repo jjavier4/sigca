@@ -21,7 +21,42 @@ export default function DashboardAuthor() {
       fetchTrabajos();
     }
   }, [session]);
+  const generarReferenciaPago = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/user/ref-pay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          pagoInscripcion: true,
+          referencia: '39120101670120250000000001CIIDICI47859247',
+          pago: 300
+        })
+      });
 
+      if (response.ok) {
+        // Descargar el PDF
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Referencia_Pago_CIIDICI_${new Date().getFullYear()}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        const error = await response.json();
+        console.error('Error:', error);
+      }
+    } catch (error) {
+      console.error('Error al generar referencia:', error);
+    }finally{
+      setLoading(false);
+    }
+  };
   const fetchTrabajos = async () => {
     try {
       setLoading(true);
@@ -109,6 +144,7 @@ export default function DashboardAuthor() {
               <CardWork
                 key={trabajo.id}
                 trabajo={trabajo}
+                getReferenciaPagoPDF={generarReferenciaPago}
               />
             ))}
           </div>
