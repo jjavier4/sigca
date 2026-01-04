@@ -26,11 +26,7 @@ export async function GET(request) {
 
     // Obtener trabajos del año actual con sus asignaciones
     const trabajos = await prisma.trabajos.findMany({
-      where: {
-        id: {
-          startsWith: `${anioActual}-`
-        }
-      },
+      
       include: {
         usuario: {
           select: {

@@ -13,7 +13,7 @@ export default function CardWork({ trabajo }) {
       minute: '2-digit'
     });
   };
-  const estadoPago = true; // cambiar a trabajo.estadoPago cuando esté implementado
+  const estadoPago = false; // cambiar a trabajo.estadoPago cuando esté implementado
   const getEstadoConfig = (estado) => {
     const configs = {
       EN_REVISION: {
@@ -68,8 +68,8 @@ export default function CardWork({ trabajo }) {
           {
             trabajo.estado === 'ACEPTADO' && (
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoPagoConfig.color}`}>
-                <span className="text-sm font-semibold">Pagado</span>
                 {estadoPagoConfig.icon}
+                <span className="text-sm font-semibold">Pagado</span>                
               </div>
             )
           }

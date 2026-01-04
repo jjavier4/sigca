@@ -18,9 +18,10 @@ const transporter = nodemailer.createTransport({
  * @param {string} subject - Asunto del correo
  * @param {string} html - Contenido HTML del correo
  * @param {string} text - Contenido de texto plano (opcional)
+ * @param {Array} attachments - Archivos adjuntos (opcional)
  * @returns {Promise<Object>} Resultado del envío
  */
-export async function sendEmail({ to, subject, html, text }) {
+export async function sendEmail({ to, subject, html, text, attachments = [] }) {
   try {
     // Convertir 'to' a array si es un string
     const recipients = Array.isArray(to) ? to : [to];
@@ -44,6 +45,7 @@ export async function sendEmail({ to, subject, html, text }) {
       subject: subject,
       text: text || '',
       html: html,
+      attachments: attachments // Agregar soporte para adjuntos
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -199,6 +201,164 @@ export function emailInvitacionRevisor({ nombreRevisor }) {
     Le invitamos a participar como revisor en el CIIDiCI.
     
     Para registrarse, acceda a: ${process.env.NEXTAUTH_URL}/auth/registro?rol=REVISOR
+    
+    Comité Organizador CIIDiCI
+    Instituto Tecnológico de Toluca
+  `;
+
+  return { html, text };
+}
+
+/**
+ * Plantilla: Dictamen de trabajo aceptado
+ */
+export function emailTrabajoAceptado({ nombreCompleto, titulo, modalidad, calificacion, anio }) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          .badge { background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-weight: bold; margin: 10px 0; }
+          .info-box { background: white; padding: 20px; border-left: 4px solid #10b981; margin: 20px 0; }
+          .info-box p { margin: 8px 0; }
+          .label { font-weight: bold; color: #059669; }
+          ul { padding-left: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>¡Felicidades!</h1>
+            <p>CIIDiCI ${anio} - Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="content">
+            <div style="text-align: center;">
+              <span class="badge">TRABAJO ACEPTADO</span>
+            </div>
+
+            <h2>Estimado/a ${nombreCompleto},</h2>
+            <p>Nos complace informarle que su trabajo ha sido <strong>ACEPTADO</strong> para su presentación en el CIIDiCI ${anio}.</p>
+            
+            <div class="info-box">
+              <p><span class="label">Título del Trabajo:</span> ${titulo}</p>
+              <p><span class="label">Modalidad de Presentación:</span> ${modalidad}</p>
+              <p><span class="label">Calificación Final:</span> ${calificacion}%</p>
+            </div>
+
+            <p>Le felicitamos por la calidad de su trabajo. Su contribución ha sido evaluada positivamente por nuestro comité de revisores y cumple con los estándares de calidad requeridos para el congreso.</p>
+            
+            
+            <p><strong>El dictamen oficial en formato PDF se adjunta a este correo.</strong></p>
+
+            <p>Agradecemos su participación y esperamos contar con su presencia en el evento.</p>
+
+            <p>Atentamente,<br>
+            <strong>Comité Organizador CIIDiCI</strong><br>
+            Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="footer">
+            <p>Este es un correo automático, por favor no responda a este mensaje.</p>
+            <p>Instituto Tecnológico de Toluca - Sistema SIGCA</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+    ¡Felicidades ${nombreCompleto}!
+    
+    Su trabajo "${titulo}" ha sido ACEPTADO para el CIIDiCI ${anio}.
+    
+    Modalidad: ${modalidad}
+    Calificación Final: ${calificacion}%
+    
+    Próximamente recibirá más información sobre su presentación.
+    
+    Comité Organizador CIIDiCI
+    Instituto Tecnológico de Toluca
+  `;
+
+  return { html, text };
+}
+
+/**
+ * Plantilla: Dictamen de trabajo rechazado
+ */
+export function emailTrabajoRechazado({ nombreCompleto, titulo, motivo, calificacion, anio }) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          .badge { background: #dc2626; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-weight: bold; margin: 10px 0; }
+          .info-box { background: white; padding: 20px; border-left: 4px solid #dc2626; margin: 20px 0; }
+          .info-box p { margin: 8px 0; }
+          .label { font-weight: bold; color: #991b1b; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Resultado de Evaluación</h1>
+            <p>CIIDiCI ${anio} - Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="content">
+            <div style="text-align: center;">
+              <span class="badge">TRABAJO NO ACEPTADO</span>
+            </div>
+
+            <h2>Estimado/a ${nombreCompleto},</h2>
+            <p>Lamentamos informarle que su trabajo <strong>NO HA SIDO ACEPTADO</strong> para su presentación en el CIIDiCI ${anio}.</p>
+            
+            <div class="info-box">
+              <p><span class="label">Título del Trabajo:</span> ${titulo}</p>
+              ${calificacion ? `<p><span class="label">Calificación Final:</span> ${calificacion}%</p>` : ''}
+              <p><span class="label">Motivo:</span> ${motivo}</p>
+            </div>
+
+            <p>Después de una cuidadosa evaluación por parte de nuestro comité de revisores, se ha determinado que su trabajo no cumple con los criterios requeridos para su inclusión en el congreso.</p>
+
+            <p><strong>El dictamen oficial en formato PDF se adjunta a este correo.</strong></p>
+
+            <p>Le agradecemos sinceramente por su interés en participar en el CIIDiCI y le animamos a continuar con su investigación. Le invitamos a considerar las observaciones de los revisores para futuras presentaciones.</p>
+
+            <p>Esperamos contar con su participación en próximas ediciones del congreso.</p>
+
+            <p>Atentamente,<br>
+            <strong>Comité Organizador CIIDiCI</strong><br>
+            Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="footer">
+            <p>Este es un correo automático, por favor no responda a este mensaje.</p>
+            <p>Instituto Tecnológico de Toluca - Sistema SIGCA</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+    Estimado/a ${nombreCompleto},
+    
+    Lamentamos informarle que su trabajo "${titulo}" no ha sido aceptado para el CIIDiCI ${anio}.
+    
+    ${calificacion ? `Calificación Final: ${calificacion}%` : ''}
+    Motivo: ${motivo}
+    
+    Le agradecemos su participación y le animamos a considerar las observaciones para futuras presentaciones.
     
     Comité Organizador CIIDiCI
     Instituto Tecnológico de Toluca
