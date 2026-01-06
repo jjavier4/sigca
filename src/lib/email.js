@@ -366,3 +366,88 @@ export function emailTrabajoRechazado({ nombreCompleto, titulo, motivo, califica
 
   return { html, text };
 }
+
+/**
+ * Plantilla: Verificación de correo electrónico
+ */
+export function emailVerificacionCuenta({ nombreCompleto, token }) {
+  const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          .button { background: #667eea; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .button:hover { background: #764ba2; }
+          .info-box { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; border-radius: 5px; }
+          .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .code-box { background: #f8f9fa; padding: 15px; border: 2px dashed #667eea; text-align: center; font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; color: #667eea; margin: 20px 0; border-radius: 5px; letter-spacing: 2px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1> Verifica tu Correo Electrónico</h1>
+            <p>SIGCA - Sistema de Gestión de Conferencias Académicas</p>
+          </div>
+          <div class="content">
+            <h2>¡Hola ${nombreCompleto}!</h2>
+            <p>Gracias por registrarte en <strong>SIGCA</strong>. Para completar tu registro y activar tu cuenta, necesitamos verificar tu correo electrónico.</p>
+            
+            <div class="info-box">
+              <h3 style="margin-top: 0;"> ¿Cómo verificar tu cuenta?</h3>
+              <p>Haz clic en el botón de abajo para verificar tu correo electrónico:</p>
+              <div style="text-align: center;">
+                <a href="${verificationUrl}" class="button">Verificar mi correo</a>
+              </div>
+              <p style="margin-top: 20px;">O copia y pega este enlace en tu navegador:</p>
+              <div class="code-box">${verificationUrl}</div>
+            </div>
+
+            <div class="warning">
+              <strong> Importante:</strong> Este enlace de verificación es válido por <strong>15 minutos</strong>. Si expira, puedes solicitar uno nuevo intentando iniciar sesión nuevamente.
+            </div>
+
+            <p>Si no te registraste en SIGCA, puedes ignorar este correo de manera segura.</p>
+
+            <p>Atentamente,<br>
+            <strong>Equipo SIGCA</strong><br>
+            Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="footer">
+            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+            <p>Instituto Tecnológico de Toluca - Sistema SIGCA</p>
+            <p style="font-size: 10px; color: #999; margin-top: 10px;">
+              Si tienes problemas con el botón, copia y pega el enlace en tu navegador.
+            </p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+    ¡Hola ${nombreCompleto}!
+    
+    Gracias por registrarte en SIGCA.
+    
+    Para verificar tu correo electrónico, visita este enlace:
+    ${verificationUrl}
+    
+    Este enlace es válido por 15 minutos.
+    
+    Si no te registraste en SIGCA, ignora este correo.
+    
+    Equipo SIGCA
+    Instituto Tecnológico de Toluca
+  `;
+
+  return { html, text };
+}

@@ -54,7 +54,30 @@ export default function AuthPage() {
       console.log('Resultado de signIn:', result);
 
       if (result?.error) {
-        setError('Credenciales incorrectas. Verifica tu email y contraseña.');
+        if (result.error === 'CUENTA_NO_VERIFICADA') {
+          setError('Tu cuenta no está verificada. Revisa tu correo electrónico.');
+
+          try {
+            const resendResponse = await fetch('/api/auth/resend-verification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: loginData.email }),
+            });
+
+            const resendData = await resendResponse.json();
+
+            if (resendResponse.ok) {
+              setSuccess('Se ha enviado un nuevo enlace de verificación a tu correo.');
+            } else {
+              setError(`Tu cuenta no está verificada. ${resendData.error}`);
+            }
+          } catch (resendError) {
+            console.error('Error al reenviar verificación:', resendError);
+            setError('Tu cuenta no está verificada. No se pudo enviar el correo de verificación.');
+          }
+        } else {
+          setError('Credenciales incorrectas. Verifica tu email y contraseña.');
+        }
       } else {
         router.push('/ciidici');
         router.refresh();
@@ -125,7 +148,7 @@ export default function AuthPage() {
         throw new Error(data.error || 'Error al registrar usuario');
       }
 
-      setSuccess(`¡Registro exitoso! Tu ID de usuario es: ${data.user.id}. Ahora puedes iniciar sesión.`);
+      setSuccess(`¡Registro exitoso! Hemos enviado un correo de verificación a ${registerData.email}. Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.`);
 
       setRegisterData({
         nombre: '',
@@ -138,10 +161,10 @@ export default function AuthPage() {
         confirmPassword: '',
       });
 
+      // No cambiar a login automáticamente, dejar que el usuario vea el mensaje
       setTimeout(() => {
-        setIsLogin(true);
         setSuccess('');
-      }, 6000);
+      }, 5000); 
 
     } catch (err) {
       setError(err.message || 'Error al registrar usuario');

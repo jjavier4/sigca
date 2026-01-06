@@ -20,7 +20,6 @@ model Usuarios {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   activa          Boolean  @default(false)
-  
   // Relación con Trabajos (como autor)
   trabajos  Trabajos[]
   
@@ -121,4 +120,14 @@ model CriteriosEvaluacion {
 enum GrupoRubrica {
   DIFUSION
   DIVULGACION
+}
+
+model Tokens {
+  email     String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+  @@index([token])
+  @@index([createdAt])
 }

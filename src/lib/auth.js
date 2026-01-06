@@ -36,6 +36,11 @@ export const authOptions = {
           throw new Error('Usuario no encontrado');
         }
 
+        // VALIDAR QUE LA CUENTA ESTÉ ACTIVA
+        if (!usuario.activa) {
+          throw new Error('CUENTA_NO_VERIFICADA'); 
+        }
+
         // Verificar la contraseña hasheada
         const passwordMatch = await bcrypt.compare(
           credentials.password,
@@ -60,18 +65,18 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.rol = user.rol
-        token.email = user.email
+        token.id = user.id;
+        token.rol = user.rol;
+        token.email = user.email;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id
-        session.user.rol = token.rol
-        session.user.email = token.email
+        session.user.id = token.id;
+        session.user.rol = token.rol;
+        session.user.email = token.email;
       }
       return session;
     },
