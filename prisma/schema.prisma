@@ -20,7 +20,6 @@ model Usuarios {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   activa          Boolean  @default(false)
-  
   // Relación con Trabajos (como autor)
   trabajos  Trabajos[]
   
@@ -58,6 +57,7 @@ model Trabajos {
   titulo            String
   tipo              String
   coautores         String[] @default([]) // Array de nombres de coautores
+  presencial        Boolean  @default(false)
   nvl_ia            Float?
   nvl_plagio        Float?
   calificacion_final  Float?
@@ -120,4 +120,14 @@ model CriteriosEvaluacion {
 enum GrupoRubrica {
   DIFUSION
   DIVULGACION
+}
+
+model Tokens {
+  email     String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+  @@index([token])
+  @@index([createdAt])
 }

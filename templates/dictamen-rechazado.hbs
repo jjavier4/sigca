@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictamen de No Aceptación</title>
+    <style>
+        /* Configuración de página: Carta (Letter) con márgenes estándar de Word (2.54cm) */
+        @page {
+            margin: 2.54cm 2.54cm;
+            size: letter;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.15;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            text-align: justify;
+        }
+
+        /* --- ENCABEZADO Y LOGO --- */
+        .membrete {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 100%;
+            height: auto;
+            max-height: 120px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* --- FECHA Y ASUNTO --- */
+        .fecha-lugar {
+            text-align: right;
+            /* Alineación a la derecha (estándar oficial) */
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .asunto {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        /* --- DESTINATARIO --- */
+        .destinatario-bloque {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .destinatario-nombre {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .presente {
+            font-weight: bold;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        /* --- CONTENIDO --- */
+        .contenido {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            /* Mayor interlineado para lectura cómoda */
+        }
+
+        .contenido p {
+            margin-bottom: 15px;
+            text-indent: 0;
+        }
+
+        /* Estilo para resaltar el título del trabajo */
+        .trabajo-titulo {
+            display: block;
+            margin: 20px 40px;
+            /* Sangría a ambos lados */
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-left: 3px solid #666;
+            /* Borde gris para denotar cita/título */
+        }
+
+        /* --- FIRMA --- */
+        .cierre-bloque {
+            margin-top: 60px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .atentamente {
+            font-weight: bold;
+            margin-bottom: 70px;
+            /* Espacio para firma */
+        }
+
+        .firma-nombre {
+            font-weight: bold;
+            border-top: 1px solid #000;
+            display: inline-block;
+            padding-top: 10px;
+            min-width: 250px;
+        }
+
+        .firma-cargo {
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Utilidades de texto */
+        .bold {
+            font-weight: bold;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="membrete">
+        {{#if logoITT}}
+        <img src="{{logoITT}}" alt="Logo ITT" class="logo">
+        {{/if}}
+    </div>
+
+    <div class="fecha-lugar">
+        Metepec, Estado de México a {{fecha}}
+    </div>
+
+    <div class="asunto">
+        ASUNTO: DICTAMEN
+    </div>
+
+    <div class="destinatario-bloque">
+        <div class="destinatario-nombre">C. {{nombreCompleto}}</div>
+        <div class="presente">PRESENTE</div>
+    </div>
+
+    <div class="contenido">
+        <p>
+            En atención al proceso de evaluación por pares realizado por el Comité del
+            <strong>Congreso Internacional de Investigación, Difusión y Divulgación Científica (CIIDICI
+                {{anio}})</strong>,
+            le informamos que el trabajo titulado:
+        </p>
+
+        <div class="trabajo-titulo">
+            “{{titulo}}”
+        </div>
+
+        <p>
+            de la autoría de <strong>{{autores}}</strong>, <span class="bold uppercase">NO FUE ACEPTADO</span>
+            para su presentación en el programa académico del congreso.
+        </p>
+
+        <p>
+            No omitimos mencionar que dicha decisión es inapelable.
+        </p>
+
+        <p>
+            Agradecemos sinceramente el interés y el esfuerzo dedicado a su participación,
+            así como la confianza depositada en este espacio académico. Le invitamos cordialmente
+            a continuar colaborando en futuras ediciones del <strong>CIIDICI</strong>,
+            con nuevas propuestas que contribuyan al fortalecimiento de la investigación,
+            la difusión y la divulgación científica.
+        </p>
+        <p>
+            <strong>MOTIVO: </strong>{{motivo}}
+        </p>
+        {{#if comentarios}}
+        <p style="margin-top: 30px;">
+            <strong>Comentarios de los revisores:</strong>
+        </p>
+
+        {{#each comentarios}}
+        <p style="margin-left: 20px; margin-bottom: 15px;">
+            <strong>Revisor {{this.numero}}:</strong> {{this.texto}}
+        </p>
+        {{/each}}
+        {{/if}}
+    </div>
+
+    <div class="cierre-bloque">
+        <div class="atentamente">Atentamente</div>
+
+        <div class="firma-nombre">Comité Editorial</div>
+        <div class="firma-cargo">CIIDiCI {{anio}}</div>
+    </div>
+
+</body>
+
+</html>

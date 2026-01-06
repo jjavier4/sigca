@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictamen de Aceptación</title>
+    <style>
+        @page {
+            margin: 2.54cm 2.54cm;
+            size: letter;
+        }
+
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.15;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            text-align: justify;
+        }
+
+
+        .membrete {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo {
+
+            max-width: 100%;
+            height: auto;
+            max-height: 120px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        .header-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 10pt;
+            color: #444;
+        }
+
+
+        .fecha-lugar {
+            text-align: right;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .asunto {
+            text-align: right;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+
+        .destinatario-bloque {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .destinatario-nombre {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .presente {
+            font-weight: bold;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+
+        .contenido {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .contenido p {
+            margin-bottom: 15px;
+            /* Espacio entre párrafos tipo Word */
+            text-indent: 0;
+            /* O 1.25cm si prefieres sangría */
+        }
+
+        /* Estilo destacado para el Título del trabajo */
+        .trabajo-titulo {
+            display: block;
+            margin: 20px 40px;
+            /* Indentado a los lados para resaltar */
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            background-color: #f9f9f9;
+            /* Opcional: fondo muy sutil */
+            padding: 10px;
+            border-left: 3px solid #333;
+            /* Detalle visual elegante */
+        }
+
+        /* --- FIRMA --- */
+        .cierre-bloque {
+            margin-top: 60px;
+            text-align: center;
+            /* Las firmas suelen ir centradas */
+            page-break-inside: avoid;
+            /* Evita que la firma quede sola en otra página */
+        }
+
+        .atentamente {
+            font-weight: bold;
+            margin-bottom: 70px;
+            /* Espacio para la firma autógrafa o sello */
+            text-transform: uppercase;
+        }
+
+        .firma-nombre {
+            font-weight: bold;
+            border-top: 1px solid #000;
+            /* Línea de firma */
+            display: inline-block;
+            padding-top: 10px;
+            min-width: 250px;
+        }
+
+        .firma-cargo {
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Clases de utilidad */
+        .bold {
+            font-weight: bold;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="membrete">
+        {{#if logoITT}}
+        <img src="{{logoITT}}" alt="Logo Institucional" class="logo">
+        {{/if}}
+    </div>
+
+    <div class="fecha-lugar">
+        Metepec, Estado de México a {{fecha}}
+    </div>
+
+    <div class="asunto">
+        ASUNTO: DICTAMEN
+    </div>
+
+    <div class="destinatario-bloque">
+        <div class="destinatario-nombre">C. {{nombreCompleto}}</div>
+        <div class="presente">PRESENTE</div>
+    </div>
+
+    <div class="contenido">
+        <p>
+            En atención al proceso de evaluación por pares realizado por el Comité del
+            <strong>Congreso Internacional de Investigación, Difusión y Divulgación Científica (CIIDICI
+                {{anio}})</strong>,
+            nos complace informarle que el trabajo titulado:
+        </p>
+
+        <div class="trabajo-titulo">
+            “{{titulo}}”
+        </div>
+
+        <p>
+            de autoría de <strong>{{autores}}</strong>, ha sido <span class="bold uppercase">ACEPTADO</span>
+            para su presentación en la modalidad <strong>«{{modalidad}}»</strong> dentro del programa académico del
+            congreso.
+        </p>
+
+        <p>
+            Será un verdadero placer contar con su valiosa participación en el <strong>CIIDICI {{anio}}</strong>,
+            contribuyendo al intercambio de experiencias y a la difusión del conocimiento científico.
+        </p>
+        {{#if comentarios}}
+        <p style="margin-top: 30px;">
+            <strong>Comentarios de los revisores:</strong>
+        </p>
+
+        {{#each comentarios}}
+        <p style="margin-left: 20px; margin-bottom: 15px;">
+            <strong>Revisor {{this.numero}}:</strong> {{this.texto}}
+        </p>
+        {{/each}}
+        {{/if}}
+    </div>
+
+    <div class="cierre-bloque">
+        <div class="atentamente">ATENTAMENTE</div>
+
+        <div class="firma-nombre">Comité Editorial</div>
+        <div class="firma-cargo">CIIDiCI {{anio}}</div>
+    </div>
+
+</body>
+
+</html>

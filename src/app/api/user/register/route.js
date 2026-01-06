@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { generarToken, guardarToken } from '@/lib/tokens';
+import { sendEmail, emailVerificacionCuenta } from '@/lib/email';
 
 // Función para generar el ID del usuario
 async function generarUsuarioId(identificador) {
@@ -17,15 +19,12 @@ async function generarUsuarioId(identificador) {
 
 // Función para validar RFC
 function validarRFC(rfc) {
-  // RFC de persona física: 13 caracteres (4 letras + 6 dígitos + 3 caracteres)
   const rfcRegex = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
   return rfcRegex.test(rfc.toUpperCase());
 }
 
 // Función para validar CURP
 function validarCURP(curp) {
-  // CURP: 18 caracteres
-  // 4 letras + 6 dígitos + H/M + 2 letras (estado) + 3 letras + 2 dígitos
   const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
   return curpRegex.test(curp.toUpperCase());
 }
@@ -46,7 +45,7 @@ export async function POST(request) {
     } = body;
 
     // Validaciones básicas
-    if (!nombre || !apellidoP || !apellidoM || !email || !password ) {
+    if (!nombre || !apellidoP || !apellidoM || !email || !password) {
       return NextResponse.json(
         { error: 'Todos los campos obligatorios deben ser completados' },
         { status: 400 }
@@ -74,7 +73,7 @@ export async function POST(request) {
     if (tipoIdentificacion === 'rfc') {
       if (!validarRFC(rfc)) {
         return NextResponse.json(
-          { error: 'El RFC proporcionado no tiene un formato válido. Debe tener 12 o 13 caracteres.' },
+          { error: 'El RFC proporcionado no tiene un formato válido. Debe tener 13 caracteres.' },
           { status: 400 }
         );
       }
@@ -165,7 +164,8 @@ export async function POST(request) {
       apellidoM,
       email: email.toLowerCase(),
       password: hashedPassword,
-      rol: rol || 'AUTOR', // Asignar rol por defecto si no se proporciona
+      rol: rol || 'AUTOR',
+      activa: false, 
     };
 
     // Agregar RFC o CURP según corresponda
@@ -177,7 +177,7 @@ export async function POST(request) {
       userData.rfc = null;
     }
 
-    // Crear el usuario con el ID personalizado
+    // Crear el usuario
     const newUser = await prisma.usuarios.create({
       data: userData,
       select: {
@@ -189,14 +189,38 @@ export async function POST(request) {
         rfc: true,
         curp: true,
         rol: true,
+        activa: true,
         createdAt: true,
       },
     });
 
+    const token = generarToken();
+    await guardarToken(email.toLowerCase(), token);
+
+    const nombreCompleto = `${nombre} ${apellidoP} ${apellidoM}`;
+    const { html, text } = emailVerificacionCuenta({ nombreCompleto, token });
+
+    const emailResult = await sendEmail({
+      to: email.toLowerCase(),
+      subject: 'Verifica tu correo electrónico - SIGCA',
+      html,
+      text,
+    });
+
+    if (!emailResult.success) {
+      console.error('Error al enviar email de verificación:', emailResult.error);
+      // No fallar el registro si el email no se envía
+    }
+
     return NextResponse.json(
       {
-        message: 'Usuario registrado exitosamente',
-        user: newUser,
+        message: 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.',
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          nombre: nombreCompleto,
+        },
+        requiresVerification: true,
       },
       { status: 201 }
     );
@@ -204,7 +228,6 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error en registro:', error);
 
-    // Manejar error de ID duplicado (por si acaso)
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Ya existe un usuario con estos datos. Por favor, intenta nuevamente.' },
