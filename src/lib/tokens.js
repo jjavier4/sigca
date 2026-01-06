@@ -63,6 +63,25 @@ export async function validarToken(token) {
   }
 }
 
+export async function validarTokenRevisor(token) {
+  try {
+    const tokenRecord = await prisma.tokens.findUnique({
+      where: { token },
+    });
+
+    if (!tokenRecord) {
+      console.log('Token no encontrado');
+      return null;
+    }
+
+    console.log(`Token válido para ${tokenRecord.email}`);
+    return tokenRecord.email;
+  } catch (error) {
+    console.error('Error al validar token:', error);
+    throw error;
+  }
+}
+
 
 export async function eliminarToken(token) {
   try {

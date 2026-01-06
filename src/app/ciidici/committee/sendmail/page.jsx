@@ -1,4 +1,3 @@
-// app/dashboard/comite/invitar-revisores/page.jsx
 "use client";
 import React, { useState } from 'react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';

@@ -67,12 +67,7 @@ export default function VerifyEmailPage() {
                 ¡Cuenta Verificada!
               </h2>
               <p className="text-gray-600 mb-6">{message}</p>
-              <Link
-                href="/ciidici/auth"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
-              >
-                Ir a Iniciar Sesión
-              </Link>
+              
             </>
           )}
 
@@ -83,12 +78,7 @@ export default function VerifyEmailPage() {
                 Cuenta Ya Verificada
               </h2>
               <p className="text-gray-600 mb-6">{message}</p>
-              <Link
-                href="/ciidici/auth"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
-              >
-                Ir a Iniciar Sesión
-              </Link>
+              
             </>
           )}
 
@@ -99,13 +89,7 @@ export default function VerifyEmailPage() {
                 Error de Verificación
               </h2>
               <p className="text-gray-600 mb-6">{message}</p>
-              <div className="space-y-3">
-                <Link
-                  href="/ciidici/auth"
-                  className="block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
-                >
-                  Intentar Iniciar Sesión
-                </Link>
+              <div className="space-y-3">                
                 <p className="text-sm text-gray-500">
                   Si el enlace expiró, intenta iniciar sesión y recibirás un nuevo correo de verificación
                 </p>

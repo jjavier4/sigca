@@ -135,9 +135,11 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
 }
 
 /**
- * Plantilla: Invitación a revisor
+ * Plantilla: Invitación a revisor (con token de registro)
  */
-export function emailInvitacionRevisor({ nombreRevisor }) {
+export function emailInvitacionRevisor({ nombreRevisor, token }) {
+  const registroUrl = `${process.env.NEXTAUTH_URL}/auth/register-revisor?token=${token}`;
+  
   const html = `
     <!DOCTYPE html>
     <html>
@@ -149,8 +151,11 @@ export function emailInvitacionRevisor({ nombreRevisor }) {
           .header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
           .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
           .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-          .button { background: #f5576c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; }
-          .info-box { background: white; padding: 15px; border-left: 4px solid #f5576c; margin: 20px 0; }
+          .button { background: #f5576c; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .button:hover { background: #e04560; }
+          .info-box { background: white; padding: 20px; border-left: 4px solid #f5576c; margin: 20px 0; border-radius: 5px; }
+          .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .code-box { background: #f8f9fa; padding: 15px; border: 2px dashed #f5576c; text-align: center; font-family: 'Courier New', monospace; font-size: 14px; color: #f5576c; margin: 20px 0; border-radius: 5px; word-break: break-all; }
           ul { padding-left: 20px; }
         </style>
       </head>
@@ -174,13 +179,22 @@ export function emailInvitacionRevisor({ nombreRevisor }) {
               </ul>
             </div>
 
-            <p>Para aceptar esta invitación y registrarse como revisor, por favor acceda a nuestra plataforma SIGCA:</p>
+            <p>Para aceptar esta invitación y registrarse como revisor en nuestra plataforma SIGCA, haga clic en el siguiente botón:</p>
 
-            <a href="${process.env.NEXTAUTH_URL}/auth/registro?rol=REVISOR" class="button">Registrarse como Revisor</a>
+            <div style="text-align: center;">
+              <a href="${registroUrl}" class="button">Registrarse como Revisor</a>
+            </div>
 
-            <p>Una vez registrado, podrá acceder al sistema para revisar las propuestas asignadas.</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #666;">O copia y pega este enlace en tu navegador:</p>
+            <div class="code-box">${registroUrl}</div>
 
-            <p>Agradecemos de antemano su valiosa colaboración.</p>
+            <div class="warning">
+              <strong>Importante:</strong> Este enlace de invitación es válido por <strong>15 minutos</strong>. Si expira, por favor contacte al comité organizador para solicitar una nueva invitación.
+            </div>
+
+            <p>Una vez registrado, recibirá un correo de verificación para activar su cuenta y podrá acceder al sistema para revisar las propuestas asignadas.</p>
+
+            <p>Agradecemos de antemano su valiosa colaboración en este importante evento académico.</p>
 
             <p>Atentamente,<br>
             <strong>Comité Organizador CIIDiCI</strong><br>
@@ -189,6 +203,9 @@ export function emailInvitacionRevisor({ nombreRevisor }) {
           <div class="footer">
             <p>Este es un correo automático, por favor no responda a este mensaje.</p>
             <p>Instituto Tecnológico de Toluca - Sistema SIGCA</p>
+            <p style="font-size: 10px; color: #999; margin-top: 10px;">
+              Si tiene problemas con el enlace, contacte al comité organizador.
+            </p>
           </div>
         </div>
       </body>
@@ -198,9 +215,14 @@ export function emailInvitacionRevisor({ nombreRevisor }) {
   const text = `
     Estimado/a ${nombreRevisor},
     
-    Le invitamos a participar como revisor en el CIIDiCI.
+    Le invitamos a participar como revisor académico en el CIIDiCI.
     
-    Para registrarse, acceda a: ${process.env.NEXTAUTH_URL}/auth/registro?rol=REVISOR
+    Para registrarse como revisor, acceda a este enlace:
+    ${registroUrl}
+    
+    Este enlace es válido por 15 minutos.
+    
+    Una vez registrado, recibirá un correo de verificación para activar su cuenta.
     
     Comité Organizador CIIDiCI
     Instituto Tecnológico de Toluca

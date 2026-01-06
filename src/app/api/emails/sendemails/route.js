@@ -1,8 +1,8 @@
-// app/api/comite/invitar-revisores/route.js
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { generarToken, guardarToken } from '@/lib/tokens';
 import { sendEmail, emailInvitacionRevisor } from '@/lib/email';
 
 export async function POST(request) {
@@ -82,10 +82,13 @@ export async function POST(request) {
           });
           continue;
         }
+        const token = generarToken();
+        
+        await guardarToken(revisor.correo, token);
 
-        // Enviar correo de invitación
         const { html, text } = emailInvitacionRevisor({
-          nombreRevisor: revisor.nombre
+          nombreRevisor: revisor.nombre,
+          token: token, 
         });
 
         const emailResult = await sendEmail({
@@ -100,6 +103,7 @@ export async function POST(request) {
           nombre: revisor.nombre,
           enviado: emailResult.success,
           registrado: false,
+          tokenGenerado: emailResult.success, 
           error: emailResult.error || null,
         });
 
@@ -110,6 +114,7 @@ export async function POST(request) {
           nombre: revisor.nombre,
           enviado: false,
           registrado: false,
+          tokenGenerado: false,
           error: error.message
         });
       }
@@ -135,54 +140,6 @@ export async function POST(request) {
     console.error('Error al enviar invitaciones:', error);
     return NextResponse.json(
       { error: 'Error al procesar la solicitud', details: error.message },
-      { status: 500 }
-    );
-  }
-}
-
-// GET: Obtener lista de revisores invitados
-export async function GET(request) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !['COMITE', 'ADMIN'].includes(session.user.rol)) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(request.url);
-    const registrado = searchParams.get('registrado');
-
-    const whereClause = registrado !== null 
-      ? { registrado: registrado === 'true' }
-      : {};
-
-    const revisoresInvitados = await prisma.revisorInvitado.findMany({
-      where: whereClause,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      select: {
-        id: true,
-        nombre: true,
-        correo: true,
-        registrado: true,
-        createdAt: true
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      total: revisoresInvitados.length,
-      revisores: revisoresInvitados
-    });
-
-  } catch (error) {
-    console.error('Error al obtener revisores invitados:', error);
-    return NextResponse.json(
-      { error: 'Error al obtener datos' },
       { status: 500 }
     );
   }
