@@ -136,7 +136,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   const [countCoauthors, setCountCoauthors] = useState(0);
   const [dataConvocatoria, setDataConvocatoria] = useState({
     tituloPropuesta: '',
-    tipo: 'Divulgacion',
+    tipo: 'DIVULGACION',
     coautores: []
   });
   const [uploading, setUploading] = useState(false);

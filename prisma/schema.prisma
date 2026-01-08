@@ -57,7 +57,7 @@ model Trabajos {
   titulo            String
   tipo              String
   coautores         String[] @default([]) // Array de nombres de coautores
-  presencial        Boolean  @default(false)
+  presencial        Boolean?
   nvl_ia            Float?
   nvl_plagio        Float?
   calificacion_final  Float?
