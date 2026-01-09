@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'SIGCA - Sistema de Gestión de Conferencias Académicas',
   description: 'Congreso Internacional de la Investigación y Divulgación de la Ciencia y la Ingeniería',
+  icons: {
+    icon: '/icon.png', 
+    shortcut: '/icon.png',
+    apple: '/icon.png', 
+  },
 };
 
 export default function RootLayout({ children }) {
