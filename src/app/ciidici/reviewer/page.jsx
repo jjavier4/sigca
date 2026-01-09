@@ -120,12 +120,12 @@ export default function MisAsignaciones() {
             setTimeout(() => { setShowAlert(!showAlert); }, 3000)
           }}
         />
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-row overflow-y-auto">
 
           {/* Sección superior: PDF - Altura fija grande */}
           {
             selectedAsignacion.trabajo.archivo_url ? (
-              <div className="min-h-[500px] flex flex-col p-4 border-b-2 border-gray-300">
+              <div className="min-h-[500px] w-1/2 flex flex-col p-4 border-b-2 border-gray-300">
                 <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
                   <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
                   <p className="text-blue-100 text-sm">
@@ -148,7 +148,7 @@ export default function MisAsignaciones() {
           }
 
           {/* Sección inferior: Rúbrica - Altura automática según contenido */}
-          <div className="min-h-[500px] p-4 bg-gray-50">
+          <div className="min-h-[500px] w-1/2 p-4 bg-gray-50">
             <CardRubric
               asignacion={selectedAsignacion}
               tipoTrabajo={selectedAsignacion.trabajo.tipo}

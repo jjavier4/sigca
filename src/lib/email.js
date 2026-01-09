@@ -146,7 +146,7 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
             <p>Su trabajo será evaluado por nuestro comité de revisores. Le notificaremos cuando haya actualizaciones.</p>
 
             <center>
-              <a href="${process.env.NEXTAUTH_URL}/ciidici/auth" class="button">Ver mis propuestas</a>
+              <a href="${process.env.NEXTAUTH_URL}/auth" class="button">Ver mis propuestas</a>
             </center>
 
             <p>Atentamente,<br><strong>Comité Organizador CIIDiCI</strong></p>

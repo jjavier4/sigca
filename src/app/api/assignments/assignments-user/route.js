@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 export async function GET(request) {
     try {
         const session = await getServerSession();
-   
+        const anioActual = new Date().getFullYear();
         const { searchParams } = new URL(request.url);
         const revisorId = searchParams.get('revisorId');
 
@@ -19,7 +19,10 @@ export async function GET(request) {
 
         const asignaciones = await prisma.asignaciones.findMany({
             where: {
-                revisorId: revisorId
+                revisorId: revisorId,
+                id: {
+                    startsWith: `${anioActual}-`
+                }
             },
             include: {
                 trabajo: {
@@ -47,7 +50,7 @@ export async function GET(request) {
         });
         console.log('Asignaciones encontradas:', asignaciones);
         return NextResponse.json(
-            { 
+            {
                 asignaciones,
                 total: asignaciones.length
             },

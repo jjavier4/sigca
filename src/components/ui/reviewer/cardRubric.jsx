@@ -236,23 +236,22 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                 </div>
 
                 {/* Resumen de Evaluación - SIN estados de decisión */}
-                <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-5">
-                    <h3 className="text-lg font-bold text-purple-900 mb-3">Resumen de Evaluación</h3>
+                <div className="mb-6 bg-gradient-to-r from-blue-50 to-blue-50 border-2 border-blue-200 rounded-lg p-5">
+                    <h3 className="text-lg font-bold text-blue-900 mb-3">Resumen de Evaluación</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Puntaje Total</p>
-                            <p className="text-3xl font-bold text-purple-700">{puntajeTotal.toFixed(1)}%</p>
+                            <p className="text-3xl font-bold text-blue-700">{puntajeTotal.toFixed(1)}%</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-600 mb-1">Calificación Numérica</p>
-                            <p className="text-3xl font-bold text-purple-700">
+                            <p className="text-3xl font-bold text-blue-700">
                                 {(puntajeTotal / 10).toFixed(1)}
                             </p>
                         </div>
                     </div>
                     <div className="mt-3 text-xs text-gray-600">
-                        <p>• Máximo: 100 puntos ({totalCriterios} criterios × 10 pts)</p>
-                        <p>• Tipo de trabajo: {asignacion?.trabajo?.tipo}</p>
+                        <p>Tipo de trabajo: {asignacion?.trabajo?.tipo}</p>
                     </div>
                 </div>
             </div>

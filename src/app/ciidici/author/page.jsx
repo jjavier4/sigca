@@ -86,7 +86,6 @@ export default function DashboardAuthor() {
       total: trabajos.length,
       enRevision: trabajos.filter(t => t.estado === 'EN_REVISION').length,
       aceptados: trabajos.filter(t => t.estado === 'ACEPTADO').length,
-      cambios: trabajos.filter(t => t.estado === 'CAMBIOS_SOLICITADOS').length,
       rechazados: trabajos.filter(t => t.estado === 'RECHAZADO').length
     };
   };
@@ -121,7 +120,6 @@ export default function DashboardAuthor() {
           <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado === 'TODOS'} />
           <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado === 'EN_REVISION'} />
           <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado === 'ACEPTADO'} />
-          <CardInfo title="Con Cambios" stats={stats.cambios} classN="border-orange-400" onclick={() => setFiltroEstado('CAMBIOS_SOLICITADOS')} select={filtroEstado === 'CAMBIOS_SOLICITADOS'} />
           <CardInfo title="Rechazados" stats={stats.rechazados} classN="border-red-400" onclick={() => setFiltroEstado('RECHAZADO')} select={filtroEstado === 'RECHAZADO'} />
         </div>
 
