@@ -54,8 +54,7 @@ export async function GET(request) {
       data: { activa: true },
     });
 
-    await eliminarToken(token);
-
+    
     return NextResponse.json(
       { 
         message: '¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.',

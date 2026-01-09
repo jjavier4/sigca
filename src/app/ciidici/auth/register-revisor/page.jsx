@@ -205,7 +205,7 @@ export default function RegistroRevisorPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="mb-6  border-l-4 border-blue-600 p-4 rounded">
+          <div className="mb-6 bg-blue-50  p-4 rounded">
             <p className="text-sm text-gray-700">
               <strong>Correo de invitación:</strong> {emailFromToken}
             </p>

@@ -2,10 +2,75 @@
 
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { Mail, Lock, User, AlertCircle, CheckCircle, FileText, CreditCard } from 'lucide-react';
+import { Mail, Lock, User, FileText, CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+
+const ResetPasswordModalComponent = ({
+  resetEmail,
+  setResetEmail,
+  resetPassword,
+  isResetting,
+  setResetPasswordModal,
+  setError,
+  setSuccess,
+  error,
+  success
+}) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md text-black">
+        <h2 className="text-2xl font-bold mb-2">Restablecer Contraseña</h2>
+        <p className="text-gray-600 mb-4 text-sm">
+          Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
+
+        <Alert
+          type={error ? 'error' : 'success'}
+          message={error || success}
+          isVisible={error || success}
+        />
+
+        <form onSubmit={resetPassword} className="space-y-4 mt-4">
+          <FormLabelInput
+            title="Correo Electrónico"
+            children={<Mail className="absolute left-3 top-3 text-black" size={20} />}
+            type="email"
+            value={resetEmail}
+            change={(e) => setResetEmail(e.target.value)}
+            placeholder="tu@email.com"
+            required={true}
+          />
+
+          <div className="flex gap-3 mt-6">
+            <button
+              type="submit"
+              disabled={isResetting}
+              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-semibold transition-all duration-300"
+            >
+              {isResetting ? 'Enviando...' : 'Enviar Enlace'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setResetPasswordModal(false);
+                setResetEmail('');
+                setError('');
+                setSuccess('');
+              }}
+              disabled={isResetting}
+              className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 rounded-lg font-semibold transition-all duration-300"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 export default function AuthPage() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
@@ -13,6 +78,9 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [tipoIdentificacion, setTipoIdentificacion] = useState('rfc'); // 'rfc' o 'curp'
+  const [resetPasswordModal, setResetPasswordModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   const [loginData, setLoginData] = useState({
     email: '',
@@ -29,6 +97,7 @@ export default function AuthPage() {
     password: '',
     confirmPassword: '',
   });
+
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -39,6 +108,52 @@ export default function AuthPage() {
       return () => clearTimeout(timer);
     }
   }, [error, success]);
+
+  const resetPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setIsResetting(true);
+
+    if (!resetEmail) {
+      setError('Por favor ingresa tu correo electrónico');
+      setIsResetting(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      setError('Por favor ingresa un correo electrónico válido');
+      setIsResetting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Se ha enviado un enlace de restablecimiento a tu correo electrónico. Por favor revisa tu bandeja de entrada.');
+        setResetEmail('');
+        setTimeout(() => {
+          setResetPasswordModal(false);
+        }, 3000);
+      } else {
+        setError(data.error || 'Error al solicitar restablecimiento de contraseña');
+      }
+    } catch (err) {
+      console.error('Error al solicitar restablecimiento de contraseña:', err);
+      setError('Ocurrió un error al solicitar el restablecimiento de contraseña. Intenta nuevamente.');
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -50,8 +165,6 @@ export default function AuthPage() {
         password: loginData.password,
         redirect: false,
       });
-
-      console.log('Resultado de signIn:', result);
 
       if (result?.error) {
         if (result.error === 'CUENTA_NO_VERIFICADA') {
@@ -107,7 +220,6 @@ export default function AuthPage() {
       return;
     }
 
-    // Validar según el tipo de identificación seleccionado
     if (tipoIdentificacion === 'rfc') {
       const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
       if (!rfcRegex.test(registerData.rfc.toUpperCase())) {
@@ -161,10 +273,9 @@ export default function AuthPage() {
         confirmPassword: '',
       });
 
-      // No cambiar a login automáticamente, dejar que el usuario vea el mensaje
       setTimeout(() => {
         setSuccess('');
-      }, 5000); 
+      }, 5000);
 
     } catch (err) {
       setError(err.message || 'Error al registrar usuario');
@@ -211,12 +322,25 @@ export default function AuthPage() {
             </button>
           </div>
 
-          {/* Alertas */}
           <Alert
             type={error ? 'error' : 'success'}
             message={error || success}
             isVisible={error || success}
           />
+
+          {resetPasswordModal && (
+            <ResetPasswordModalComponent
+              resetEmail={resetEmail}
+              setResetEmail={setResetEmail}
+              resetPassword={resetPassword}
+              isResetting={isResetting}
+              setResetPasswordModal={setResetPasswordModal}
+              setError={setError}
+              setSuccess={setSuccess}
+              error={error}
+              success={success}
+            />
+          )}
 
           {isLogin ? (
             <form onSubmit={handleLogin} className="space-y-6">
@@ -246,6 +370,14 @@ export default function AuthPage() {
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
               >
                 {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setResetPasswordModal(true)}
+                className="w-full text-blue-600 hover:text-blue-800 font-medium"
+              >
+                ¿Olvidaste tu contraseña?
               </button>
             </form>
           ) : (
@@ -290,7 +422,6 @@ export default function AuthPage() {
                 required={true}
               />
 
-              {/* Selector de tipo de identificación */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Tipo de Identificación
@@ -319,7 +450,6 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              {/* Mostrar campo RFC o CURP según selección */}
               {tipoIdentificacion === 'rfc' ? (
                 <FormLabelInput
                   title="RFC"
@@ -343,7 +473,6 @@ export default function AuthPage() {
                   maxLength="18"
                 />
               )}
-
 
               <FormLabelInput
                 title="Contraseña"

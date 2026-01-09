@@ -473,3 +473,88 @@ export function emailVerificacionCuenta({ nombreCompleto, token }) {
 
   return { html, text };
 }
+
+/**
+ * Plantilla: Restablecimiento de contraseña
+ */
+export function emailRestablecerPassword({ nombreCompleto, token }) {
+  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+          .button { background: #3b82f6; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .button:hover { background: #1e40af; }
+          .info-box { background: white; padding: 20px; border-left: 4px solid #3b82f6; margin: 20px 0; border-radius: 5px; }
+          .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .code-box { background: #f8f9fa; padding: 15px; border: 2px dashed #3b82f6; text-align: center; font-family: 'Courier New', monospace; font-size: 14px; color: #3b82f6; margin: 20px 0; border-radius: 5px; word-break: break-all; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Restablecer Contraseña</h1>
+            <p>SIGCA - Sistema de Gestión de Conferencias Académicas</p>
+          </div>
+          <div class="content">
+            <h2>Hola ${nombreCompleto},</h2>
+            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>SIGCA</strong>.</p>
+            
+            <div class="info-box">
+              <h3 style="margin-top: 0;">¿Cómo restablecer tu contraseña?</h3>
+              <p>Haz clic en el botón de abajo para crear una nueva contraseña:</p>
+              <div style="text-align: center;">
+                <a href="${resetUrl}" class="button">Restablecer Contraseña</a>
+              </div>
+              <p style="margin-top: 20px; font-size: 12px; color: #666;">O copia y pega este enlace en tu navegador:</p>
+              <div class="code-box">${resetUrl}</div>
+            </div>
+
+            <div class="warning">
+              <strong>Importante:</strong> Este enlace es válido por <strong>15 minutos</strong>. Si expira, deberás solicitar un nuevo enlace de restablecimiento.
+            </div>
+
+            <p><strong>Si no solicitaste restablecer tu contraseña, ignora este correo.</strong> Tu cuenta permanecerá segura y no se realizará ningún cambio.</p>
+
+            <p>Atentamente,<br>
+            <strong>Equipo SIGCA</strong><br>
+            Instituto Tecnológico de Toluca</p>
+          </div>
+          <div class="footer">
+            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+            <p>Instituto Tecnológico de Toluca - Sistema SIGCA</p>
+            <p style="font-size: 10px; color: #999; margin-top: 10px;">
+              Si tienes problemas con el enlace, contacta al soporte técnico.
+            </p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+    Hola ${nombreCompleto},
+    
+    Hemos recibido una solicitud para restablecer tu contraseña en SIGCA.
+    
+    Para restablecer tu contraseña, visita este enlace:
+    ${resetUrl}
+    
+    Este enlace es válido por 15 minutos.
+    
+    Si no solicitaste esto, ignora este correo.
+    
+    Equipo SIGCA
+    Instituto Tecnológico de Toluca
+  `;
+
+  return { html, text };
+}
