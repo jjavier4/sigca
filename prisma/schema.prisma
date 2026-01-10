@@ -12,6 +12,8 @@ model Usuarios {
   email     String   @unique
   rfc       String?  @unique // Opcional
   curp      String?  @unique // Opcional
+  numero_control  String?  @unique // Opcional
+  referencia_pago      String?  @unique // Opcional
   nombre    String
   apellidoP String
   apellidoM String

@@ -81,6 +81,7 @@ export default function AuthPage() {
   const [resetPasswordModal, setResetPasswordModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const [isAlumno, setIsAlumno] = useState(false);
 
   const [loginData, setLoginData] = useState({
     email: '',
@@ -94,6 +95,7 @@ export default function AuthPage() {
     email: '',
     rfc: '',
     curp: '',
+    numero_control: '',
     password: '',
     confirmPassword: '',
   });
@@ -236,6 +238,15 @@ export default function AuthPage() {
       }
     }
 
+    if (isAlumno) {
+      const regex = /^\d{8}$/;
+      if (!regex.test(registerData.numero_control)) {
+        setError('Debes proporcionar tu Número de Control como alumno');
+        setIsLoading(false);
+        return;
+      }
+    }
+
     try {
       const response = await fetch('/api/user/register', {
         method: 'POST',
@@ -249,6 +260,7 @@ export default function AuthPage() {
           rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
           curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
           password: registerData.password,
+          numero_control: isAlumno ? registerData.numero_control : null,
           rol: 'AUTOR', // Rol por defecto
         }),
       });
@@ -271,7 +283,9 @@ export default function AuthPage() {
         curp: '',
         password: '',
         confirmPassword: '',
+        numero_control: '',
       });
+      setIsAlumno(false);
 
       setTimeout(() => {
         setSuccess('');
@@ -473,6 +487,39 @@ export default function AuthPage() {
                   maxLength="18"
                 />
               )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  ¿Eres alumno?
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value="si"
+                      checked={isAlumno}
+                      onChange={() => setIsAlumno(!isAlumno)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">Sí</span>
+                  </label>
+                </div>
+              </div>
+
+              {
+                isAlumno && (
+                  <FormLabelInput
+                    title="Número de Control"
+                    children={<CreditCard className="absolute left-3 top-3 text-black" size={20} />}
+                    type="text"
+                    value={registerData.numero_control}
+                    change={(e) => setRegisterData({ ...registerData, numero_control: e.target.value })}
+                    placeholder="12345678"
+                    required={true}
+                  />
+                )
+              }
+
 
               <FormLabelInput
                 title="Contraseña"

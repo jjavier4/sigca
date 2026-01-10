@@ -32,16 +32,17 @@ function validarCURP(curp) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { 
-      nombre, 
-      apellidoP, 
-      apellidoM, 
-      email, 
+    const {
+      nombre,
+      apellidoP,
+      apellidoM,
+      email,
       tipoIdentificacion, // 'rfc' o 'curp'
-      rfc, 
+      rfc,
       curp,
       password,
-      rol
+      rol,
+      numero_control
     } = body;
 
     // Validaciones básicas
@@ -69,7 +70,7 @@ export async function POST(request) {
 
     // Validar formato según el tipo de identificación
     let identificador = '';
-    
+
     if (tipoIdentificacion === 'rfc') {
       if (!validarRFC(rfc)) {
         return NextResponse.json(
@@ -108,6 +109,25 @@ export async function POST(request) {
         { error: 'El email proporcionado no es válido' },
         { status: 400 }
       );
+    }
+    const regex = /^\d{8}$/;
+    if (!regex.test(registerData.numero_control)) {
+      setError('Debes proporcionar tu Número de Control como alumno');
+      setIsLoading(false);
+      return;
+    }
+
+    //Verificar si el numero de control ya existe (si se proporcionó)
+    if (numero_control) {
+      const existingUserByNC = await prisma.usuarios.findUnique({
+        where: { numero_control: numero_control },
+      });
+      if (existingUserByNC) {
+        return NextResponse.json(
+          { error: 'El número de control ya está registrado' },
+          { status: 400 }
+        );
+      }
     }
 
     // Verificar si el email ya existe
@@ -165,7 +185,8 @@ export async function POST(request) {
       email: email.toLowerCase(),
       password: hashedPassword,
       rol: rol || 'AUTOR',
-      activa: false, 
+      activa: false,
+      numero_control: numero_control,
     };
 
     // Agregar RFC o CURP según corresponda
