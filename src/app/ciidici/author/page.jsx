@@ -4,6 +4,7 @@ import CardWork from '@/components/ui/cards/cardWork';
 import CardInfo from '@/components/ui/cards/cardInfo';
 import Loading from '@/components/ui/utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
+import Alert from '@/components/ui/utils/alert';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 export default function DashboardAuthor() {
@@ -14,14 +15,14 @@ export default function DashboardAuthor() {
   const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
   const [error, setError] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
-  const [itemSelected, setItemSelected] = useState(null);
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchTrabajos();
     }
+    
   }, [session]);
-  const generarReferenciaPago = async () => {
+  const generarReferenciaPago = async (trabajoid) => {
     setLoading(true);
     try {
       const response = await fetch('/api/user/ref-pay', {
@@ -30,12 +31,10 @@ export default function DashboardAuthor() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          pagoInscripcion: true,
-          referencia: '39120101670120250000000001CIIDICI47859247',
-          pago: 300
+          userId: session.user.id,
+          trabajoid: trabajoid
         })
       });
-
       if (response.ok) {
         // Descargar el PDF
         const blob = await response.blob();
@@ -48,13 +47,15 @@ export default function DashboardAuthor() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
-        const error = await response.json();
-        console.error('Error:', error);
+        setError('Error al generar la referencia de pago.');        
+        setTimeout(() => setError(''), 3000);
       }
     } catch (error) {
       console.error('Error al generar referencia:', error);
-    }finally{
+      setError('Error al generar la referencia de pago.');
+    } finally {
       setLoading(false);
+      fetchTrabajos();
     }
   };
   const fetchTrabajos = async () => {
@@ -65,6 +66,7 @@ export default function DashboardAuthor() {
 
       if (response.ok) {
         setTrabajos(data.trabajos);
+        console.log('Trabajos:', data.trabajos);
       } else {
         setError(data.error);
       }
@@ -108,6 +110,13 @@ export default function DashboardAuthor() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* Alertas */}
+        <Alert
+          type={'error'}
+          message={error}
+          isVisible={error}
+        />
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">

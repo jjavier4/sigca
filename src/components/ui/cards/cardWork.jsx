@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
+export default function CardWork({ trabajo, getReferenciaPagoPDF }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -13,7 +13,6 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
       minute: '2-digit'
     });
   };
-  const estadoPago = false; // cambiar a trabajo.estadoPago cuando esté implementado
   const getEstadoConfig = (estado) => {
     const configs = {
       EN_REVISION: {
@@ -46,21 +45,29 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
     };
   }
 
+  const estadoBotonRefPago = () => {
+    if (trabajo.referencia_pago) {
+      if (trabajo.estado_pago === true) {
+        return true;
+      }
+    }
+    return false;
+  }
   const estadoConfig = getEstadoConfig(trabajo.estado);
-  const estadoPagoConfig = getEstadoPago(estadoPago);
+  const estadoPagoConfig = getEstadoPago(trabajo.estado_pago); // cambiar a trabajo.estado_pago cuando esté implementado
 
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r bg-gray-900 p-4 ">
-        
-          <div className="flex items-center space-x-2 text-white mb-4">
-            <FileText size={20} />
-            <span className="font-semibold">Trabajo: {trabajo.titulo}</span>
-          </div>       
-        
-        <div className="flex items-center justify-between">        
-          
+
+        <div className="flex items-center space-x-2 text-white mb-4">
+          <FileText size={20} />
+          <span className="font-semibold">Trabajo: {trabajo.titulo}</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+
           <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoConfig.color}`}>
             {estadoConfig.icon}
             <span className="text-sm font-semibold">{estadoConfig.texto}</span>
@@ -69,7 +76,7 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
             trabajo.estado === 'ACEPTADO' && (
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoPagoConfig.color}`}>
                 {estadoPagoConfig.icon}
-                <span className="text-sm font-semibold">Pagado</span>                
+                <span className="text-sm font-semibold">Pagado</span>
               </div>
             )
           }
@@ -125,8 +132,9 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
           trabajo.estado === 'ACEPTADO' && (
             <div className="pt-4 border-t border-gray-200">
               <button
-                onClick={() => getReferenciaPagoPDF()}
-                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors group"
+                onClick={() => getReferenciaPagoPDF(trabajo.id)}
+                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 cursor-pointer disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-colors group "
+                disabled={estadoBotonRefPago()}
               >
                 <Coins className="mr-2" size={18} />
                 Generar referencia de pago

@@ -2,50 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generarReferenciaPagoPDF } from '@/lib/pdfGeneratorRef';
-
-function numeroATexto(numero) {
-  const unidades = ['', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
-  const decenas = ['', '', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
-  const especiales = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISÉIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
-  const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
-
-  if (numero === 0) return 'CERO';
-  if (numero === 100) return 'CIEN';
-  if (numero === 1000) return 'MIL';
-
-  let texto = '';
-
-  // Miles
-  if (numero >= 1000) {
-    const miles = Math.floor(numero / 1000);
-    if (miles === 1) {
-      texto += 'MIL ';
-    } else {
-      texto += numeroATexto(miles) + ' MIL ';
-    }
-    numero %= 1000;
-  }
-
-  // Centenas
-  if (numero >= 100) {
-    texto += centenas[Math.floor(numero / 100)] + ' ';
-    numero %= 100;
-  }
-
-  // Decenas y unidades
-  if (numero >= 20) {
-    texto += decenas[Math.floor(numero / 10)];
-    if (numero % 10 !== 0) {
-      texto += ' Y ' + unidades[numero % 10];
-    }
-  } else if (numero >= 10) {
-    texto += especiales[numero - 10];
-  } else if (numero > 0) {
-    texto += unidades[numero];
-  }
-
-  return texto.trim();
-}
+import { prisma } from '@/lib/db';
 
 export async function POST(request) {
   try {
@@ -57,43 +14,73 @@ export async function POST(request) {
         { status: 401 }
       );
     }
-
-    const { pagoInscripcion, referencia, pago } = await request.json();
-
-    // Validaciones
-    if (typeof pagoInscripcion !== 'boolean') {
+    const { userId, trabajoid, } = await request.json();
+    if (!userId) {
       return NextResponse.json(
-        { error: 'El campo pagoInscripcion debe ser un booleano' },
+        { error: 'ID de usuario requerido' },
         { status: 400 }
       );
     }
+    const usuario = await prisma.usuarios.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        nombre: true,
+        apellidoP: true,
+        apellidoM: true,
+        curp: true,
+        rfc: true,
+        numero_control: true,
+      }
+    });
 
-    if (!referencia || typeof referencia !== 'string') {
+    const nommbreCompleto = `${usuario.nombre} ${usuario.apellidoP} ${usuario.apellidoM}`
+    const identidficadorreferencia = usuario.curp ? usuario.curp : usuario.rfc
+    const numero_control = usuario.numero_control ? usuario.numero_control : 'N/A'
+    /*  Llamar al servicio web externo para obtener los datos de la referencia de pago 
+    const response = await fetch('urlwebservice', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nombre: nommbreCompleto,
+        numero_control: numero_control,
+        id: identidficadorreferencia
+      })
+    });
+
+    if (!response.ok) {
       return NextResponse.json(
-        { error: 'El campo referencia es obligatorio y debe ser un texto' },
-        { status: 400 }
+        { error: 'Error al obtener datos de referencia de pago' },
+        { status: 500 }
       );
     }
+    const data = await response.json();
 
-    if (typeof pago !== 'number' || pago <= 0) {
-      return NextResponse.json(
-        { error: 'El campo pago debe ser un número mayor a 0' },
-        { status: 400 }
-      );
-    }
+    const { referencia, costo, costo_letras, fecha_vencimiento, fecha_emision } = data;
+    */
 
-    // Construir vigencia: fecha actual + 10 días
-    const fechaVigencia = new Date();
-    fechaVigencia.setDate(fechaVigencia.getDate() + 10);
-    const vigencia = fechaVigencia.toLocaleDateString('es-MX', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    // Datos simulados para la referencia de pago (para propósitos de este ejemplo)
+    const referencia = '123456789012345677';
+    const costo = numero_control !== 'N/A' ? 500.00 : 1000.00;
+    const costo_letras = numero_control !== 'N/A' ? 'QUINIENTOS' : 'MIL';
+    const fecha_vencimiento = '30/12/2024';
+    const fecha_emision = '01/12/2024';
+
+    const trabajoActualizado = await prisma.trabajos.update({
+      where: {
+        id: trabajoid, 
+      },
+      data: {
+        referencia_pago: referencia,
+      },
     });
 
     // Determinar tipo de pago
-    const tipoPago = pagoInscripcion 
-      ? 'Estudiante' 
+    const tipoPago = numero_control !== 'N/A'
+      ? 'Estudiante'
       : 'Investigadores, profesores y público en general';
 
     // Formatear monto con Intl.NumberFormat
@@ -102,21 +89,17 @@ export async function POST(request) {
       currency: 'MXN',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(pago);
-
-    // Convertir número a texto
-    const montoEntero = Math.floor(pago);
-    const montoTexto = numeroATexto(montoEntero);
+    }).format(costo);
 
     // Construir cadena de pago
-    const pagoTexto = `${montoFormateado} (${montoTexto} PESOS 00/100 M.N.)`;
+    const pagoTexto = `${montoFormateado} (${costo_letras} PESOS 00/100 M.N.)`;
 
     // Año actual
     const anio = new Date().getFullYear();
 
     // Datos para el PDF
     const datosPDF = {
-      vigencia,
+      vigencia: fecha_vencimiento,
       pagoInscripcion: tipoPago,
       referencia,
       pago: pagoTexto,

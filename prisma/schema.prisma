@@ -13,7 +13,6 @@ model Usuarios {
   rfc       String?  @unique // Opcional
   curp      String?  @unique // Opcional
   numero_control  String?  @unique // Opcional
-  referencia_pago      String?  @unique // Opcional
   nombre    String
   apellidoP String
   apellidoM String
@@ -62,7 +61,8 @@ model Trabajos {
   presencial        Boolean?
   nvl_ia            Float?
   nvl_plagio        Float?
-  calificacion_final  Float?
+  calificacion_final  Float?  
+  referencia_pago      String?  @unique // Opcional
 
   // Relaciones (Foreign Keys)
   usuarioId         String
