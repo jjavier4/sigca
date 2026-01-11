@@ -14,6 +14,12 @@ export async function GET(request) {
                 estado: 'EN_REVISION',
                 id: {
                     startsWith: `${anioActual}-`
+                },
+                nvl_ia: {
+                    lt: 30
+                },
+                nvl_plagio: {
+                    lt: 30
                 }
             },
             include: {
@@ -32,7 +38,8 @@ export async function GET(request) {
                     }
                 },
                 asignaciones: {
-                    where: {
+                    select: {
+                        id: true,
                         activa: true
                     }
                 }

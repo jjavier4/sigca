@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import {prisma} from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 
 export async function GET(request) {
@@ -22,14 +22,17 @@ export async function GET(request) {
         { status: 403 }
       );
     }
-
+    const anioActual = new Date().getFullYear();
     // Obtener trabajos donde AMBOS campos sean null
     const trabajos = await prisma.trabajos.findMany({
       where: {
         OR: [
           { nvl_ia: null },
           { nvl_plagio: null }
-        ]
+        ],
+        id: {
+          startsWith: `${anioActual}-`
+        }
       },
       include: {
         usuario: {

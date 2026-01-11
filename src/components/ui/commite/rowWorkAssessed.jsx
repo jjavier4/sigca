@@ -2,6 +2,45 @@ import React from 'react'
 import { CheckCircle, XCircle } from 'lucide-react';
 
 export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPresencialChange }) {
+    const deshabilitarAceptar = () => {
+        /*
+        sea diferente de EN_REVISION o
+        no existe nvl_plagio o no existe nvl_ia o
+        nvl_plagio > 30% o nvl_ia > 30% o        
+        no exista el promedio de calificaciones        
+        */
+        if (trabajo.estado !== 'EN_REVISION' ||
+            trabajo.nvl_plagio === null || trabajo.nvl_ia === null ||
+            trabajo.nvl_plagio > 30 || trabajo.nvl_ia > 30 ||
+            trabajo.promedioCalificacion === null) {
+            return true;
+        }
+        return false;
+    }
+    const deshabilitarRechazar = () => {
+        /*
+        primero verificar que
+        sea diferente de EN_REVISION o
+        nvl_plagio sea diferente de null o nvl_ia sea diferente de null o
+              
+        */
+
+        if (trabajo.estado !== 'EN_REVISION' ||
+            trabajo.nvl_plagio === null || trabajo.nvl_ia === null
+        ) {
+            return true;
+        } else {
+            if (trabajo.nvl_plagio > 30 || trabajo.nvl_ia > 30) {
+                return false;
+            } else {
+                if (trabajo.promedioCalificacion === null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
     return (
         <>
             {
@@ -36,7 +75,7 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
                                             {
                                                 trabajo.calificaciones.map((cal, index) => (
                                                     <div key={index} className="flex gap-2 items-center justify-between">
-                                                        <div                                                            
+                                                        <div
                                                             className={`px-3 py-1 rounded-lg text-sm font-semibold  ${cal.calificacion !== null
                                                                 ? 'bg-green-100 text-green-800'
                                                                 : 'bg-gray-100 text-gray-500'
@@ -97,7 +136,7 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
                                 type="checkbox"
                                 checked={trabajo.presencial}
                                 onChange={(e) => onPresencialChange(trabajo.id, e.target.checked)}
-                                disabled={trabajo.estado !== 'EN_REVISION'}
+                                disabled={deshabilitarAceptar()}
                                 className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                             />
                         </div>
@@ -116,16 +155,16 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
                         <div className="flex flex-col gap-2 items-center">
                             <button
                                 onClick={() => onAceptar(trabajo.id)}
-                                disabled={trabajo.estado !== 'EN_REVISION'}
-                                className=" bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-semibold px-4 py-2 rounded-lg  inline-flex items-center gap-2 text-sm"
+                                disabled={deshabilitarAceptar()}
+                                className=" bg-green-600 hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg  inline-flex items-center gap-2 text-sm"
                             >
                                 <CheckCircle size={14} />
                                 ACEPTAR
                             </button>
                             <button
                                 onClick={() => onRechazar(trabajo.id)}
-                                disabled={trabajo.estado !== 'EN_REVISION'}
-                                className="bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white font-semibold px-4 py-2 rounded-lg  inline-flex items-center gap-2 text-sm"
+                                disabled={deshabilitarRechazar()}
+                                className="bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-semibold px-4 py-2 rounded-lg  inline-flex items-center gap-2 text-sm"
                             >
                                 <XCircle size={14} />
                                 RECHAZAR

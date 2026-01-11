@@ -114,18 +114,15 @@ const handleAceptar = async (trabajo) => {
 };
 
 const handleRechazar = async (trabajo) => {
-    // Validación: Debe existir nivel de plagio e IA (obligatorio para ambos casos)
     if (trabajo.nvl_ia === null || trabajo.nvl_plagio === null) {
         setError('El trabajo debe tener niveles de IA y plagio registrados antes de ser rechazado');
         setTimeout(() => setError(''), 3000);
         return;
     }
 
-    // Determinar el caso según las asignaciones
     const tieneAsignaciones = trabajo.calificaciones && trabajo.calificaciones.length > 0;
 
     if (tieneAsignaciones) {
-        // Caso 1: Tiene asignaciones - todas deben estar calificadas
         const asignacionesSinCalificar = trabajo.calificaciones.filter(
             cal => cal.calificacion === null
         );
@@ -136,7 +133,6 @@ const handleRechazar = async (trabajo) => {
             return;
         }
     }
-    // Caso 2: No tiene asignaciones - ya pasó la validación de IA/plagio, puede continuar
 
     setIsLoading(true);
     try {

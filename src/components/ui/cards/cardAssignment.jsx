@@ -12,8 +12,6 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
   };
 
   const yaAsignado = asignacionesCount > 0;
-  const autorPrincipal = trabajo.autores?.find(a => a.esAutorPrincipal);
-  const nombreAutor = autorPrincipal?.usuario?.nombre || 'Sin autor principal';
 
   return (
     <div
@@ -30,17 +28,12 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
               <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
                 {trabajo.titulo || 'Sin título'}
               </h3>
-              <p className="text-xs text-gray-500">{nombreAutor}</p>
             </div>
           </div>
           {isSelected && !yaAsignado && (
             <CheckCircle className="text-blue-600 flex-shrink-0" size={20} />
           )}
-          {yaAsignado && (
-            <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
-              Asignado
-            </span>
-          )}
+          
         </div>
 
         {/* Convocatoria */}
@@ -56,22 +49,7 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
           <span>Enviado: {formatDate(trabajo.createdAt)}</span>
         </div>
 
-        {/* Estado de asignación */}
-        <div className="flex items-center justify-between">
-          <div className={`flex items-center ${yaAsignado ? 'text-green-600' : 'text-orange-600'} text-xs`}>
-            {yaAsignado ? (
-              <>
-                <CheckCircle size={14} className="mr-1" />
-                <span className="font-semibold">Completo</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle size={14} className="mr-1" />
-                <span className="font-semibold">Pendiente</span>
-              </>
-            )}
-          </div>
-        </div>
+      
       </div>
     </div>
   );

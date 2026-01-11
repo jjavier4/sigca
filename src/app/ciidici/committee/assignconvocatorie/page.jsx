@@ -18,8 +18,6 @@ export default function AsignarRevisores() {
   const [success, setSuccess] = useState('');
   const [selectedTrabajo, setSelectedTrabajo] = useState(null);
   const [selectedRevisores, setSelectedRevisores] = useState([]); // Arreglo de revisores
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [isAssigning, setIsAssigning] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -66,34 +64,9 @@ export default function AsignarRevisores() {
     }
   };
 
-  const handleAsignarClick = () => {
-    if (!selectedTrabajo) {
-      setError('Debes seleccionar un trabajo');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
 
-    if (selectedRevisores.length === 0) {
-      setError('Debes seleccionar al menos un revisor');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
-
-    // Verificar que no haya revisores duplicados
-    const revisoresUnicos = new Set(selectedRevisores.map(r => r.id));
-    if (revisoresUnicos.size !== selectedRevisores.length) {
-      setError('Has seleccionado el mismo revisor más de una vez');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
-
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmAsignacion = async () => {
+  const handleAsignacion = async () => {
     try {
-      setIsAssigning(true);
-
       const response = await fetch('/api/assignments/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,7 +80,6 @@ export default function AsignarRevisores() {
 
       if (response.ok) {
         setSuccess(`Asignaciones creadas exitosamente para ${selectedRevisores.length} revisor(es)`);
-        setShowConfirmModal(false);
         setSelectedTrabajo(null);
         setSelectedRevisores([]);
         await fetchData();
@@ -115,16 +87,13 @@ export default function AsignarRevisores() {
       } else {
         setError(data.error);
         setTimeout(() => setError(''), 5000);
-        setShowConfirmModal(false);
       }
 
     } catch (error) {
       console.error('Error al crear asignaciones:', error);
       setError('Error al crear las asignaciones');
       setTimeout(() => setError(''), 3000);
-    } finally {
-      setIsAssigning(false);
-    }
+    }  
   };
 
   const handleSelectRevisor = (revisor) => {
@@ -285,7 +254,7 @@ export default function AsignarRevisores() {
           <div className="p-6">
             <div className="flex flex-col lg:flex-row items-center justify-end gap-4">
               <button
-                onClick={handleAsignarClick}
+                onClick={handleAsignacion}
                 disabled={!selectedTrabajo || selectedRevisores.length === 0}
                 className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center gap-2"
               >
@@ -297,15 +266,6 @@ export default function AsignarRevisores() {
         )}
       </div>
 
-      {/* Modal de Confirmación */}
-      {showConfirmModal && selectedTrabajo && selectedRevisores.length > 0 && (
-        <ModalComfirm
-          txt={`¿Confirmas asignar el trabajo "${selectedTrabajo.titulo}" a ${selectedRevisores.length} revisor${selectedRevisores.length !== 1 ? 'es' : ''}? (${selectedRevisores.map(r => r.nombre).join(', ')})`}
-          onConfirm={handleConfirmAsignacion}
-          onCancel={() => setShowConfirmModal(false)}
-          isLoading={isAssigning}
-        />
-      )}
     </div>
   );
 }
