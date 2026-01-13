@@ -1,22 +1,20 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { FileText, User, UserCheck, Users } from 'lucide-react';
-import { CardNotAssignment, CardReviewer } from '@/components/ui/cards/cardAssignment';
+import { FileText, Users, UserPlus } from 'lucide-react';
+import { CardReviewer, CardWorkWithAssignments } from '@/components/ui/cards/cardAssignment';
 import Alert from '@/components/ui/utils/alert';
 import Loading from '@/components/ui/utils/loading';
 import LoadError from '@/components/ui/utils/loadingError';
 
-// Componente Principal
-export default function AsignarRevisores() {
-  const [trabajosSinAsignar, setTrabajosSinAsignar] = useState([]);
+export default function ModificarRevisores() {
+  const [trabajosConAsignaciones, setTrabajosConAsignaciones] = useState([]);
   const [revisores, setRevisores] = useState([]);
-  const [asignacionesPorTrabajo, setAsignacionesPorTrabajo] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedTrabajo, setSelectedTrabajo] = useState(null);
-  const [selectedRevisores, setSelectedRevisores] = useState([]); // Arreglo de revisores
+  const [selectedRevisores, setSelectedRevisores] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -26,19 +24,13 @@ export default function AsignarRevisores() {
     try {
       setLoading(true);
 
-      // Obtener trabajos sin asignar
-      const trabajosResponse = await fetch('/api/assignments/works-not-assign');
+      // Obtener trabajos con asignaciones
+      const trabajosResponse = await fetch('/api/assignments/works-with-assignments');
       const trabajosData = await trabajosResponse.json();
 
       if (trabajosResponse.ok) {
-        setTrabajosSinAsignar(trabajosData.trabajos);
-
-        // Contar asignaciones por trabajo
-        const conteos = {};
-        trabajosData.trabajos.forEach(trabajo => {
-          conteos[trabajo.id] = trabajo._count?.asignaciones || 0;
-        });
-        setAsignacionesPorTrabajo(conteos);
+        setTrabajosConAsignaciones(trabajosData.trabajos);
+        console.log('Trabajos con asignaciones:', trabajosData.trabajos);
       } else {
         setError(trabajosData.error);
         setErrorLoading(true);
@@ -63,7 +55,6 @@ export default function AsignarRevisores() {
     }
   };
 
-
   const handleAsignacion = async () => {
     try {
       const response = await fetch('/api/assignments/create', {
@@ -71,7 +62,7 @@ export default function AsignarRevisores() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           trabajoId: selectedTrabajo.id,
-          revisoresIds: selectedRevisores.map(r => r.id) // Enviar arreglo de IDs
+          revisoresIds: selectedRevisores.map(r => r.id)
         })
       });
 
@@ -92,20 +83,43 @@ export default function AsignarRevisores() {
       console.error('Error al crear asignaciones:', error);
       setError('Error al crear las asignaciones');
       setTimeout(() => setError(''), 3000);
-    }  
+    }
+  };
+
+  const handleDeleteAssignment = async (asignacionId) => {
+    try {
+      const response = await fetch('/api/assignments/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ asignacionId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Asignación eliminada exitosamente');
+        await fetchData();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(data.error);
+        setTimeout(() => setError(''), 3000);
+      }
+
+    } catch (error) {
+      console.error('Error al eliminar asignación:', error);
+      setError('Error al eliminar la asignación');
+      setTimeout(() => setError(''), 3000);
+    }
   };
 
   const handleSelectRevisor = (revisor) => {
-    // No permitir seleccionar revisores indispuestos
     if (revisor.estado === 'INDISPUESTO') return;
 
     const isSelected = selectedRevisores.some(r => r.id === revisor.id);
 
     if (isSelected) {
-      // Deseleccionar revisor
       setSelectedRevisores(selectedRevisores.filter(r => r.id !== revisor.id));
     } else {
-      // Agregar revisor al arreglo
       setSelectedRevisores([...selectedRevisores, revisor]);
     }
   };
@@ -127,10 +141,10 @@ export default function AsignarRevisores() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            Asignar Revisores
+            Configurar Asignaciones de Revisores
           </h1>
           <p className="text-gray-600">
-            Selecciona un trabajo y <strong>uno o más revisores</strong> para crear asignaciones
+            Selecciona un trabajo y <strong>uno o más revisores</strong> para crear nuevas asignaciones o eliminar asignaciones existentes.
           </p>
         </div>
 
@@ -143,37 +157,37 @@ export default function AsignarRevisores() {
 
         {/* Grid Principal */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Trabajos Sin Asignar */}
+          {/* Trabajos Con Asignaciones */}
           <div>
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center">
                 <FileText className="mr-2 text-blue-600" size={24} />
-                Trabajos Pendientes
+                Trabajos con Asignaciones
               </h2>
               <p className="text-sm text-gray-600">
-                Selecciona un trabajo para asignar revisores
+                Total: {trabajosConAsignaciones.length} trabajo(s)
               </p>
             </div>
 
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-              {trabajosSinAsignar.length === 0 ? (
+              {trabajosConAsignaciones.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                   <FileText className="mx-auto mb-4 text-gray-400" size={48} />
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    No hay trabajos pendientes
+                    No hay trabajos con asignaciones
                   </h3>
                   <p className="text-gray-600 text-sm">
-                    Todos los trabajos tienen sus revisores asignados
+                    Los trabajos aparecerán aquí una vez que tengan revisores asignados
                   </p>
                 </div>
               ) : (
-                trabajosSinAsignar.map((trabajo) => (
-                  <CardNotAssignment
+                trabajosConAsignaciones.map((trabajo) => (
+                  <CardWorkWithAssignments
                     key={trabajo.id}
                     trabajo={trabajo}
                     isSelected={selectedTrabajo?.id === trabajo.id}
                     onSelect={setSelectedTrabajo}
-                    asignacionesCount={asignacionesPorTrabajo[trabajo.id] || 0}
+                    onDeleteAssignment={handleDeleteAssignment}
                   />
                 ))
               )}
@@ -225,7 +239,7 @@ export default function AsignarRevisores() {
                         key={revisor.id}
                         revisor={revisor}
                         isSelected={false}
-                        onSelect={() => { }}
+                        onSelect={() => {}}
                         disabled={true}
                       />
                     ))}
@@ -235,7 +249,7 @@ export default function AsignarRevisores() {
 
               {revisores.length === 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                  <User className="mx-auto mb-4 text-gray-400" size={48} />
+                  <Users className="mx-auto mb-4 text-gray-400" size={48} />
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
                     No hay revisores disponibles
                   </h3>
@@ -249,22 +263,30 @@ export default function AsignarRevisores() {
         </div>
 
         {/* Panel de Asignación */}
-        {trabajosSinAsignar.length > 0 && revisores.length > 0 && (
-          <div className="p-6">
-            <div className="flex flex-col lg:flex-row items-center justify-end gap-4">
+        {trabajosConAsignaciones.length > 0 && revisores.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-gray-600">
+                {selectedTrabajo ? (
+                  <p>
+                    <span className="font-semibold">Trabajo seleccionado:</span> {selectedTrabajo.titulo}
+                  </p>
+                ) : (
+                  <p className="italic">Selecciona un trabajo para agregar revisores</p>
+                )}
+              </div>
               <button
                 onClick={handleAsignacion}
                 disabled={!selectedTrabajo || selectedRevisores.length === 0}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
               >
-                <UserCheck size={20} />
-                Asignar {selectedRevisores.length > 0 ? selectedRevisores.length : ''} Revisor{selectedRevisores.length !== 1 ? 'es' : ''}
+                <UserPlus size={20} />
+                Agregar {selectedRevisores.length > 0 ? selectedRevisores.length : ''} Revisor{selectedRevisores.length !== 1 ? 'es' : ''}
               </button>
             </div>
           </div>
         )}
       </div>
-
     </div>
   );
 }
