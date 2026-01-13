@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
-
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,14 +21,12 @@ export async function GET(request) {
         { status: 403 }
       );
     }
+
     const anioActual = new Date().getFullYear();
-    // Obtener trabajos donde AMBOS campos sean null
+
+    // Obtener TODOS los trabajos del año actual
     const trabajos = await prisma.trabajos.findMany({
       where: {
-        OR: [
-          { nvl_ia: null },
-          { nvl_plagio: null }
-        ],
         id: {
           startsWith: `${anioActual}-`
         }
@@ -58,6 +55,7 @@ export async function GET(request) {
       }
     });
 
+    // Formatear trabajos
     const trabajosFormateados = trabajos.map(trabajo => ({
       id: trabajo.id,
       titulo: trabajo.titulo,
@@ -76,15 +74,31 @@ export async function GET(request) {
       createdAt: trabajo.createdAt
     }));
 
+    // Separar en dos listas
+    const trabajosPendientes = trabajosFormateados.filter(
+      trabajo => trabajo.nvl_ia === null || trabajo.nvl_plagio === null
+    );
+
+    const trabajosEvaluados = trabajosFormateados.filter(
+      trabajo => trabajo.nvl_ia !== null && trabajo.nvl_plagio !== null
+    );
+
     return NextResponse.json({
       total: trabajosFormateados.length,
-      trabajos: trabajosFormateados
+      pendientes: {
+        total: trabajosPendientes.length,
+        trabajos: trabajosPendientes
+      },
+      evaluados: {
+        total: trabajosEvaluados.length,
+        trabajos: trabajosEvaluados
+      }
     });
 
   } catch (error) {
-    console.error('Error al obtener trabajos pendientes de análisis:', error);
+    console.error('Error al obtener trabajos para análisis:', error);
     return NextResponse.json(
-      { error: 'Error al obtener trabajos pendientes' },
+      { error: 'Error al obtener trabajos' },
       { status: 500 }
     );
   }

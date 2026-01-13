@@ -25,7 +25,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2">
                 <Mail size={16} className="text-blue-400" />
-                <span>contacto@toluca.tecnm.mx</span>
+                <span>info@toluca.tecnm.mx</span>
               </li>
             </ul>
           </div>
