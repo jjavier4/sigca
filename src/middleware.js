@@ -12,7 +12,7 @@ export async function middleware(request) {
   ];
 
   // Verificar si es ruta protegida
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const isProtectedRoute = protectedRoutes.some(route =>
     pathname.startsWith(route)
   );
 
@@ -30,8 +30,7 @@ export async function middleware(request) {
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
-
-  // Verificar permisos por rol
+    // Verificar permisos por rol
   const rolePermissions = {
     '/ciidici/admin': ['ADMIN'],
     '/ciidici/author': ['AUTOR', 'ADMIN'],
@@ -41,7 +40,7 @@ export async function middleware(request) {
 
   // Encontrar la ruta base que coincide
   const baseRoute = protectedRoutes.find(route => pathname.startsWith(route));
-  
+
   if (baseRoute) {
     const allowedRoles = rolePermissions[baseRoute];
     const userRole = token.rol;

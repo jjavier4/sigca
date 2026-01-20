@@ -19,7 +19,7 @@ export default function AddUser() {
         curp: '',
         password: '',
         confirmPassword: '',
-        rol: 'AUTOR', // Rol por defecto
+        rol: 'REVISOR', // Rol por defecto
     });
     useEffect(() => {
         if (error || success) {
@@ -100,7 +100,7 @@ export default function AddUser() {
                 curp: '',
                 password: '',
                 confirmPassword: '',
-                rol: 'AUTOR', // Rol por defecto
+                rol: 'REVISOR', // Rol por defecto
             });
         } catch (err) {
             setError(err.message || 'Error al registrar usuario');
@@ -234,7 +234,7 @@ export default function AddUser() {
                         onChange={(e) => setRegisterData({ ...registerData, rol: e.target.value })}
                         className="w-full pl-2 pr-4 py-3 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     >
-                        <option value="AUTOR">Autor</option>
+                        
                         <option value="REVISOR">Revisor</option>
                         <option value="COMITE">Comite</option>
                     </select>

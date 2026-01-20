@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, FileText, Clock, Tag, ChevronRight, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+import { vs } from '@react-email/components';
 // Componente Card de Convocatoria
 export function CardConvocatorie({ convocatoria, onClick }) {
   const formatDate = (dateString) => {
@@ -148,15 +149,14 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   const temas = convocatoria.temas ? convocatoria.temas.split(',').map(t => t.trim()) : [];
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     setUploading(true);
     setUploadError('');
     setUploadSuccess('');
 
     try {
-      const data = await sendFile(dataConvocatoria,file, convocatoria.id, user.id);
-
-      if (!data) {
+      const data = await sendFile(dataConvocatoria, file, convocatoria.id, user.id);
+      if (data) {
         setUploadSuccess('Propuesta enviada exitosamente');
       } else {
         setUploadError(data.error);
@@ -179,14 +179,11 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {
-          (uploadSuccess || uploadError) &&
-          <Alert
-            type={uploadSuccess ? 'success' : 'error'}
-            message={uploadSuccess ? uploadSuccess : uploadError}
-            isVisible={visible}
-          />
-        }
+        <Alert
+          type={uploadSuccess ? 'success' : 'error'}
+          message={uploadSuccess ? uploadSuccess : uploadError}
+          isVisible={visible}
+        />
         {/* Header */}
         <div className="bg-gradient-to-r bg-blue-600 p-6 sticky top-0">
           <div className="flex justify-between items-start">
@@ -295,17 +292,17 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                       <div className='flex justify-between w-1/3 mb-4'>
                         <button
                           type="button"
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"                          onClick={() => setCountCoauthors(countCoauthors + 1)}>
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors" onClick={() => setCountCoauthors(countCoauthors + 1)}>
                           <PlusCircle className="text-white" size={25} />
 
                         </button>
                         {countCoauthors >= 1 && (
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
-                          onClick={() => { countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1) }}>
-                          <MinusCircleIcon className="text-white " size={25} />
-                        </button>
+                          <button
+                            type="button"
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
+                            onClick={() => { countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1) }}>
+                            <MinusCircleIcon className="text-white " size={25} />
+                          </button>
                         )}
                       </div>
 

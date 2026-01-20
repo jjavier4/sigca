@@ -56,7 +56,7 @@ model Trabajos {
   archivo_url       String
   estado            EstadoTrabajo @default(EN_REVISION)
   titulo            String
-  tipo              String
+  tipo              GrupoRubrica
   coautores         String[] @default([]) // Array de nombres de coautores
   presencial        Boolean?
   nvl_ia            Float?

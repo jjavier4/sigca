@@ -8,7 +8,7 @@ import { sendEmail, emailInvitacionRevisor } from '@/lib/email';
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     // Verificar que el usuario sea COMITE o ADMIN
     if (!session || !['COMITE', 'ADMIN'].includes(session.user.rol)) {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function POST(request) {
 
     // Validar formato de datos
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     for (const revisor of revisores) {
       if (!revisor.nombre || !revisor.correo) {
         return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(request) {
           { status: 400 }
         );
       }
-      
+
       if (!emailRegex.test(revisor.correo)) {
         return NextResponse.json(
           { error: `Correo inválido: ${revisor.correo}` },
@@ -63,12 +63,17 @@ export async function POST(request) {
 
     // Procesar cada revisor
     const resultados = [];
-    
+
     for (const revisor of revisoresUnicos) {
       try {
         // Verificar si el correo ya existe como usuario registrado
         const usuarioExistente = await prisma.usuarios.findUnique({
-          where: { email: revisor.correo }
+          where: {
+            email: revisor.correo,
+            rol: {
+              in: ['COMITE', 'AUTOR']
+            }
+          }
         });
 
         // Si el usuario ya está registrado, no enviar correo de invitación
@@ -83,12 +88,12 @@ export async function POST(request) {
           continue;
         }
         const token = generarToken();
-        
+
         await guardarToken(revisor.correo, token);
 
         const { html, text } = emailInvitacionRevisor({
           nombreRevisor: revisor.nombre,
-          token: token, 
+          token: token,
         });
 
         const emailResult = await sendEmail({
@@ -101,9 +106,9 @@ export async function POST(request) {
         resultados.push({
           correo: revisor.correo,
           nombre: revisor.nombre,
-          enviado: emailResult.success,
+          enviado: true,
           registrado: false,
-          tokenGenerado: emailResult.success, 
+          tokenGenerado: emailResult.success,
           error: emailResult.error || null,
         });
 
@@ -121,13 +126,13 @@ export async function POST(request) {
     }
 
     // Contar resultados
-    const exitosos = resultados.filter(r => r.enviado || r.registrado).length;
+    const exitosos = resultados.filter(r => r.enviado).length;
     const fallidos = resultados.filter(r => !r.enviado && !r.registrado).length;
     const yaRegistrados = resultados.filter(r => r.registrado).length;
 
     return NextResponse.json({
       success: true,
-      mensaje: `Proceso completado: ${exitosos} exitosos, ${fallidos} fallidos${yaRegistrados > 0 ? `, ${yaRegistrados} ya registrados` : ''}`,
+      mensaje: `Proceso completado: ${exitosos} exitosos, ${fallidos} fallidos, ${yaRegistrados} ya registrados`,
       total: revisoresUnicos.length,
       exitosos,
       fallidos,

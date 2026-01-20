@@ -28,6 +28,11 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'manage-users', group: 'user', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
       )
     }
+    if(role === 'AUTOR'){
+      items.push(
+        { id: 'settings', group: 'settings', icon: UserCog, label: 'Settings', page: `${baseUrl}/settings` },
+      )
+    }
     if (role === 'COMITE') {
       items.push(
         { id: 'add-convocatorie', group: 'convocatorie', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },

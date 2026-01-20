@@ -203,7 +203,10 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   };
-
+  function capitalizarPrimeraLetra(str) {
+    if (!str) return ""; // Manejar cadenas vacías o nulas
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
   const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -246,23 +249,23 @@ export default function AuthPage() {
         return;
       }
     }
-
+    const dataRegister = {
+      nombre: capitalizarPrimeraLetra(registerData.nombre.trim()),
+      apellidoP: capitalizarPrimeraLetra(registerData.apellidoP.trim()),
+      apellidoM: capitalizarPrimeraLetra(registerData.apellidoM.trim()),
+      email: registerData.email,
+      tipoIdentificacion: tipoIdentificacion,
+      rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
+      curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
+      password: registerData.password,
+      numero_control: isAlumno ? registerData.numero_control : null,
+      rol: 'AUTOR', // Rol por defecto
+    }
     try {
       const response = await fetch('/api/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: registerData.nombre,
-          apellidoP: registerData.apellidoP,
-          apellidoM: registerData.apellidoM,
-          email: registerData.email,
-          tipoIdentificacion: tipoIdentificacion,
-          rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
-          curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
-          password: registerData.password,
-          numero_control: isAlumno ? registerData.numero_control : null,
-          rol: 'AUTOR', // Rol por defecto
-        }),
+        body: JSON.stringify(dataRegister),
       });
 
       const data = await response.json();

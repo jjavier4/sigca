@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
-import { User, Mail, PlusCircle, MinusCircleIcon, Send, Loader } from 'lucide-react';
+import { User, Mail, PlusCircle, MinusCircleIcon, Send, Loader, UserX } from 'lucide-react';
 import Alert from '@/components/ui/utils/alert';
 
 export default function InvitarRevisoresPage() {
@@ -9,6 +9,7 @@ export default function InvitarRevisoresPage() {
     { nombre: '', correo: '' }
   ]);
   const [loading, setLoading] = useState(false);
+  const [loadingDesactivar, setLoadingDesactivar] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -20,7 +21,6 @@ export default function InvitarRevisoresPage() {
   const addRevisor = () => {
     const lastRevisor = revisores[revisores.length - 1];
     
-    // Validar que el último revisor tenga datos completos
     if (!lastRevisor.nombre.trim()) {
       setError('Por favor complete el nombre del revisor antes de agregar otro');
       setTimeout(() => setError(''), 3000);
@@ -54,6 +54,37 @@ export default function InvitarRevisoresPage() {
     setRevisores(newRevisores);
   };
 
+  const handleDesactivarTodos = async () => {
+    setLoadingDesactivar(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/user/shutdown-revisores', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al desactivar revisores');
+      }
+
+      setSuccess(`¡${data.cantidad} revisor(es) desactivado(s) exitosamente!`);
+      setTimeout(() => setSuccess(''), 5000);
+
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error.message);
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setLoadingDesactivar(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -61,7 +92,6 @@ export default function InvitarRevisoresPage() {
     setSuccess('');
 
     try {
-      // Validar todos los revisores
       const revisoresValidos = [];
       
       for (let i = 0; i < revisores.length; i++) {
@@ -87,7 +117,6 @@ export default function InvitarRevisoresPage() {
         });
       }
 
-      // Enviar invitaciones
       const response = await fetch('/api/emails/sendemails', {
         method: 'POST',
         headers: {
@@ -102,14 +131,12 @@ export default function InvitarRevisoresPage() {
         throw new Error(data.error || 'Error al enviar invitaciones');
       }
 
-      setSuccess(`¡Invitaciones enviadas exitosamente! ${data.exitosos} enviados, ${data.fallidos} fallidos`);
+      setSuccess(`¡Proceso completado exitosamente! ${data.exitosos} enviados, ${data.fallidos} fallidos, ${data.yaRegistrados} ya registrados.`);
       
-      // Limpiar formulario si todo fue exitoso
       if (data.fallidos === 0) {
         setRevisores([{ nombre: '', correo: '' }]);
       }
 
-      // Ocultar mensaje de éxito después de 5 segundos
       setTimeout(() => setSuccess(''), 5000);
 
     } catch (error) {
@@ -136,7 +163,7 @@ export default function InvitarRevisoresPage() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
                 Gestión de Revisores
@@ -145,6 +172,26 @@ export default function InvitarRevisoresPage() {
                 Invite a académicos a participar como revisores en el CIIDiCI
               </p>
             </div>
+            
+            {/* Botón de desactivar todos */}
+            <button
+              type="button"
+              onClick={() => handleDesactivarTodos()}
+              disabled={loadingDesactivar}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingDesactivar ? (
+                <>
+                  <Loader className="w-5 h-5 animate-spin" />
+                  Desactivando...
+                </>
+              ) : (
+                <>
+                  <UserX className="w-5 h-5" />
+                  Desactivar Todos los Revisores
+                </>
+              )}
+            </button>
           </div>
         </div>
 
@@ -216,13 +263,11 @@ export default function InvitarRevisoresPage() {
               )}
             </div>
 
-            
-
             {/* Botón de envío */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-lg font-semibold  transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -238,8 +283,6 @@ export default function InvitarRevisoresPage() {
             </button>
           </form>
         </div>
-
-        
       </div>
     </div>
   );

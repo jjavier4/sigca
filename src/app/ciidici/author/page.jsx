@@ -7,21 +7,22 @@ import LoadingError from '@/components/ui/utils/loadingError';
 import Alert from '@/components/ui/utils/alert';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-export default function DashboardAuthor() {
 
+export default function DashboardAuthor() {
   const { data: session } = useSession();
   const [trabajos, setTrabajos] = useState([]);
-  const [loading, setLoading] = useState(true);// Estado de carga inicial
-  const [errorLoading, setErrorLoading] = useState(false) // Estado de error de carga inicial
+  const [loading, setLoading] = useState(true);
+  const [errorLoading, setErrorLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchTrabajos();
     }
-    
   }, [session]);
+
   const generarReferenciaPago = async (trabajoid) => {
     setLoading(true);
     try {
@@ -36,7 +37,6 @@ export default function DashboardAuthor() {
         })
       });
       if (response.ok) {
-        // Descargar el PDF
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -47,7 +47,7 @@ export default function DashboardAuthor() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
-        setError('Error al generar la referencia de pago.');        
+        setError('Error al generar la referencia de pago.');
         setTimeout(() => setError(''), 3000);
       }
     } catch (error) {
@@ -58,6 +58,7 @@ export default function DashboardAuthor() {
       fetchTrabajos();
     }
   };
+
   const fetchTrabajos = async () => {
     try {
       setLoading(true);
@@ -78,6 +79,34 @@ export default function DashboardAuthor() {
     }
   };
 
+    const handleDelete = async (trabajoId) => {
+
+    try {
+      const response = await fetch(`/api/works/deleteone?trabajoId=${trabajoId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(data.message);
+        fetchTrabajos(); // Recargar trabajos
+      } else {
+        setError(data.error);
+      }
+
+      setTimeout(() => {
+        setSuccess('');
+        setError('');
+      }, 3000);
+
+    } catch (error) {
+      console.error('Error al eliminar trabajo:', error);
+      setError('Error al eliminar el trabajo');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
   const trabajosFiltrados = trabajos.filter((trabajo) => {
     if (filtroEstado === 'TODOS') return true;
     return trabajo.estado === filtroEstado;
@@ -95,26 +124,25 @@ export default function DashboardAuthor() {
   const stats = getEstadisticas();
 
   if (loading) {
-    return (
-      <Loading />
-    );
+    return <Loading />;
   }
 
   if (errorLoading) {
-    return (
-      <LoadingError error="Error al cargar los trabajos." />
-    );
+    return <LoadingError error="Error al cargar los trabajos." />;
   }
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Alertas */}
         <Alert
-          type={'error'}
-          message={error}
-          isVisible={error}
+          type={error ? 'error' : 'success'}
+          message={error || success}
+          isVisible={!!(error || success)}
+          onClose={() => {
+            setError('');
+            setSuccess('');
+          }}
         />
 
         {/* Header */}
@@ -152,13 +180,12 @@ export default function DashboardAuthor() {
                 key={trabajo.id}
                 trabajo={trabajo}
                 getReferenciaPagoPDF={generarReferenciaPago}
+                onDelete={handleDelete}
               />
             ))}
           </div>
         )}
       </div>
-
-
     </div>
   );
 }

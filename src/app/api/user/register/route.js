@@ -111,14 +111,15 @@ export async function POST(request) {
       );
     }
     const regex = /^\d{8}$/;
-    if (!regex.test(registerData.numero_control)) {
-      setError('Debes proporcionar tu Número de Control como alumno');
-      setIsLoading(false);
-      return;
-    }
 
     //Verificar si el numero de control ya existe (si se proporcionó)
     if (numero_control) {
+      if (!regex.test(numero_control)) {
+        return NextResponse.json(
+          { error: 'El número de control no es válido' },
+          { status: 400 }
+        );
+      }
       const existingUserByNC = await prisma.usuarios.findUnique({
         where: { numero_control: numero_control },
       });

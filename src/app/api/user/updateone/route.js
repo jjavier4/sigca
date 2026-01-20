@@ -5,7 +5,6 @@ import { authOptions } from '@/lib/auth';
 
 export async function PATCH(request) {
   try {
-    // Verificar autenticación
     const session = await getServerSession(authOptions);
     
     if (!session) {
@@ -14,12 +13,50 @@ export async function PATCH(request) {
         { status: 401 }
       );
     }
+
     const body = await request.json();
-    const {id,email, rol } = body;
+    const { emailActual, email, numeroControl } = body;
+
+    // Validaciones
+    if (!emailActual || !email) {
+      return NextResponse.json(
+        { error: 'Email actual y nuevo email son requeridos' },
+        { status: 400 }
+      );
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Formato de email inválido' },
+        { status: 400 }
+      );
+    }
+
+    // Validar número de control si se proporciona
+    if (numeroControl && !/^\d{8}$/.test(numeroControl)) {
+      return NextResponse.json(
+        { error: 'El número de control debe tener 8 dígitos' },
+        { status: 400 }
+      );
+    }
+
+    // Verificar permisos: solo ADMIN, COMITE o el mismo usuario pueden actualizar
+    const esAdmin = session.user.rol === 'ADMIN';
+    const esComite = session.user.rol === 'COMITE';
+    const esMismoUsuario = session.user.email === emailActual;
+
+    if (!esAdmin && !esComite && !esMismoUsuario) {
+      return NextResponse.json(
+        { error: 'No autorizado para actualizar este usuario' },
+        { status: 403 }
+      );
+    }
 
     // Verificar que el usuario existe
     const usuarioExistente = await prisma.usuarios.findUnique({
-      where: { id }
+      where: { email: emailActual }
     });
 
     if (!usuarioExistente) {
@@ -29,44 +66,49 @@ export async function PATCH(request) {
       );
     }
 
-
-  
-    // Si se cambia el email, verificar que no exista
-    if (email && email !== usuarioExistente.email) {
-      const emailExiste = await prisma.usuarios.findUnique({
+    // Si se cambió el email, verificar que el nuevo no esté en uso
+    if (email !== emailActual) {
+      const emailEnUso = await prisma.usuarios.findUnique({
         where: { email }
       });
 
-      if (emailExiste) {
+      if (emailEnUso) {
         return NextResponse.json(
-          { error: 'El email ya está registrado' },
-          { status: 400 }
+          { error: 'El nuevo email ya está en uso' },
+          { status: 409 }
         );
       }
     }
 
-    // Preparar datos para actualizar (solo campos proporcionados)
-    const datosActualizar = {};
-    if (email !== undefined) datosActualizar.email = email;
+    // Preparar datos para actualizar
+    const datosActualizacion = {
+      email,
+      updatedAt: new Date()
+    };
+
+    // Solo actualizar numero_control si se proporciona
+    if (numeroControl !== undefined) {
+      datosActualizacion.numero_control = numeroControl || null;
+    }
 
     // Actualizar usuario
     const usuarioActualizado = await prisma.usuarios.update({
-      where: { id },
-      data: datosActualizar,
+      where: { email: emailActual },
+      data: datosActualizacion,
       select: {
         id: true,
         email: true,
         nombre: true,
+        numero_control: true,
         rol: true,
-        createdAt: true,
         updatedAt: true
       }
     });
 
     return NextResponse.json(
-      { 
+      {
         success: true,
-        message: 'Usuario actualizado correctamente',
+        message: 'Perfil actualizado exitosamente',
         usuario: usuarioActualizado
       },
       { status: 200 }
@@ -75,7 +117,7 @@ export async function PATCH(request) {
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
     return NextResponse.json(
-      { error: 'Error al actualizar el usuario', details: error.message },
+      { error: 'Error al actualizar usuario', details: error.message },
       { status: 500 }
     );
   }

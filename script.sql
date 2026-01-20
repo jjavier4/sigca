@@ -37,33 +37,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Función para reiniciar la secuencia al inicio de cada año (opcional)
--- Se puede ejecutar manualmente o configurar con un cron job
-CREATE OR REPLACE FUNCTION reiniciar_secuencia_anual()
-RETURNS void AS $$
-BEGIN
-  ALTER SEQUENCE usuario_sequence RESTART WITH 1;
-END;
-$$ LANGUAGE plpgsql;
 
--- Función para validar formato de RFC
-CREATE OR REPLACE FUNCTION validar_formato_rfc(rfc TEXT)
-RETURNS BOOLEAN AS $$
-BEGIN
-  -- RFC de persona física: 13 caracteres (4 letras + 6 dígitos + 3 caracteres)
-  RETURN rfc ~ '^[A-ZÑ&]{4}[0-9]{6}[A-Z0-9]{3}$';
-END;
-$$ LANGUAGE plpgsql;
-
--- Función para validar formato de CURP
-CREATE OR REPLACE FUNCTION validar_formato_curp(curp TEXT)
-RETURNS BOOLEAN AS $$
-BEGIN
-  -- CURP: 18 caracteres
-  -- 4 letras + 6 dígitos + 1 letra + 5 caracteres + 1 dígito + 1 dígito
-  RETURN curp ~ '^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2}$';
-END;
-$$ LANGUAGE plpgsql;
 
 -- ============================================
 -- SECUENCIAS Y FUNCIONES PARA CONVOCATORIAS
@@ -74,7 +48,7 @@ CREATE SEQUENCE IF NOT EXISTS convocatoria_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 999
+  MAXVALUE 100
   CYCLE;
 
 -- Función para generar ID de convocatoria: año-numero
@@ -84,7 +58,7 @@ DECLARE
   anio_actual TEXT;
   numero_secuencia TEXT;
   nuevo_id TEXT;
-  identificador TEXT IS 'C';
+  identificador TEXT := 'C';
 BEGIN
   anio_actual := EXTRACT(YEAR FROM CURRENT_DATE)::TEXT;
   numero_secuencia := LPAD(nextval('convocatoria_sequence')::TEXT, 3, '0');
@@ -94,13 +68,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Función para reiniciar secuencia de convocatorias (ejecutar anualmente)
-CREATE OR REPLACE FUNCTION reiniciar_secuencia_convocatorias()
-RETURNS void AS $$
-BEGIN
-  ALTER SEQUENCE convocatoria_sequence RESTART WITH 1;
-END;
-$$ LANGUAGE plpgsql;
 
 -- ============================================
 -- SECUENCIAS Y FUNCIONES PARA ASIGNACIONES
@@ -111,7 +78,7 @@ CREATE SEQUENCE IF NOT EXISTS asignacion_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 999
+  MAXVALUE 100
   CYCLE;
 
 -- Función para generar ID de asignacion: año-numero
@@ -121,7 +88,7 @@ DECLARE
   anio_actual TEXT;
   numero_secuencia TEXT;
   nuevo_id TEXT;
-  identificador TEXT IS 'A';
+  identificador TEXT := 'A';
 BEGIN
   anio_actual := EXTRACT(YEAR FROM CURRENT_DATE)::TEXT;
   numero_secuencia := LPAD(nextval('asignacion_sequence')::TEXT, 3, '0');
@@ -148,7 +115,7 @@ CREATE SEQUENCE IF NOT EXISTS trabajo_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 999
+  MAXVALUE 100
   CYCLE;
 
 -- Función para generar ID de trabajo: año-numero
@@ -158,7 +125,7 @@ DECLARE
   anio_actual TEXT;
   numero_secuencia TEXT;
   nuevo_id TEXT;
-  identificador TEXT IS 'T';
+  identificador TEXT := 'T';
 BEGIN
   anio_actual := EXTRACT(YEAR FROM CURRENT_DATE)::TEXT;
   numero_secuencia := LPAD(nextval('trabajo_sequence')::TEXT, 3, '0');
@@ -187,9 +154,3 @@ COMMENT ON FUNCTION generar_usuario_id(TEXT) IS 'Genera ID único: año-identifi
 COMMENT ON FUNCTION generar_convocatoria_id() IS 'Genera ID único: año-numero (ej: 2025-C-001)';
 COMMENT ON FUNCTION generar_asignacion_id() IS 'Genera ID único: año-numero (ej: 2025-A-001)';
 COMMENT ON FUNCTION generar_trabajo_id() IS 'Genera ID único: año-numero (ej: 2025-T-001)';
-COMMENT ON FUNCTION reiniciar_secuencia_anual() IS 'Reinicia secuencia de usuarios al inicio del año';
-COMMENT ON FUNCTION reiniciar_secuencia_convocatorias() IS 'Reinicia secuencia de convocatorias al inicio del año';
-COMMENT ON FUNCTION reiniciar_secuencia_asignaciones() IS 'Reinicia secuencia de asignaciones al inicio del año';
-COMMENT ON FUNCTION reiniciar_secuencia_trabajos() IS 'Reinicia secuencia de trabajos al inicio del año';
-COMMENT ON FUNCTION validar_formato_rfc(TEXT) IS 'Valida formato RFC de 13 caracteres';
-COMMENT ON FUNCTION validar_formato_curp(TEXT) IS 'Valida formato CURP de 18 caracteres';
