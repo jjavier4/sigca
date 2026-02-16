@@ -67,7 +67,7 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
             <FileText size={20} />
             <span className="font-semibold">Trabajo: {trabajo.titulo}</span>
           </div>
-          
+
           {/* Botón de eliminar */}
           <button
             onClick={() => onDelete(trabajo.id)}
@@ -97,26 +97,29 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
       {/* Contenido */}
       <div className="p-6 space-y-4">
         {/* Título de la Convocatoria */}
-        <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-1">
+        <div className="space-y-3 pt-3">
+          <strong>Convocatoria asociada:</strong>
+          
+          <h3 className="text-sm">
             {trabajo.convocatoria.titulo}
           </h3>
-          <p className="text-sm text-gray-600">
-            Convocatoria asociada
-          </p>
+          
         </div>
 
         {/* Información del trabajo */}
-        <div className="space-y-3 pt-3 border-t border-gray-200">
+        <div className="space-y-3 pt-3 ">
           {/* coautores*/}
           {trabajo.coautores.length > 0 && (
             <div>
               <strong>Coautores:</strong>
-              <ul>
-                {trabajo.coautores.map((coautor, index) => (
-                  <li key={index}>{coautor}</li>
-                ))}
-              </ul>
+
+              {trabajo.coautores.map((coautor, index) => (
+                <ul key={index} className="list-disc p-2 mt-2 border-b border-gray-200">
+                  <li>{coautor.nombre}</li>
+                  <li>{coautor.email}</li>
+                </ul>
+              ))}
+
             </div>
           )}
 

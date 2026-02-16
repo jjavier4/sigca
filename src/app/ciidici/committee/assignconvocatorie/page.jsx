@@ -33,7 +33,6 @@ export default function AsignarRevisores() {
       if (trabajosResponse.ok) {
         setTrabajosSinAsignar(trabajosData.trabajos);
 
-        // Contar asignaciones por trabajo
         const conteos = {};
         trabajosData.trabajos.forEach(trabajo => {
           conteos[trabajo.id] = trabajo._count?.asignaciones || 0;

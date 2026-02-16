@@ -145,13 +145,6 @@ export default function ConvocatoriaForm() {
                   placeholder={"Ej: CIIDiCI 2026 - Convocatoria para Ponencias"}
                   required={true}
                 />
-
-                {errors.titulo && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.titulo}
-                  </p>
-                )}
               </div>
 
               <div>
@@ -164,12 +157,6 @@ export default function ConvocatoriaForm() {
                   placeholder={"Describa los objetivos y alcance de la convocatoria..."}
                   required={true}
                 />
-                {errors.descripcion && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.descripcion}
-                  </p>
-                )}
               </div>
             </div>
           </div>

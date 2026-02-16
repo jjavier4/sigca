@@ -62,9 +62,9 @@ export default function ViewConvocatorias() {
     );
   }
 
-  const sendFile = async (dataConvocatoria,file, convocatoriaId, userId) => {
+  const sendFile = async (dataConvocatoria, file, convocatoriaId, userId) => {
     const formData = new FormData();
-    formData.append('dataConvocatoria',  JSON.stringify(dataConvocatoria));
+    formData.append('dataConvocatoria', JSON.stringify(dataConvocatoria));
     formData.append('file', file);
     formData.append('convocatoriaId', convocatoriaId);
     formData.append('userId', userId);
@@ -75,10 +75,6 @@ export default function ViewConvocatorias() {
     });
 
     const data = await response.json();
-
-    if (response.ok) {
-      return true
-    }
     return data;
   };
 
@@ -98,8 +94,8 @@ export default function ViewConvocatorias() {
             <button
               onClick={() => setFiltro('todas')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'todas'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Todas ({convocatorias.length})
@@ -107,8 +103,8 @@ export default function ViewConvocatorias() {
             <button
               onClick={() => setFiltro('abiertas')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'abiertas'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Abiertas
@@ -116,8 +112,8 @@ export default function ViewConvocatorias() {
             <button
               onClick={() => setFiltro('cerradas')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'cerradas'
-                  ? 'bg-gray-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gray-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Cerradas
@@ -154,7 +150,7 @@ export default function ViewConvocatorias() {
       </div>
 
       {/* Modal */}
-      {selectedConvocatoria && (
+      {(selectedConvocatoria && session?.user?.rol === 'AUTOR') && (
         <ModalConvocatorie
           convocatoria={selectedConvocatoria}
           onClose={() => setSelectedConvocatoria(null)}

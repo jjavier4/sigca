@@ -57,7 +57,6 @@ model Trabajos {
   estado            EstadoTrabajo @default(EN_REVISION)
   titulo            String
   tipo              GrupoRubrica
-  coautores         String[] @default([]) // Array de nombres de coautores
   presencial        Boolean?
   nvl_ia            Float?
   nvl_plagio        Float?
@@ -70,7 +69,10 @@ model Trabajos {
   
   convocatoriaId    String
   convocatoria      Convocatorias @relation(fields: [convocatoriaId], references: [id], onDelete: Cascade)
-  
+    
+  //Un trabajo tiene una lista de coautores
+  coautores  Coautores[]
+
   // Relación con Asignaciones
   asignaciones      Asignaciones[] @relation("TrabajoAsignaciones")
   
@@ -86,6 +88,18 @@ enum EstadoTrabajo {
   EN_REVISION
   ACEPTADO
   RECHAZADO
+}
+
+
+model Coautores{
+  id        String   @id @default(uuid())
+  idTrabajo String
+  nombre String
+  email String
+
+  //Relacion con Tabajo
+  trabajo    Trabajos @relation(fields: [idTrabajo], references: [id], onDelete: Cascade)
+  @@index([idTrabajo]) // Recomendado para búsquedas rápidas
 }
 
 model Asignaciones {

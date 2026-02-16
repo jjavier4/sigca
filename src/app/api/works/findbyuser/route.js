@@ -36,7 +36,8 @@ export async function GET(request) {
                         fecha_inicio: true,
                         fecha_cierre: true
                     }
-                }
+                },
+                coautores:true
             },
             orderBy: {
                 createdAt: 'desc'

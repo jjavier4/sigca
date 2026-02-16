@@ -96,11 +96,7 @@ export default function DashboardEstadisticas() {
           message={error}
           isVisible={error}
         />
-
-        {/* Grid de Gráficas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* GRÁFICA 1: Usuarios por Rol */}
           <CardChart
             title="Usuarios por Rol"
             subtitle="Distribución de usuarios activos e inactivos por rol"
@@ -122,8 +118,6 @@ export default function DashboardEstadisticas() {
               <EmptyChart message="No hay usuarios registrados" />
             )}
           </CardChart>
-
-          {/* GRÁFICA 2: Trabajos por Convocatoria */}
           <CardChart
             title="Trabajos por Convocatoria"
             subtitle={`Número de trabajos recibidos por convocatoria (${kpiData?.anoActual})`}

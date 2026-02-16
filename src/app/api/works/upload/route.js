@@ -97,26 +97,21 @@ export async function POST(request) {
             );
         }
 
-        //Crear directorio en public/documents/userId
         const publicPath = path.join(process.cwd(), 'public');
         const documentsPath = path.join(publicPath, 'documents');
         const userDirectoryPath = path.join(documentsPath, userId);
 
-        // Crear carpeta 'documents' si no existe
         if (!existsSync(documentsPath)) {
             await mkdir(documentsPath, { recursive: true });
         }
 
-        // Crear carpeta del usuario si no existe
         if (!existsSync(userDirectoryPath)) {
             await mkdir(userDirectoryPath, { recursive: true });
         }
 
-        // Nombrar el archivo con el ID de la convocatoria
         const fileName = `${convocatoriaId}.pdf`;
         const filePath = path.join(userDirectoryPath, fileName);
 
-        // Convertir el archivo a buffer y guardarlo
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
         await writeFile(filePath, buffer);
@@ -139,7 +134,9 @@ export async function POST(request) {
             id: await generarTrabajoId(),
             titulo: dataConvocatoriaParsed.tituloPropuesta,
             tipo: dataConvocatoriaParsed.tipo,
-            coautores: dataConvocatoriaParsed.coautores || [],
+            coautores: {
+                create: dataConvocatoriaParsed.coautores || []
+            },
             convocatoriaId: convocatoriaId,
             usuarioId: userId,
             archivo_url: relativePath

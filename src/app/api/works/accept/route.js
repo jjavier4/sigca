@@ -31,6 +31,7 @@ export async function PATCH(request) {
             include: {
                 usuario: true,
                 convocatoria: true,
+                coautores:true,
                 asignaciones: {
                     where: { activa: false }
                 }
@@ -82,7 +83,7 @@ export async function PATCH(request) {
         // Preparar datos para el PDF
         const nombreCompleto = `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`;
         const autores = trabajo.coautores.length > 0
-            ? trabajo.coautores.join(', ')
+            ? trabajo.coautores.nombre.join(', ')
             : 'Sin coautores';
         const modalidad = presencial ? 'Presencial' : 'Virtual';
         const fecha = new Date().toLocaleDateString('es-MX', {
