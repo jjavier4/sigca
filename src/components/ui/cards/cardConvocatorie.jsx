@@ -48,7 +48,7 @@ export function CardConvocatorie({ convocatoria, onClick }) {
   return (
     <div
       onClick={() => onClick(convocatoria)}
-      className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-blue-400 transform hover:-translate-y-1 ${session?.user?.rol === 'AUTOR' && 'cursor-pointer'}`}
+      className={`bg-white rounded-xl shadow-md transition-all duration-300 overflow-hidden border border-gray-200  ${session?.user?.rol === 'AUTOR' && 'cursor-pointer hover:shadow-xl hover:border-blue-400 transform hover:-translate-y-1'}`}
     >
       {/* Header con estado */}
       <div className="bg-gray-900 p-4">
