@@ -31,7 +31,8 @@ export async function PATCH(request) {
             include: {
                 usuario: true,
                 convocatoria: true,
-                asignaciones: true
+                asignaciones: true,
+                coautores:true
             }
         });
 
@@ -94,7 +95,7 @@ export async function PATCH(request) {
         // Preparar datos para el PDF
         const nombreCompleto = `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`;
         const autores = trabajo.coautores.length > 0
-            ? trabajo.coautores.join(', ')
+            ? trabajo.coautores.nombre.join(', ')
             : 'Sin coautores';
         const fecha = new Date().toLocaleDateString('es-MX', {
             day: 'numeric',

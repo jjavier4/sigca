@@ -47,7 +47,7 @@ export default function Header() {
                 <span className="text-stone-300">
                   Hola, <span className="font-semibold">{session.user.name}</span>
                 </span>
-                <Link href={href(session.user.rol)} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                <Link href={href(session?.user?.rol)} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
                   <span>{session.user.rol}</span>
                 </Link>
                 <button

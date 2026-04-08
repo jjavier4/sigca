@@ -55,7 +55,6 @@ export async function POST(request) {
     const revisorYaAsignado = await prisma.asignaciones.findFirst({
       where: {
         trabajoId: trabajoId,
-        activa: true,
         revisorId: {
           in: revisoresIds
         }

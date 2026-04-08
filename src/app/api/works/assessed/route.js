@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import {prisma} from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 export async function GET(request) {
   try {
@@ -26,7 +26,11 @@ export async function GET(request) {
 
     // Obtener trabajos del año actual con sus asignaciones
     const trabajos = await prisma.trabajos.findMany({
-      
+      where: {
+        id: {
+          startsWith: `${anioActual}-`
+        }
+      },
       include: {
         usuario: {
           select: {
@@ -81,12 +85,15 @@ export async function GET(request) {
         .filter(c => c.calificacion !== null)
         .map(c => c.calificacion);
 
-      const promedioCalificacion = calificacionesNumeros.length > 0
-        ? calificacionesNumeros.reduce((sum, cal) => sum + cal, 0) / calificacionesNumeros.length
-        : null;
+
 
       const totalAsignaciones = trabajo.asignaciones.length;
       const asignacionesCalificadas = calificacionesNumeros.length;
+
+      const promedioCalificacion = calificacionesNumeros.length > 0 &&
+        asignacionesCalificadas === totalAsignaciones
+        ? calificacionesNumeros.reduce((sum, cal) => sum + cal, 0) / calificacionesNumeros.length
+        : null;
 
       return {
         id: trabajo.id,
@@ -107,7 +114,7 @@ export async function GET(request) {
         createdAt: trabajo.createdAt
       };
     });
-
+    console.log(trabajosFormateados);
     return NextResponse.json({
       anio: anioActual,
       total: trabajosFormateados.length,

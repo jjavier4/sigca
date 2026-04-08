@@ -1,8 +1,8 @@
 import React from 'react';
-import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins } from 'lucide-react';
+import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins, Trash2 } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
+export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -13,7 +13,7 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
       minute: '2-digit'
     });
   };
-  const estadoPago = false; // cambiar a trabajo.estadoPago cuando esté implementado
+
   const getEstadoConfig = (estado) => {
     const configs = {
       EN_REVISION: {
@@ -46,21 +46,39 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
     };
   }
 
+  const estadoBotonRefPago = () => {
+    if (trabajo.referencia_pago) {
+      if (trabajo.estado_pago === true) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   const estadoConfig = getEstadoConfig(trabajo.estado);
-  const estadoPagoConfig = getEstadoPago(estadoPago);
+  const estadoPagoConfig = getEstadoPago(trabajo.estado_pago);
 
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r bg-gray-900 p-4 ">
-        
-          <div className="flex items-center space-x-2 text-white mb-4">
+      <div className="bg-gradient-to-r bg-gray-900 p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2 text-white">
             <FileText size={20} />
             <span className="font-semibold">Trabajo: {trabajo.titulo}</span>
-          </div>       
-        
-        <div className="flex items-center justify-between">        
-          
+          </div>
+
+          {/* Botón de eliminar */}
+          <button
+            onClick={() => onDelete(trabajo.id)}
+            className="text-red-400 hover:text-red-300 transition-colors p-1 rounded-lg hover:bg-red-900/20"
+            title="Eliminar trabajo"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between">
           <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoConfig.color}`}>
             {estadoConfig.icon}
             <span className="text-sm font-semibold">{estadoConfig.texto}</span>
@@ -69,7 +87,7 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
             trabajo.estado === 'ACEPTADO' && (
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${estadoPagoConfig.color}`}>
                 {estadoPagoConfig.icon}
-                <span className="text-sm font-semibold">Pagado</span>                
+                <span className="text-sm font-semibold">Pagado</span>
               </div>
             )
           }
@@ -79,26 +97,29 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
       {/* Contenido */}
       <div className="p-6 space-y-4">
         {/* Título de la Convocatoria */}
-        <div>
-          <h3 className="text-lg font-bold text-gray-800 mb-1">
+        <div className="space-y-3 pt-3">
+          <strong>Convocatoria asociada:</strong>
+          
+          <h3 className="text-sm">
             {trabajo.convocatoria.titulo}
           </h3>
-          <p className="text-sm text-gray-600">
-            Convocatoria asociada
-          </p>
+          
         </div>
 
         {/* Información del trabajo */}
-        <div className="space-y-3 pt-3 border-t border-gray-200">
+        <div className="space-y-3 pt-3 ">
           {/* coautores*/}
           {trabajo.coautores.length > 0 && (
             <div>
               <strong>Coautores:</strong>
-              <ul>
-                {trabajo.coautores.map((coautor, index) => (
-                  <li key={index}>{coautor}</li>
-                ))}
-              </ul>
+
+              {trabajo.coautores.map((coautor, index) => (
+                <ul key={index} className="list-disc p-2 mt-2 border-b border-gray-200">
+                  <li>{coautor.nombre}</li>
+                  <li>{coautor.email}</li>
+                </ul>
+              ))}
+
             </div>
           )}
 
@@ -125,8 +146,9 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
           trabajo.estado === 'ACEPTADO' && (
             <div className="pt-4 border-t border-gray-200">
               <button
-                onClick={() => getReferenciaPagoPDF()}
-                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors group"
+                onClick={() => getReferenciaPagoPDF(trabajo.id)}
+                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 cursor-pointer disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-colors group"
+                disabled={estadoBotonRefPago()}
               >
                 <Coins className="mr-2" size={18} />
                 Generar referencia de pago
@@ -137,4 +159,3 @@ export default function CardWork({ trabajo,getReferenciaPagoPDF }) {
     </div>
   );
 }
-

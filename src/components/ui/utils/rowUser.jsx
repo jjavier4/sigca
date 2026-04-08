@@ -11,7 +11,6 @@ export default function RowUser({name, email, role, onEdit, onDelete}) {
                 </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <button  onClick={onEdit} className="text-blue-600 hover:text-blue-800 mr-3">Editar</button>
                 <button onClick={onDelete} className="text-red-600 hover:text-red-800">Eliminar</button>
             </td>
         </tr>

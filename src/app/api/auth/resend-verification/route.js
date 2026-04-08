@@ -15,7 +15,6 @@ export async function POST(request) {
       );
     }
 
-    // Buscar usuario
     const usuario = await prisma.usuarios.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -27,7 +26,6 @@ export async function POST(request) {
       );
     }
 
-    // Si ya está activa, no enviar email
     if (usuario.activa) {
       return NextResponse.json(
         { error: 'Esta cuenta ya está verificada. Puedes iniciar sesión.' },
@@ -35,12 +33,10 @@ export async function POST(request) {
       );
     }
 
-    // Generar nuevo token y guardar en tabla Tokens
-    // (guardarToken elimina automáticamente tokens previos del mismo email)
+  
     const nuevoToken = generarToken();
     await guardarToken(email.toLowerCase(), nuevoToken);
 
-    // Enviar email de verificación
     const nombreCompleto = `${usuario.nombre} ${usuario.apellidoP} ${usuario.apellidoM}`;
     const { html, text } = emailVerificacionCuenta({ nombreCompleto, token: nuevoToken });
 

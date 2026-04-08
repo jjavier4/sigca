@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { 
-  Home, UserPlus, Settings, Users, LucideFileUp, 
+  Home, UserPlus, Settings, Users, LucideFileUp, FileCog,
   UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers,FileCheck, AlignEndHorizontalIcon
 } from 'lucide-react';
 import Link from 'next/link';
@@ -28,6 +28,11 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'manage-users', group: 'user', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
       )
     }
+    if(role === 'AUTOR'){
+      items.push(
+        { id: 'settings', group: 'settings', icon: UserCog, label: 'Settings', page: `${baseUrl}/settings` },
+      )
+    }
     if (role === 'COMITE') {
       items.push(
         { id: 'add-convocatorie', group: 'convocatorie', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
@@ -37,6 +42,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'send-mail', icon: Mail, group: 'settings', label: 'Invitar revisores', page: `${baseUrl}/sendmail` },
         { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` },
         { id: 'assessed-ia', icon: AlignEndHorizontalIcon, group: 'work', label: 'Niveles de IA y Plagio', page: `${baseUrl}/assessed-ia` },
+        { id: 'manage-assessed', group: 'work', icon: FileCog, label: 'Gestionar Asignaciones', page: `${baseUrl}/manageassessed` },
       )
     }
     return items;

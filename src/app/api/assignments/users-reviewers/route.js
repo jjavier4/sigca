@@ -4,7 +4,7 @@ export async function GET() {
   try {
     const anioActual = new Date().getFullYear();
     const revisores = await prisma.usuarios.findMany({
-      where: { rol: 'REVISOR' },
+      where: { rol: 'REVISOR',activa:true },
       select: {
         id: true,
         nombre: true,

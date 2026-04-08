@@ -20,7 +20,8 @@
     "puppeteer": "^24.34.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-email": "^5.0.5"
+    "react-email": "^5.0.5",
+    "recharts": "^3.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
