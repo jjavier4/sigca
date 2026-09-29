@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
-import {  Plus, ListChecks } from 'lucide-react';
-export default function TablaCriterios({ criterios, grupo, titulo,deleteLoading, handleEliminar, handleAbrirModal }) {
+import { Plus, ListChecks } from 'lucide-react';
+export default function TablaCriterios({ criterios, grupo, titulo, deleteLoading, handleEliminar, handleAbrirModal }) {
     return (
         <>
             <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden mb-8">
@@ -83,7 +83,7 @@ export default function TablaCriterios({ criterios, grupo, titulo,deleteLoading,
                 <div className="px-6 py-4 border-t border-gray-200">
                     <button
                         onClick={() => handleAbrirModal(grupo)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                        className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
                     >
                         <Plus size={20} />
                         Agregar Criterio

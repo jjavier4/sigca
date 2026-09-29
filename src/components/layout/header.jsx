@@ -13,7 +13,7 @@ export default function Header() {
   return (
     <>
 
-      <MenuComponent isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar}/>
+      <MenuComponent isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <header className="bg-gray-900 text-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
 
@@ -22,13 +22,13 @@ export default function Header() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={toggleSidebar}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 cursor-pointer rounded-lg transition-colors"
                 >
                   {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               </div>
             }
-            <Link href="/ciidici" className="flex items-center space-x-2 hover:bg-blue-900 px-4 py-2 rounded-lg transition-all duration-300">
+            <Link href="/" className="flex items-center space-x-2 hover:bg-blue-900 px-4 py-2 rounded-lg transition-all duration-300">
               <Home size={24} />
               <span className="font-semibold text-lg hidden sm:inline">SIGCA</span>
             </Link>
@@ -51,8 +51,8 @@ export default function Header() {
                   <span>{session.user.rol}</span>
                 </Link>
                 <button
-                  onClick={() => signOut({ callbackUrl: '/ciidici' })}
-                  className="flex items-center bg-orange-400 text-blue-900 hover:bg-red-400 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg cursor-pointer "
+                  onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })}
+                  className="flex items-center bg-orange-400 text-blue-900 hover:bg-orange-500 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg cursor-pointer "
                 >
                   <LogOut size={20} />
                   <span> Cerrar Sesión</span>
@@ -61,7 +61,7 @@ export default function Header() {
             ) : (
               // Usuario no autenticado
               <>
-                <Link href="/ciidici/auth" className="flex items-center space-x-2 bg-white text-blue-900 hover:bg-blue-50 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg">
+                <Link href="/auth" className="flex items-center space-x-2 bg-white text-blue-900 hover:bg-blue-50 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg">
                   <LogIn size={20} />
                   <span>Iniciar Sesión</span>
                 </Link>

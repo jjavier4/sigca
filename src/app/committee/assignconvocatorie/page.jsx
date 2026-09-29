@@ -27,7 +27,7 @@ export default function AsignarRevisores() {
       setLoading(true);
 
       // Obtener trabajos sin asignar
-      const trabajosResponse = await fetch('/api/assignments/works-not-assign');
+      const trabajosResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/works-not-assign`);
       const trabajosData = await trabajosResponse.json();
 
       if (trabajosResponse.ok) {
@@ -44,7 +44,7 @@ export default function AsignarRevisores() {
       }
 
       // Obtener revisores con carga de trabajo
-      const revisoresResponse = await fetch('/api/assignments/users-reviewers');
+      const revisoresResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/users-reviewers`);
       const revisoresData = await revisoresResponse.json();
 
       if (revisoresResponse.ok) {
@@ -65,7 +65,7 @@ export default function AsignarRevisores() {
 
   const handleAsignacion = async () => {
     try {
-      const response = await fetch('/api/assignments/create', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,7 +91,7 @@ export default function AsignarRevisores() {
       console.error('Error al crear asignaciones:', error);
       setError('Error al crear las asignaciones');
       setTimeout(() => setError(''), 3000);
-    }  
+    }
   };
 
   const handleSelectRevisor = (revisor) => {

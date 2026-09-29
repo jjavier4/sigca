@@ -28,13 +28,13 @@ export default function EvaluacionIAPlagio() {
   const fetchTrabajos = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/works/pending-ia-plagio');
-      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/pending-ia-plagio`);
+
       if (response.ok) {
         const data = await response.json();
         setTrabajosPendientes(data.pendientes.trabajos);
         setTrabajosEvaluados(data.evaluados.trabajos);
-        
+
         // Inicializar formData solo para trabajos pendientes
         const initialFormData = {};
         data.pendientes.trabajos.forEach(trabajo => {
@@ -45,13 +45,10 @@ export default function EvaluacionIAPlagio() {
         });
         setFormDataMap(initialFormData);
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Error al cargar trabajos');
-        setTimeout(() => setError(''), 3000);
+      setErrorLoading(true);
       }
     } catch (err) {
       console.error('Error al cargar trabajos:', err);
-      setErrorLoading(true);
     } finally {
       setLoading(false);
     }
@@ -104,7 +101,7 @@ export default function EvaluacionIAPlagio() {
     }
 
     try {
-      const response = await fetch('/api/works/update-assessed-ia', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/update-assessed-ia`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,7 +115,7 @@ export default function EvaluacionIAPlagio() {
 
       if (response.ok) {
         setSuccess(data.message || 'Análisis guardado exitosamente');
-        
+
         // Mover trabajo de pendientes a evaluados
         const trabajoGuardado = trabajosPendientes.find(t => t.id === trabajoId);
         if (trabajoGuardado) {
@@ -126,9 +123,9 @@ export default function EvaluacionIAPlagio() {
           trabajoGuardado.nvl_plagio = nvl_plagio;
           setTrabajosEvaluados(prev => [trabajoGuardado, ...prev]);
         }
-        
+
         setTrabajosPendientes(prev => prev.filter(t => t.id !== trabajoId));
-        
+
         // Limpiar formData del trabajo
         setFormDataMap(prev => {
           const newMap = { ...prev };
@@ -187,11 +184,11 @@ export default function EvaluacionIAPlagio() {
 
       if (response.ok) {
         setSuccess(data.message || 'Análisis actualizado exitosamente');
-        
+
         // Actualizar trabajo en la lista de evaluados
-        setTrabajosEvaluados(prev => 
-          prev.map(t => 
-            t.id === trabajoId 
+        setTrabajosEvaluados(prev =>
+          prev.map(t =>
+            t.id === trabajoId
               ? { ...t, nvl_ia, nvl_plagio }
               : t
           )

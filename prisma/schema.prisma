@@ -7,81 +7,113 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Usuarios {
-  id        String   @id // Formato: 2025-RFC/CURP-001
-  email     String   @unique
-  rfc       String?  @unique // Opcional
-  curp      String?  @unique // Opcional
-  numero_control  String?  @unique // Opcional
-  nombre    String
-  apellidoP String
-  apellidoM String
-  password  String
-  rol       Rol      @default(AUTOR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  activa          Boolean  @default(false)
-  // Relación con Trabajos (como autor)
-  trabajos  Trabajos[]
-  
-  // Relación con Asignaciones (como revisor)
-  asignacionesComoRevisor Asignaciones[] @relation("RevisorAsignaciones")
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Asignaciones {
+  id           String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  activa       Boolean   @default(true)
+  comentario   String?
+  calificacion Float?
+  trabajoId    String
+  revisorId    String    @db.VarChar(11)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  closeAt      DateTime? @db.Timestamptz(6)
+  revisor     Usuarios  @relation(fields: [revisorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignaciones_revisor")
+  trabajo     Trabajos  @relation(fields: [trabajoId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignaciones_trabajo")
+
+  @@unique([trabajoId, revisorId], map: "uq_asignaciones_trabajo_revisor")
+  @@index([activa], map: "idx_asignaciones_activa")
+  @@index([revisorId], map: "idx_asignaciones_revisorid")
+  @@index([trabajoId], map: "idx_asignaciones_trabajoid")
 }
 
-enum Rol {
-  AUTOR
-  REVISOR
-  COMITE
-  ADMIN
+model Coautores {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  idTrabajo String
+  nombre    String   @db.VarChar(20)
+  email     String   @db.VarChar(255)
+  trabajo  Trabajos @relation(fields: [idTrabajo], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_coautores_trabajo")
+
+  @@index([idTrabajo], map: "idx_coautores_idtrabajo")
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Convocatorias {
-  id              String   @id // Formato: 2025-001
-  titulo          String
-  descripcion     String   @db.Text
-  fecha_inicio    DateTime
-  fecha_cierre    DateTime
-  archivo_url     String   // PDF de la convocatoria
-  activa          Boolean  @default(true)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relación con Trabajos
-  trabajos        Trabajos[]
+  id           String     @id @db.VarChar(11)
+  titulo       String     @db.VarChar(50)
+  descripcion  String
+  fecha_inicio DateTime   @db.Timestamptz(6)
+  fecha_cierre DateTime   @db.Timestamptz(6)
+  archivo_url  String
+  activa       Boolean    @default(true)
+  createdAt    DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamptz(6)
+  trabajos     Trabajos[]
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model CriteriosEvaluacion {
+  id                  String       @id @default(dbgenerated("(gen_random_uuid())::text"))
+  nombre              String       @db.VarChar(20)
+  descripcion         String
+  grupo               GrupoRubrica
+  descripcion_puntaje String[]     @default([])
+  createdAt           DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime     @default(now()) @db.Timestamptz(6)
+}
+
+model Tokens {
+  email     String   @db.VarChar(255)
+  token     String   @unique @db.VarChar(20)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([createdAt], map: "idx_tokens_createdat")
+  @@index([email], map: "idx_tokens_email")
+  @@index([token], map: "idx_tokens_token")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Trabajos {
-  id                String   @id @default(uuid())
-  archivo_url       String
-  estado            EstadoTrabajo @default(EN_REVISION)
-  titulo            String
-  tipo              GrupoRubrica
-  presencial        Boolean?
-  nvl_ia            Float?
-  nvl_plagio        Float?
-  calificacion_final  Float?  
-  referencia_pago      String?  @unique // Opcional
+  id                 String         @id @default(dbgenerated("(gen_random_uuid())::text"))
+  archivo_url        String
+  estado             EstadoTrabajo  @default(EN_REVISION)
+  titulo             String         @db.VarChar(50)
+  tipo               GrupoRubrica
+  presencial         Boolean?
+  nvl_ia             Float?
+  nvl_plagio         Float?
+  calificacion_final Float?
+  referencia_pago    String?        @unique @db.VarChar(255)
+  usuarioId          String         @db.VarChar(11)
+  convocatoriaId     String         @db.VarChar(11)
+  createdAt          DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime       @default(now()) @db.Timestamptz(6)
+  asignaciones       Asignaciones[]
+  coautores          Coautores[]
+  convocatoria      Convocatorias  @relation(fields: [convocatoriaId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trabajos_convocatoria")
+  usuario           Usuarios       @relation(fields: [usuarioId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trabajos_usuario")
 
-  // Relaciones (Foreign Keys)
-  usuarioId         String
-  usuario           Usuarios @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  
-  convocatoriaId    String
-  convocatoria      Convocatorias @relation(fields: [convocatoriaId], references: [id], onDelete: Cascade)
-    
-  //Un trabajo tiene una lista de coautores
-  coautores  Coautores[]
+  @@index([convocatoriaId], map: "idx_trabajos_convocatoriaid")
+  @@index([estado], map: "idx_trabajos_estado")
+  @@index([usuarioId], map: "idx_trabajos_usuarioid")
+}
 
-  // Relación con Asignaciones
-  asignaciones      Asignaciones[] @relation("TrabajoAsignaciones")
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
-  @@index([usuarioId])
-  @@index([convocatoriaId])
-  @@index([estado])
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Usuarios {
+  id             String         @id @db.VarChar(11)
+  email          String         @unique @db.VarChar(255)
+  rfc            String?        @unique @db.VarChar(13)
+  curp           String?        @unique @db.VarChar(18)
+  numero_control String?        @unique @db.VarChar(8)
+  nombre         String         @db.VarChar(20)
+  apellidoP      String         @db.VarChar(20)
+  apellidoM      String         @db.VarChar(20)
+  password       String         @db.VarChar(20)
+  rol            Rol            @default(AUTOR)
+  activa         Boolean        @default(false)
+  createdAt      DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime       @default(now()) @db.Timestamptz(6)
+  asignacionesComoRevisor   Asignaciones[]
+  trabajos       Trabajos[]
 }
 
 enum EstadoTrabajo {
@@ -90,60 +122,14 @@ enum EstadoTrabajo {
   RECHAZADO
 }
 
-
-model Coautores{
-  id        String   @id @default(uuid())
-  idTrabajo String
-  nombre String
-  email String
-
-  //Relacion con Tabajo
-  trabajo    Trabajos @relation(fields: [idTrabajo], references: [id], onDelete: Cascade)
-  @@index([idTrabajo]) // Recomendado para búsquedas rápidas
-}
-
-model Asignaciones {
-  id          String   @id @default(uuid())
-  activa      Boolean  @default(true)
-  comentario  String?  @db.Text // Comentario del revisor
-  calificacion  Float?
-  // Relaciones (Foreign Keys)
-  trabajoId   String
-  trabajo     Trabajos @relation("TrabajoAsignaciones", fields: [trabajoId], references: [id], onDelete: Cascade)
-  
-  revisorId   String
-  revisor     Usuarios @relation("RevisorAsignaciones", fields: [revisorId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  closeAt     DateTime?
-  
-  @@index([trabajoId])
-  @@index([revisorId])
-  @@index([activa])
-  @@unique([trabajoId, revisorId])
-}
-
-model CriteriosEvaluacion {
-  id          String   @id @default(cuid())
-  nombre      String
-  descripcion String
-  grupo       GrupoRubrica
-  descripcion_puntaje         String[] @default([]) // Array de descripcion de puntajes
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
 enum GrupoRubrica {
   DIFUSION
   DIVULGACION
 }
 
-model Tokens {
-  email     String
-  token     String   @unique
-  createdAt DateTime @default(now())
-  
-  @@index([email])
-  @@index([token])
-  @@index([createdAt])
+enum Rol {
+  AUTOR
+  REVISOR
+  COMITE
+  ADMIN
 }

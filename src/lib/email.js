@@ -176,7 +176,7 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
  * Plantilla: Invitación a revisor (con token de registro)
  */
 export function emailInvitacionRevisor({ nombreRevisor, token }) {
-  const registroUrl = `${process.env.NEXTAUTH_URL}/auth/register-revisor?token=${token}`;
+  const registroUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/register-revisor?token=${token}`;
   
   const html = `
     <!DOCTYPE html>
@@ -535,7 +535,7 @@ export function emailTrabajoRechazado({ nombreCompleto, titulo, motivo, califica
  * Plantilla: Verificación de correo electrónico
  */
 export function emailVerificacionCuenta({ nombreCompleto, token }) {
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${token}`;
   
   const html = `
     <!DOCTYPE html>
@@ -662,7 +662,7 @@ export function emailVerificacionCuenta({ nombreCompleto, token }) {
  * Plantilla: Restablecimiento de contraseña
  */
 export function emailRestablecerPassword({ nombreCompleto, token }) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
+  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
   
   const html = `
     <!DOCTYPE html>

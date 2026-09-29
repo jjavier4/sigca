@@ -10,9 +10,9 @@ export const metadata = {
   title: 'SIGCA - Sistema de Gestión de Conferencias Académicas',
   description: 'Congreso Internacional de la Investigación y Divulgación de la Ciencia y la Ingeniería',
   icons: {
-    icon: '/icon.png', 
-    shortcut: '/icon.png',
-    apple: '/icon.png', 
+    icon: '/ciidici/icon.png',
+    shortcut: '/ciidici/icon.png',
+    apple: '/ciidici/icon.png',
   },
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <main className="flex-grow">
-          <SessionProvider>
+          <SessionProvider basePath="/ciidici/api/auth">
             <Header />
             {children}
             <Footer />

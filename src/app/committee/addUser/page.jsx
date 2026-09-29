@@ -66,7 +66,7 @@ export default function AddUser() {
         }
 
         try {
-            const response = await fetch('/api/user/register', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -78,7 +78,7 @@ export default function AddUser() {
                     rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
                     curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
                     password: registerData.password,
-                    rol:registerData.rol
+                    rol: registerData.rol
                 }),
             });
 
@@ -109,7 +109,7 @@ export default function AddUser() {
         }
     };
     return (
-        <div className='flex flex-col items-center w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md'>
+        <div className='flex flex-col items-center w-full max-w-1/2 mx-auto p-6 bg-white rounded-lg shadow-md'>
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Agregar Nuevo Usuario</h2>
             {/* Alertas */}
             <Alert
@@ -117,7 +117,7 @@ export default function AddUser() {
                 message={error || success}
                 isVisible={error || success}
             />
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-4 w-full" >
 
                 {/* Registration Form */}
                 <FormLabelInput
@@ -234,7 +234,7 @@ export default function AddUser() {
                         onChange={(e) => setRegisterData({ ...registerData, rol: e.target.value })}
                         className="w-full pl-2 pr-4 py-3 border text-black rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                     >
-                        
+
                         <option value="REVISOR">Revisor</option>
                         <option value="COMITE">Comite</option>
                     </select>

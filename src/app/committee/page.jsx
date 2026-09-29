@@ -50,7 +50,7 @@ export default function DashboardEstadisticas() {
       setLoading(true);
       setErrorLoading(false);
 
-      const response = await fetch('/api/kpi');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/kpi`);
       const data = await response.json();
 
       if (response.ok) {
@@ -216,8 +216,10 @@ export default function DashboardEstadisticas() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ tipo, cantidad, percent }) =>
-                      `${tipo}: ${cantidad} (${(percent * 100).toFixed(0)}%)`
+                    label={
+                      ({ tipo, cantidad, percent }) =>
+                        `${tipo.charAt(0) + tipo.slice(1).toLowerCase()}: ${cantidad} (${(percent * 100).toFixed(0)}%)`
+
                     }
                     outerRadius={100}
                     fill="#8884d8"

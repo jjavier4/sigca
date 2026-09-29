@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import RowUser from '@/components/ui/utils/rowUser'
 import Alert from '@/components/ui/utils/alert'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
-import { Mail,ListChecks} from 'lucide-react'
+import { Mail, ListChecks } from 'lucide-react'
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/ui/utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
@@ -21,7 +21,7 @@ export default function ManageUsers() {
 
     const deleteUser = async (userEmail) => {
         try {
-            const response = await fetch(`/api/user/deleteone?email=${userEmail}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/deleteone?email=${userEmail}`, {
                 method: 'DELETE',
             });
             const data = await response.json();
@@ -43,7 +43,7 @@ export default function ManageUsers() {
     const findUserforRole = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/user/findforroles?roles=REVISOR,AUTOR`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/findforroles?roles=REVISOR,AUTOR`, {
                 method: 'GET',
             });
             const data = await response.json();
@@ -73,7 +73,7 @@ export default function ManageUsers() {
         setSuccess('');
 
         try {
-            const response = await fetch('/api/user/updateone', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/updateone`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

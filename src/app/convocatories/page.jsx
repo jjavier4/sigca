@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { Calendar, FileText, Clock, Tag, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { FileText } from 'lucide-react';
 import { CardConvocatorie, ModalConvocatorie } from '@/components/ui/cards/cardConvocatorie';
 import { useSession } from 'next-auth/react';
 import Loading from '@/components/ui/utils/loading';
@@ -21,7 +21,7 @@ export default function ViewConvocatorias() {
   const fetchConvocatorias = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/convocatories/findall2');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/findall2`);
       const data = await response.json();
 
       if (response.ok) {
@@ -36,19 +36,20 @@ export default function ViewConvocatorias() {
       setLoading(false);
     }
   };
+  const convocatoriasFiltradas = useMemo(() => {
+    return convocatorias.filter(conv => {
+      const now = new Date();
+      const inicio = new Date(conv.fecha_inicio);
+      const cierre = new Date(conv.fecha_cierre);
 
-  const convocatoriasFiltradas = convocatorias.filter(conv => {
-    const now = new Date();
-    const inicio = new Date(conv.fecha_inicio);
-    const cierre = new Date(conv.fecha_cierre);
-
-    if (filtro === 'abiertas') {
-      return now >= inicio && now <= cierre;
-    } else if (filtro === 'cerradas') {
-      return now > cierre;
-    }
-    return true;
-  });
+      if (filtro === 'abiertas') {
+        return now >= inicio && now <= cierre;
+      } else if (filtro === 'cerradas') {
+        return now > cierre;
+      }
+      return true;
+    });
+  }, [convocatorias, filtro]);
 
   if (loading) {
     return (
@@ -69,7 +70,7 @@ export default function ViewConvocatorias() {
     formData.append('convocatoriaId', convocatoriaId);
     formData.append('userId', userId);
 
-    const response = await fetch('/api/works/upload', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/upload`, {
       method: 'POST',
       body: formData,
     });

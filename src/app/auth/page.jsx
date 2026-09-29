@@ -131,7 +131,7 @@ export default function AuthPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail }),
@@ -173,7 +173,7 @@ export default function AuthPage() {
           setError('Tu cuenta no está verificada. Revisa tu correo electrónico.');
 
           try {
-            const resendResponse = await fetch('/api/auth/resend-verification', {
+            const resendResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/resend-verification`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email: loginData.email }),
@@ -194,7 +194,7 @@ export default function AuthPage() {
           setError('Credenciales incorrectas. Verifica tu email y contraseña.');
         }
       } else {
-        router.push('/ciidici');
+        router.push('/');
         router.refresh();
       }
     } catch (err) {
@@ -262,7 +262,7 @@ export default function AuthPage() {
       rol: 'AUTOR', // Rol por defecto
     }
     try {
-      const response = await fetch('/api/user/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataRegister),

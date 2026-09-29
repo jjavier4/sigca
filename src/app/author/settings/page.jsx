@@ -31,7 +31,7 @@ export default function PerfilPage() {
 
       try {
         setLoading(true)
-        const response = await fetch(`/api/user/findone?email=${session.user.email}`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/findone?email=${session.user.email}`)
         const data = await response.json()
 
         if (response.ok) {
@@ -77,7 +77,7 @@ export default function PerfilPage() {
         return
       }
 
-      const response = await fetch('/api/user/updateone', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/updateone`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,7 +91,7 @@ export default function PerfilPage() {
 
       if (response.ok) {
         setSuccess(data.message)
-        
+
         // Actualizar la sesión con el nuevo email si cambió
         if (formData.email !== session.user.email) {
           await update({
@@ -142,7 +142,7 @@ export default function PerfilPage() {
       />
 
       <div className="max-w-2xl mx-auto px-4">
-        
+
         <form onSubmit={handleSubmit} className=" p-6 space-y-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             Información Editable

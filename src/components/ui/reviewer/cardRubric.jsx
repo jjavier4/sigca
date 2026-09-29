@@ -30,11 +30,11 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
     const fetchCriteriosPorGrupo = async () => {
         try {
             setLoadingCriterios(true);
-            const response = await fetch(`/api/rubric/findbygroup?tipo=${asignacion?.trabajo?.tipo}`);
-            
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/rubric/findbygroup?tipo=${asignacion?.trabajo?.tipo}`);
+
             if (response.ok) {
                 const result = await response.json();
-                
+
                 if (result.criterios.length === 0) {
                     setErrorLoadingCriterios(`No hay criterios de evaluación configurados para ${asignacion?.trabajo?.tipo}. Por favor contacta al administrador.`);
                 } else {
@@ -70,10 +70,10 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
     const calcularPuntajeTotal = () => {
         const valores = Object.values(evaluaciones).filter(v => v !== null);
         if (valores.length === 0) return 0;
-        
+
         const suma = valores.reduce((acc, val) => acc + val, 0);
         const maximo = criteriosEvaluacion.length * 10; // Máximo ahora es 10 por criterio
-        
+
         return (suma / maximo) * 100;
     };
 

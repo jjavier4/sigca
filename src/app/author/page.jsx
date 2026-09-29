@@ -26,7 +26,7 @@ export default function DashboardAuthor() {
   const generarReferenciaPago = async (trabajoid) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/user/ref-pay', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/ref-pay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -62,7 +62,7 @@ export default function DashboardAuthor() {
   const fetchTrabajos = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/works/findbyuser?userId=${session.user.id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/findbyuser?userId=${session.user.id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -79,10 +79,10 @@ export default function DashboardAuthor() {
     }
   };
 
-    const handleDelete = async (trabajoId) => {
+  const handleDelete = async (trabajoId) => {
 
     try {
-      const response = await fetch(`/api/works/deleteone?trabajoId=${trabajoId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/deleteone?trabajoId=${trabajoId}`, {
         method: 'DELETE',
       });
 

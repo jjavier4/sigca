@@ -1,6 +1,25 @@
-version: "3.9"
-
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db_prod
+    restart: always
+    environment:
+      - POSTGRES_USER=sigca_user
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=sigca
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # -h 127.0.0.1 es clave: durante la inicialización Postgres solo
+      # escucha por socket local; por TCP no responde hasta terminar tu script
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sigca_user -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
   app:
     build:
       context: .
@@ -10,27 +29,16 @@ services:
     ports:
       - "3000:3000"
     volumes:
+      - .:/app
+      - /app/node_modules
       - ./uploads:/app/public/uploads/documents
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://sigca_user:${DB_PASSWORD}@db:5432/sigca
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://sigca_user:postgres@db:5432/sigca
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     # En producción solemos usar 'start' en lugar de 'dev'
-    command: npm run start
-
-  db:
-    image: postgres:16-alpine
-    container_name: postgres_db_prod
-    restart: always
-    environment:
-      - POSTGRES_USER=sigca_user
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=sigca
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
+    command: npm run dev
 volumes:
   postgres_data:

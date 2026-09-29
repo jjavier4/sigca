@@ -1,15 +1,13 @@
 "use client"
 import React, { useState } from 'react'
-import { signIn } from 'next-auth/react';
 import { Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 
 export default function AddUser() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
- 
+
     const [registerData, setRegisterData] = useState({
         nombre: '',
         apellidoP: '',
@@ -40,7 +38,7 @@ export default function AddUser() {
         }
 
         try {
-            const response = await fetch('/api/user/register', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -50,7 +48,7 @@ export default function AddUser() {
                     email: registerData.email,
                     institucion: registerData.institucion,
                     password: registerData.password,
-                    rol:registerData.rol,
+                    rol: registerData.rol,
                 }),
             });
 

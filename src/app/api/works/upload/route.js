@@ -98,8 +98,13 @@ export async function POST(request) {
         }
 
         const publicPath = path.join(process.cwd(), 'public');
-        const documentsPath = path.join(publicPath, 'documents');
+        const uploadsPath = path.join(publicPath, 'uploads');
+        const documentsPath = path.join(uploadsPath, 'documents');
         const userDirectoryPath = path.join(documentsPath, userId);
+
+        if (!existsSync(uploadsPath)) {
+            await mkdir(uploadsPath, { recursive: true });
+        }
 
         if (!existsSync(documentsPath)) {
             await mkdir(documentsPath, { recursive: true });
@@ -116,7 +121,7 @@ export async function POST(request) {
         const buffer = Buffer.from(bytes);
         await writeFile(filePath, buffer);
 
-        const relativePath = `/documents/${userId}/${fileName}`;
+        const relativePath = `/uploads/documents/${userId}/${fileName}`;
 
         async function generarTrabajoId() {
             try {

@@ -23,7 +23,7 @@ export default function ManageConvocatories() {
 
     const deleteConvocatorie = async (id) => {
         try {
-            const response = await fetch(`/api/convocatories/deleteone?id=${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/deleteone?id=${id}`, {
                 method: 'DELETE',
             })
             const data = await response.json()
@@ -45,7 +45,7 @@ export default function ManageConvocatories() {
     const findConvocatories = async () => {
         setLoading(true)
         try {
-            const response = await fetch('/api/convocatories/findall', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/findall`, {
                 method: 'GET',
             })
             const data = await response.json()
@@ -53,15 +53,10 @@ export default function ManageConvocatories() {
                 console.log(data.convocatorias)
                 setConvocatories(data.convocatorias)
             } else {
-                setError(data.error)
-            }
-            setTimeout(() => {
-                setSuccess('')
-                setError('')
-            }, 3000)
+            setErrorLoading(true)
+        }
         } catch (error) {
             console.error('Error al traer convocatorias:', error)
-            setErrorLoading(true)
         } finally {
             setLoading(false)
         }
@@ -74,7 +69,7 @@ export default function ManageConvocatories() {
         setSuccess('')
 
         try {
-            const response = await fetch('/api/convocatories/updateone', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/updateone`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

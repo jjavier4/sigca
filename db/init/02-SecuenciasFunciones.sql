@@ -154,3 +154,26 @@ COMMENT ON FUNCTION generar_usuario_id(TEXT) IS 'Genera ID único: año-identifi
 COMMENT ON FUNCTION generar_convocatoria_id() IS 'Genera ID único: año-numero (ej: 2025-C-001)';
 COMMENT ON FUNCTION generar_asignacion_id() IS 'Genera ID único: año-numero (ej: 2025-A-001)';
 COMMENT ON FUNCTION generar_trabajo_id() IS 'Genera ID único: año-numero (ej: 2025-T-001)';
+
+
+
+COMMENT ON COLUMN "Convocatorias"."id" IS 'ID generado con formato: año-identificador-numero de secuencia, por ejemplo: 2024-C-001';
+COMMENT ON COLUMN "Usuarios"."numero_control" IS 'Número de control único del usuario, puede ser nulo si el usuario no es estudiante';
+COMMENT ON COLUMN "Usuarios"."activa" IS 'Indica si la cuenta del usuario está activa. Por defecto es FALSE, y se activa mediante un token de verificación enviado al correo electrónico del usuario.'; 
+COMMENT ON COLUMN "Trabajos"."archivo_url" IS 'URL del archivo subido para el trabajo';
+COMMENT ON COLUMN "Trabajos"."estado" IS 'Estado actual del trabajo, por defecto es EN_REVISION';
+COMMENT ON COLUMN "Trabajos"."tipo" IS 'Tipo de trabajo, por ejemplo: DIFUSION o DIVULGACION';
+COMMENT ON COLUMN "Trabajos"."presencial" IS 'Indica si el trabajo es presencial. Por defecto es NULL.';
+COMMENT ON COLUMN "Trabajos"."nvl_ia" IS 'Nivel de inteligencia artificial detectado en el trabajo. Por defecto es NULL.';
+COMMENT ON COLUMN "Trabajos"."nvl_plagio" IS 'Nivel de plagio detectado en el trabajo. Por defecto es NULL.';
+COMMENT ON COLUMN "Trabajos"."calificacion_final" IS 'Calificación final del trabajo. Por defecto es NULL.';
+COMMENT ON COLUMN "Trabajos"."referencia_pago" IS 'Referencia de pago para el trabajo. Por defecto es NULL.';
+COMMENT ON COLUMN "Asignaciones"."createdAt" IS 'Fecha y hora en que se crea la asignación. Por defecto es la fecha y hora actual.';
+COMMENT ON COLUMN "Asignaciones"."closeAt" IS 'Fecha y hora en que se cierra la asignación, por ejemplo, cuando el revisor envía su revisión. Por defecto es NULL hasta que se cierre la asignación.';
+COMMENT ON COLUMN "Asignaciones"."comentario" IS 'Comentario sobre la asignación. Por defecto es NULL.';
+COMMENT ON COLUMN "Asignaciones"."calificacion" IS 'Calificación de la asignación. Por defecto es NULL.';
+COMMENT ON COLUMN "CriteriosEvaluacion"."nombre" IS 'Nombre del criterio de evaluación';
+COMMENT ON COLUMN "CriteriosEvaluacion"."descripcion" IS 'Descripción del criterio de evaluación';
+COMMENT ON COLUMN "CriteriosEvaluacion"."grupo" IS 'Grupo al que pertenece el criterio de evaluación, por ejemplo: DIFUSION o DIVULGACION';
+COMMENT ON COLUMN "CriteriosEvaluacion"."descripcion_puntaje" IS 'Descripción de los puntajes asociados al criterio de evaluación';
+COMMENT ON COLUMN "CriteriosEvaluacion"."createdAt" IS 'Fecha y hora en que se crea el criterio de evaluación. Por defecto es la fecha y hora actual.';

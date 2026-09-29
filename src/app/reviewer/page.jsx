@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, ArrowLeft } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Alert from '@/components/ui/utils/alert';
 import CardInfo from '@/components/ui/cards/cardInfo';
@@ -30,7 +30,7 @@ export default function MisAsignaciones() {
   const fetchAsignaciones = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/assignments/assignments-user?revisorId=${session.user.id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/assignments-user?revisorId=${session.user.id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -53,8 +53,8 @@ export default function MisAsignaciones() {
       setIsSubmitting(true);
       setError('');
 
-      const response = await fetch('/api/assignments/assess', {
-        method: 'PATCH',  
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/assess`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(evaluacion)
       });
@@ -109,6 +109,7 @@ export default function MisAsignaciones() {
 
   // Vista de evaluación (PDF + Rúbrica)
   if (selectedAsignacion) {
+    window.open(`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`, '_blank');
     return (
       <div className="h-screen bg-gray-100 flex flex-col">
         {/* Alertas */}
@@ -123,7 +124,9 @@ export default function MisAsignaciones() {
         <div className="flex-1 flex flex-row overflow-y-auto">
 
           {/* Sección superior: PDF - Altura fija grande */}
+
           {
+            /* 
             selectedAsignacion.trabajo.archivo_url ? (
               <div className="min-h-[500px] w-1/2 flex flex-col p-4 border-b-2 border-gray-300">
                 <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
@@ -134,7 +137,7 @@ export default function MisAsignaciones() {
                 </div>
                 <div className="flex-1 bg-white rounded-b-lg overflow-hidden shadow-lg">
                   <iframe
-                    src={selectedAsignacion.trabajo.archivo_url}
+                    src={`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`}
                     className="w-full h-full"
                     title="PDF Viewer"
                   />
@@ -145,10 +148,13 @@ export default function MisAsignaciones() {
                 <LoadingError error="Error al cargar el PDF" />
               </div>
             )
+              */
           }
 
-          {/* Sección inferior: Rúbrica - Altura automática según contenido */}
+          {/* Sección inferior: Rúbrica - Altura automática según contenido 
           <div className="min-h-[500px] w-1/2 p-4 bg-gray-50">
+          */}
+          <div className="min-h-[500px] w-full p-4 bg-gray-50">
             <CardRubric
               asignacion={selectedAsignacion}
               tipoTrabajo={selectedAsignacion.trabajo.tipo}
@@ -178,7 +184,7 @@ export default function MisAsignaciones() {
           type={error ? 'error' : 'success'}
           message={error || success}
           isVisible={error || success}
-          
+
         />
 
         {/* Estadísticas Y  filtros*/}

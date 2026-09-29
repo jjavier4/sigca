@@ -5,10 +5,10 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
   // Rutas protegidas
   const protectedRoutes = [
-    '/ciidici/admin',
-    '/ciidici/author',
-    '/ciidici/committee',
-    '/ciidici/reviewer'
+    '/admin',
+    '/author',
+    '/committee',
+    '/reviewer'
   ];
 
   // Verificar si es ruta protegida
@@ -26,16 +26,16 @@ export async function middleware(request) {
   });
   // Si no hay token, redirigir a login
   if (!token) {
-    const url = new URL('/ciidici/auth', request.url);
+    const url = new URL(`${process.env.NEXT_PUBLIC_APP_URL}/auth`, request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
-    // Verificar permisos por rol
+  // Verificar permisos por rol
   const rolePermissions = {
-    '/ciidici/admin': ['ADMIN'],
-    '/ciidici/author': ['AUTOR', 'ADMIN'],
-    '/ciidici/committee': ['COMITE', 'ADMIN'],
-    '/ciidici/reviewer': ['REVISOR', 'ADMIN']
+    '/admin': ['ADMIN'],
+    '/author': ['AUTOR', 'ADMIN'],
+    '/committee': ['COMITE', 'ADMIN'],
+    '/reviewer': ['REVISOR', 'ADMIN']
   };
 
   // Encontrar la ruta base que coincide
@@ -48,7 +48,7 @@ export async function middleware(request) {
 
     if (!allowedRoles.includes(userRole)) {
       return NextResponse.redirect(
-        new URL('/ciidici/unauthorized', request.url)
+        new URL('/unauthorized', request.url)
       );
     }
   }
@@ -57,9 +57,9 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    '/ciidici/admin/:path*',
-    '/ciidici/author/:path*',
-    '/ciidici/committee/:path*',
-    '/ciidici/reviewer/:path*'
+    '/admin/:path*',
+    '/author/:path*',
+    '/committee/:path*',
+    '/reviewer/:path*'
   ]
 };

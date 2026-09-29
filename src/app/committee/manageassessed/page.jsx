@@ -20,44 +20,38 @@ export default function ModificarRevisores() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
+  const fetchData = async (signal) => {
+  try {
+    setLoading(true);
+    setErrorLoading(null);
 
-      // Obtener trabajos con asignaciones
-      const trabajosResponse = await fetch('/api/assignments/works-with-assignments');
-      const trabajosData = await trabajosResponse.json();
+    const [trabajosRes, revisoresRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/works-with-assignments`, { signal }),
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/users-reviewers`, { signal }),
+    ]);
 
-      if (trabajosResponse.ok) {
-        setTrabajosConAsignaciones(trabajosData.trabajos);
-        console.log('Trabajos con asignaciones:', trabajosData.trabajos);
-      } else {
-        setError(trabajosData.error);
-        setErrorLoading(true);
-      }
+    if (!trabajosRes.ok) throw new Error('Error al cargar trabajos');
+    if (!revisoresRes.ok) throw new Error('Error al cargar revisores');
 
-      // Obtener revisores con carga de trabajo
-      const revisoresResponse = await fetch('/api/assignments/users-reviewers');
-      const revisoresData = await revisoresResponse.json();
+    const [trabajosData, revisoresData] = await Promise.all([
+      trabajosRes.json(),
+      revisoresRes.json(),
+    ]);
 
-      if (revisoresResponse.ok) {
-        setRevisores(revisoresData.revisores);
-      } else {
-        setError(revisoresData.error);
-      }
-
-    } catch (error) {
-      console.error('Error al cargar datos:', error);
-      setError('Error al cargar los datos del sistema');
+    setTrabajosConAsignaciones(trabajosData.trabajos ?? []);
+    setRevisores(revisoresData.revisores ?? []);
+  } catch (error) {
+    
       setErrorLoading(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAsignacion = async () => {
     try {
-      const response = await fetch('/api/assignments/create', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,7 +82,7 @@ export default function ModificarRevisores() {
 
   const handleDeleteAssignment = async (asignacionId) => {
     try {
-      const response = await fetch('/api/assignments/delete', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/assignments/delete`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ asignacionId })
@@ -239,7 +233,7 @@ export default function ModificarRevisores() {
                         key={revisor.id}
                         revisor={revisor}
                         isSelected={false}
-                        onSelect={() => {}}
+                        onSelect={() => { }}
                         disabled={true}
                       />
                     ))}

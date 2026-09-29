@@ -1,9 +1,9 @@
-export const  href = (key)=> {
+export const href = (key) => {
     const routes = {
-    ADMIN:"/ciidici/admin",
-    COMITE:"/ciidici/committee",
-    AUTOR:"/ciidici/author",
-    REVISOR:"/ciidici/reviewer"
+        ADMIN: "/admin",
+        COMITE: "/committee",
+        AUTOR: "/author",
+        REVISOR: "/reviewer"
     }
     return routes[key] || "/";
 }

@@ -33,21 +33,20 @@ export default function CriteriosEvaluacionManager() {
   const cargarCriterios = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/rubric/findall');
-      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/rubric/findall`);
+
       if (!response.ok) {
         throw new Error('Error al cargar criterios');
       }
-      
+
       const data = await response.json();
-      
+
       const difusion = data.filter(c => c.grupo === 'DIFUSION');
       const divulgacion = data.filter(c => c.grupo === 'DIVULGACION');
-      
+
       setCriteriosDifusion(difusion);
       setCriteriosDivulgacion(divulgacion);
     } catch (err) {
-      console.error('Error al traer criterios:', err);
       setErrorLoading(true);
     } finally {
       setLoading(false);
@@ -59,11 +58,11 @@ export default function CriteriosEvaluacionManager() {
   }, []);
 
   const handleEliminar = async (id, grupo) => {
-    
-    
+
+
     try {
       setDeleteLoading(id);
-      const response = await fetch(`/api/rubric/deleteone?id=${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/rubric/deleteone?id=${id}`, {
         method: 'DELETE'
       });
 
@@ -71,7 +70,7 @@ export default function CriteriosEvaluacionManager() {
 
       if (response.ok) {
         setSuccess(data.message || 'Criterio eliminado exitosamente');
-        
+
         if (grupo === 'DIFUSION') {
           setCriteriosDifusion(prev => prev.filter(c => c.id !== id));
         } else {
@@ -142,7 +141,7 @@ export default function CriteriosEvaluacionManager() {
         ]
       };
 
-      const response = await fetch('/api/rubric/add', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/rubric/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -152,7 +151,7 @@ export default function CriteriosEvaluacionManager() {
 
       if (response.ok) {
         setSuccess(data.message || 'Criterio creado exitosamente');
-        
+
         if (modalGrupo === 'DIFUSION') {
           setCriteriosDifusion(prev => [...prev, data]);
         } else {
@@ -203,18 +202,18 @@ export default function CriteriosEvaluacionManager() {
         Gestión de Criterios de Evaluación
       </h2>
 
-      <TablaCriterios 
-        criterios={criteriosDifusion} 
-        grupo="DIFUSION" 
+      <TablaCriterios
+        criterios={criteriosDifusion}
+        grupo="DIFUSION"
         titulo="Difusión"
         deleteLoading={deleteLoading}
         handleEliminar={handleEliminar}
         handleAbrirModal={handleAbrirModal}
       />
-      
-      <TablaCriterios 
-        criterios={criteriosDivulgacion} 
-        grupo="DIVULGACION" 
+
+      <TablaCriterios
+        criterios={criteriosDivulgacion}
+        grupo="DIVULGACION"
         titulo="Divulgación"
         deleteLoading={deleteLoading}
         handleEliminar={handleEliminar}
@@ -229,14 +228,14 @@ export default function CriteriosEvaluacionManager() {
                 Nuevo Criterio - {modalGrupo === 'DIFUSION' ? 'Difusión' : 'Divulgación'}
               </h3>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <FormLabelInput
                 title="Nombre del Criterio"
                 children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
                 type="text"
                 value={formData.nombre}
-                change={(e) => setFormData({...formData, nombre: e.target.value})}
+                change={(e) => setFormData({ ...formData, nombre: e.target.value })}
                 placeholder="Ej: Organización y estructura"
                 required={true}
               />
@@ -247,7 +246,7 @@ export default function CriteriosEvaluacionManager() {
                 </label>
                 <textarea
                   value={formData.descripcion}
-                  onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                   className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="3"
                   placeholder="Descripción detallada del criterio..."
@@ -262,7 +261,7 @@ export default function CriteriosEvaluacionManager() {
                   </label>
                   <textarea
                     value={formData.puntaje10}
-                    onChange={(e) => setFormData({...formData, puntaje10: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, puntaje10: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows="3"
                     placeholder="Cumple totalmente..."
@@ -276,7 +275,7 @@ export default function CriteriosEvaluacionManager() {
                   </label>
                   <textarea
                     value={formData.puntaje8}
-                    onChange={(e) => setFormData({...formData, puntaje8: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, puntaje8: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows="3"
                     placeholder="Cumple parcialmente..."
@@ -290,7 +289,7 @@ export default function CriteriosEvaluacionManager() {
                   </label>
                   <textarea
                     value={formData.puntaje6}
-                    onChange={(e) => setFormData({...formData, puntaje6: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, puntaje6: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows="3"
                     placeholder="Cumple mínimamente..."
@@ -304,7 +303,7 @@ export default function CriteriosEvaluacionManager() {
                   </label>
                   <textarea
                     value={formData.puntaje0}
-                    onChange={(e) => setFormData({...formData, puntaje0: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, puntaje0: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows="3"
                     placeholder="No cumple..."
@@ -317,7 +316,7 @@ export default function CriteriosEvaluacionManager() {
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                  className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
                 >
                   {isLoading
                     ? 'Guardando...'
@@ -328,7 +327,7 @@ export default function CriteriosEvaluacionManager() {
                 <button
                   onClick={handleCerrarModal}
                   disabled={isLoading}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                  className="flex-1 bg-gray-600 cursor-pointer hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
                 >
                   Cancelar
                 </button>

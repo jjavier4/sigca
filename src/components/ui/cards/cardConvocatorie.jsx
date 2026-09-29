@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { Calendar, FileText, Clock, Tag, ChevronRight, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
 import { useSession } from 'next-auth/react';

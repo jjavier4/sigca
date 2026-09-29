@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { 
+import {
   Home, UserPlus, Settings, Users, LucideFileUp, FileCog,
-  UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers,FileCheck, AlignEndHorizontalIcon
+  UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers, FileCheck, AlignEndHorizontalIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
@@ -28,7 +28,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
         { id: 'manage-users', group: 'user', icon: Users, label: 'Gestionar Usuarios', page: `${baseUrl}/manageusers` },
       )
     }
-    if(role === 'AUTOR'){
+    if (role === 'AUTOR') {
       items.push(
         { id: 'settings', group: 'settings', icon: UserCog, label: 'Settings', page: `${baseUrl}/settings` },
       )
@@ -92,17 +92,17 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
   return (
     <>
       <aside
-        className={`fixed top-20 left-0 h-full bg-white shadow-lg z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-20 left-0 h-[calc(100vh-5rem)] bg-white shadow-lg z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } w-64`}
       >
         <nav className="p-4 h-full overflow-y-auto">
           <ul className="space-y-2">
             {getProcessedItems().map((item) => {
-              
+
               if (item.isGroup) {
                 const GroupIcon = item.icon;
                 const isOpen = openGroups[item.key];
-                
+
                 return (
                   <li key={item.id} className="flex flex-col">
                     <button

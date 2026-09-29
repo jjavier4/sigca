@@ -20,7 +20,7 @@ export default function InvitarRevisoresForm() {
 
   const handleAddEmail = () => {
     const email = emailInput.trim();
-    
+
     if (!email) {
       setError('Por favor ingrese un correo');
       return;
@@ -54,7 +54,7 @@ export default function InvitarRevisoresForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (correos.length === 0) {
       setError('Debe agregar al menos un correo');
       return;
@@ -65,7 +65,7 @@ export default function InvitarRevisoresForm() {
     setResultado(null);
 
     try {
-      const response = await fetch('/api/comite/invitar-revisores', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/comite/invitar-revisores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export default function InvitarRevisoresForm() {
       }
 
       setResultado(data);
-      
+
       // Limpiar formulario si todo fue exitoso
       if (data.fallidos === 0) {
         setCorreos([]);
@@ -149,7 +149,7 @@ export default function InvitarRevisoresForm() {
           <label className="block text-sm font-medium text-gray-700">
             Correos Electrónicos *
           </label>
-          
+
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -214,11 +214,10 @@ export default function InvitarRevisoresForm() {
 
         {/* Resultado */}
         {resultado && (
-          <div className={`p-4 rounded-lg ${
-            resultado.fallidos === 0 
-              ? 'bg-green-50 border border-green-200' 
+          <div className={`p-4 rounded-lg ${resultado.fallidos === 0
+              ? 'bg-green-50 border border-green-200'
               : 'bg-yellow-50 border border-yellow-200'
-          }`}>
+            }`}>
             <div className="flex items-start gap-3">
               {resultado.fallidos === 0 ? (
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />

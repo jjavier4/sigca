@@ -64,7 +64,7 @@ export default function ConvocatoriaForm() {
     } else {
       setIsLoading(true);
       try {
-        const response = await fetch('/api/convocatories/register', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(registerData),
@@ -107,16 +107,8 @@ export default function ConvocatoriaForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Nueva Convocatoria CIIDiCI
-          </h1>
-          <p className="text-gray-600">
-            Complete el formulario para crear una nueva convocatoria para el Congreso Internacional de Investigación y Divulgación de la Ciencia y la Ingeniería
-          </p>
-        </div>
+    
+      <div className="max-w-1/2 mx-auto">
 
         <Alert
           type={error ? 'error' : 'success'}
@@ -230,6 +222,6 @@ export default function ConvocatoriaForm() {
         </form>
 
       </div>
-    </div>
+    
   );
 }
