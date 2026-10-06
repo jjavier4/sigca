@@ -87,7 +87,8 @@ export async function PATCH(request) {
       data: {
         nvl_ia: parseFloat(nvl_ia),
         nvl_plagio: parseFloat(nvl_plagio),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        estado: 'EN_REVISION' 
       },
       include: {
         convocatoria: {

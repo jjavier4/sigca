@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Alert from '@/components/ui/utils/alert';
 import Loading from '@/components/ui/utils/loading';
@@ -316,12 +316,14 @@ export default function CriteriosEvaluacionManager() {
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                  className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 disabled:bg-blue-400 text-white inline-flex items-center justify-center gap-2 font-semibold py-3 rounded-lg transition-all duration-300"
                 >
                   {isLoading
-                    ? 'Guardando...'
-                    : success
-                      ? 'Guardado !!!'
+                    ?
+                    <>
+                      <Loader2 size={16} className=" text-white  animate-spin " />
+                      Guardando...
+                    </>
                       : 'Guardar Criterio'}
                 </button>
                 <button

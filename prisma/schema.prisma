@@ -110,6 +110,7 @@ model Usuarios {
   password       String         @db.VarChar(20)
   rol            Rol            @default(AUTOR)
   activa         Boolean        @default(false)
+  bloqueada         Boolean        @default(false)
   createdAt      DateTime       @default(now()) @db.Timestamptz(6)
   updatedAt      DateTime       @default(now()) @db.Timestamptz(6)
   asignacionesComoRevisor   Asignaciones[]
@@ -120,6 +121,8 @@ enum EstadoTrabajo {
   EN_REVISION
   ACEPTADO
   RECHAZADO
+  REGISTRADO
+  PENDIENTE
 }
 
 enum GrupoRubrica {

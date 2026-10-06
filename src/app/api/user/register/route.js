@@ -212,6 +212,7 @@ export async function POST(request) {
         curp: true,
         rol: true,
         activa: true,
+        bloqueada:false,
         createdAt: true,
       },
     });

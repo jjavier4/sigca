@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
-import { Mail, Lock, User, FileText, CreditCard } from 'lucide-react';
+import { Mail, Lock, User, FileText, CreditCard, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
@@ -141,17 +141,18 @@ export default function AuthPage() {
 
       if (response.ok) {
         setSuccess('Se ha enviado un enlace de restablecimiento a tu correo electrónico. Por favor revisa tu bandeja de entrada.');
-        setResetEmail('');
-        setTimeout(() => {
-          setResetPasswordModal(false);
-        }, 3000);
       } else {
-        setError(data.error || 'Error al solicitar restablecimiento de contraseña');
+        setError(data.error);
+
       }
     } catch (err) {
       console.error('Error al solicitar restablecimiento de contraseña:', err);
       setError('Ocurrió un error al solicitar el restablecimiento de contraseña. Intenta nuevamente.');
     } finally {
+      setResetEmail('');
+      setTimeout(() => {
+        setResetPasswordModal(false);
+      }, 5000);
       setIsResetting(false);
     }
   };
@@ -190,6 +191,8 @@ export default function AuthPage() {
             console.error('Error al reenviar verificación:', resendError);
             setError('Tu cuenta no está verificada. No se pudo enviar el correo de verificación.');
           }
+        } else if (result.error === 'CUENTA_BLOQUEADA') {
+          setError('Tu cuenta está bloqueada. Contacta al administrador.');
         } else {
           setError('Credenciales incorrectas. Verifica tu email y contraseña.');
         }
@@ -384,9 +387,16 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300 items-center justify-center flex gap-2"
               >
-                {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {isLoading ? (
+                  <>
+                    <Loader2 size={20} className=" text-white  animate-spin" />
+                    Iniciando sesión
+                  </>
+                ) : (
+                  'Iniciar Sesión'
+                )}
               </button>
 
               <button

@@ -53,6 +53,8 @@ export async function GET(request) {
         email: true,
         nombre: true,
         rol: true,
+        bloqueada: true,
+        activa: true,
       },
       orderBy: [
         { rol: 'asc' },

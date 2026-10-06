@@ -1,11 +1,11 @@
 'use client'
 import React, { useState } from 'react';
-import { Save, Edit, X } from 'lucide-react';
+import { Save, Edit, X, Loader2 } from 'lucide-react';
 
-export default function RowUpdateIA({ 
-  trabajo, 
-  handleActualizarIA, 
-  loadingStates 
+export default function RowUpdateIA({
+  trabajo,
+  handleActualizarIA,
+  loadingStates
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [nvl_ia, setNvlIA] = useState(trabajo.nvl_ia?.toString() || '');
@@ -25,26 +25,50 @@ export default function RowUpdateIA({
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4">
-        <div>
-          <p className="font-semibold text-gray-800 text-sm mb-1">
-            {trabajo.titulo}
-          </p>
-          <p className="text-xs text-gray-600 mb-2">
-            {trabajo.convocatoria.titulo}
-          </p>
-          <div className="flex gap-2 items-center">
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              trabajo.tipo === 'DIFUSION'
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-purple-100 text-purple-800'
-            }`}>
-              {trabajo.tipo}
-            </span>
-            <span className="text-xs text-gray-500">
-              {trabajo.autor}
-            </span>
-          </div>
-        </div>
+        <table className="w-full">
+          <tbody>
+            <tr className="border-b border-gray-200 mb-2">
+              <td className=" text-black text-sm font-semibold">
+                Usuario:
+              </td>
+              <td className=" text-black text-sm ">
+                {trabajo.autor.id}
+              </td>
+            </tr>
+            <tr className="border-b border-gray-200 mb-2">
+              <td className=" text-black text-sm font-semibold">
+                Trabajo:
+              </td>
+              <td className=" text-black text-sm ">
+                {trabajo.titulo}
+              </td>
+            </tr>
+            <tr className="border-b border-gray-200 mb-2">
+              <td className=" text-black text-sm font-semibold">
+                Convocatoria:
+              </td>
+              <td className=" text-black text-sm ">
+                {trabajo.convocatoria.titulo}
+              </td>
+            </tr>
+            <tr className="border-b border-gray-200 mb-2">
+              <td className=" text-black text-sm font-semibold">
+                Nombre Documento:
+              </td>
+              <td className=" text-black text-sm ">
+                {trabajo.id}
+              </td>
+            </tr>
+            <tr className="border-b border-gray-200 mb-2">
+              <td className=" text-black text-sm font-semibold">
+                Tipo:
+              </td>
+              <td className="text-black text-sm " >
+                {trabajo.tipo}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </td>
 
       <td className="px-6 py-4 text-center">
@@ -57,11 +81,10 @@ export default function RowUpdateIA({
           onChange={(e) => setNvlIA(e.target.value)}
           disabled={!isEditing}
           placeholder="0-100"
-          className={`w-24 px-3 py-2 border rounded-lg text-center ${
-            isEditing
-              ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              : 'border-gray-200 bg-gray-50 text-gray-700 cursor-not-allowed'
-          }`}
+          className={`w-24 px-3 py-2 border rounded-lg text-center ${isEditing
+            ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            : 'border-gray-200 bg-gray-50 text-gray-700 cursor-not-allowed'
+            }`}
         />
       </td>
 
@@ -75,11 +98,10 @@ export default function RowUpdateIA({
           onChange={(e) => setNvlPlagio(e.target.value)}
           disabled={!isEditing}
           placeholder="0-100"
-          className={`w-24 px-3 py-2 border rounded-lg text-center ${
-            isEditing
-              ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              : 'border-gray-200 bg-gray-50 text-gray-700 cursor-not-allowed'
-          }`}
+          className={`w-24 px-3 py-2 border rounded-lg text-center ${isEditing
+            ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            : 'border-gray-200 bg-gray-50 text-gray-700 cursor-not-allowed'
+            }`}
         />
       </td>
 
@@ -101,7 +123,10 @@ export default function RowUpdateIA({
                 className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
               >
                 {loadingStates[trabajo.id] ? (
-                  'Guardando...'
+                  <>
+                    <Loader2 className=" text-yellow-600 mx-auto mb-4 animate-spin" />
+                    Guardando
+                  </>
                 ) : (
                   <>
                     <Save size={16} />
@@ -112,7 +137,7 @@ export default function RowUpdateIA({
               <button
                 onClick={handleCancelar}
                 disabled={loadingStates[trabajo.id]}
-                className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
               >
                 <X size={16} />
                 Cancelar

@@ -19,10 +19,12 @@ export default function ManageUsers() {
     const [onEdit, setOnEdit] = useState(false);
     const [selectedUserEdit, setSelectedUserEdit] = useState(null);
 
-    const deleteUser = async (userEmail) => {
+    const deleteUser = async (userEmail,bloqueada) => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/deleteone?email=${userEmail}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/deleteone`, {
                 method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, bloqueada: !bloqueada }),
             });
             const data = await response.json();
             if (response.ok) {
@@ -36,7 +38,7 @@ export default function ManageUsers() {
             }, 3000);
 
         } catch (error) {
-            console.error('Error al eliminar usuario:', error);
+            console.error('Error al alterar usuario:', error);
         }
     }
 
@@ -196,10 +198,11 @@ export default function ManageUsers() {
                                     <table className="w-full">
                                         <thead className="bg-gray-50">
                                             <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Identificador</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200">
@@ -207,11 +210,13 @@ export default function ManageUsers() {
                                                 users?.map((user) => (
                                                     <RowUser
                                                         key={user.id}
+                                                        id={user.id}
                                                         name={user.nombre}
                                                         email={user.email}
                                                         role={user.rol}
+                                                        bloqueada={user.bloqueada}
                                                         onEdit={() => { setOnEdit(true); setSelectedUserEdit(user) }}
-                                                        onDelete={() => deleteUser(user.email)}
+                                                        onDelete={() => deleteUser(user.email,user.bloqueada)}
                                                     />
                                                 ))
                                             }

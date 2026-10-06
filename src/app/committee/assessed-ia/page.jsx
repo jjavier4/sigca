@@ -170,7 +170,7 @@ export default function EvaluacionIAPlagio() {
     }
 
     try {
-      const response = await fetch('/api/works/update-assessed-ia', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/update-assessed-ia`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

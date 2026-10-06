@@ -1,8 +1,8 @@
 import React from 'react';
-import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins, Trash2 } from 'lucide-react';
+import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins, Trash2, FileCheckIcon, Edit2,Eye } from 'lucide-react';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
+export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEdit }) {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-MX', {
@@ -16,8 +16,13 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
 
   const getEstadoConfig = (estado) => {
     const configs = {
-      EN_REVISION: {
+      REGISTRADO: {
         color: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: <FileCheckIcon size={18} />,
+        texto: 'Registrado'
+      },
+      EN_REVISION: {
+        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
         icon: <Clock size={18} />,
         texto: 'En Revisión'
       },
@@ -69,13 +74,26 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
           </div>
 
           {/* Botón de eliminar */}
-          <button
-            onClick={() => onDelete(trabajo.id)}
-            className="text-red-400 hover:text-red-300 transition-colors p-1 rounded-lg hover:bg-red-900/20"
-            title="Eliminar trabajo"
-          >
-            <Trash2 size={18} />
-          </button>
+          {
+            trabajo.estado === 'REGISTRADO' &&
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onEdit(trabajo)}
+                className="text-blue-400 hover:text-blue-300 transition-colors p-1 rounded-lg hover:bg-blue-900/20"
+                title="Editar trabajo"
+              >
+                <Edit2 size={18} />
+              </button>
+              <button
+                onClick={() => onDelete(trabajo.id)}
+                className="text-red-400 hover:text-red-300 transition-colors p-1 rounded-lg hover:bg-red-900/20"
+                title="Eliminar trabajo"
+              >
+                <Trash2 size={18} />
+              </button>
+
+            </div>
+          }
         </div>
 
         <div className="flex items-center justify-between">
@@ -99,29 +117,55 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete }) {
         {/* Título de la Convocatoria */}
         <div className="space-y-3 pt-3">
           <strong>Convocatoria asociada:</strong>
-          
+
           <h3 className="text-sm">
             {trabajo.convocatoria.titulo}
           </h3>
-          
+
         </div>
 
         {/* Información del trabajo */}
         <div className="space-y-3 pt-3 ">
           {/* coautores*/}
-          {trabajo.coautores.length > 0 && (
-            <div>
-              <strong>Coautores:</strong>
-
-              {trabajo.coautores.map((coautor, index) => (
-                <ul key={index} className="list-disc p-2 mt-2 border-b border-gray-200">
-                  <li>{coautor.nombre}</li>
-                  <li>{coautor.email}</li>
-                </ul>
-              ))}
-
+          {trabajo.coautores.length > 0 ? (
+            <div className="w-full overflow-x-auto">
+              <strong>Coautores Registrados:</strong>
+              <table className="w-full mt-2 border border-gray-200 rounded-lg table-fixed">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="px-2 py-2 text-left text-sm font-medium text-gray-700">Nombre</th>
+                    <th className="px-2 py-2 text-left text-sm font-medium text-gray-700">Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trabajo.coautores.map((coautor, index) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="px-2 py-2 text-sm text-gray-700 break-words">{coautor.nombre}</td>
+                      <td className="px-2 py-2 text-sm text-gray-700 break-all">{coautor.email}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
+          ) :
+            (
+              <div>
+                <strong>Coautores:</strong>
+                <p className="text-sm text-gray-600">No hay coautores asociados a este trabajo.</p>
+              </div>
+
+            )
+          }
+          {/*Consulta de PDF */}
+          <a
+            href={`/ciidici/api/works/${trabajo.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+          >
+            <Eye size={16} />
+            Ver PDF
+          </a>
 
           {/* Fecha de creación */}
           <div className="flex items-center text-gray-700">

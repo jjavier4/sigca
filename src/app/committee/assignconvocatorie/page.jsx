@@ -166,15 +166,21 @@ export default function AsignarRevisores() {
                   </p>
                 </div>
               ) : (
-                trabajosSinAsignar.map((trabajo) => (
-                  <CardNotAssignment
-                    key={trabajo.id}
-                    trabajo={trabajo}
-                    isSelected={selectedTrabajo?.id === trabajo.id}
-                    onSelect={setSelectedTrabajo}
-                    asignacionesCount={asignacionesPorTrabajo[trabajo.id] || 0}
-                  />
-                ))
+                <div className="grid grid-cols-2 gap-4">
+                  {
+                    trabajosSinAsignar.map((trabajo) => (
+                      <CardNotAssignment
+                        key={trabajo.id}
+                        trabajo={trabajo}
+                        isSelected={selectedTrabajo?.id === trabajo.id}
+                        onSelect={() => {
+                          selectedTrabajo?.id === trabajo.id ? setSelectedTrabajo(null) : setSelectedTrabajo(trabajo);
+                        }}
+                        asignacionesCount={asignacionesPorTrabajo[trabajo.id] || 0}
+                      />
+                    ))
+                  }
+                </div>
               )}
             </div>
           </div>

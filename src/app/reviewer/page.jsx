@@ -35,12 +35,10 @@ export default function MisAsignaciones() {
 
       if (response.ok) {
         setAsignaciones(data.asignaciones);
-        console.log(data.asignaciones);
       } else {
         setError(data.error);
       }
     } catch (error) {
-      console.error('Error al cargar asignaciones:', error);
       setShowAlert(true);
       setErrorLoading(true);
     } finally {
@@ -71,7 +69,6 @@ export default function MisAsignaciones() {
         setTimeout(() => setError(''), 3000);
       }
     } catch (error) {
-      console.error('Error al enviar evaluación:', error);
       setError('Error al enviar la evaluación');
       setTimeout(() => setError(''), 3000);
     } finally {
@@ -109,7 +106,7 @@ export default function MisAsignaciones() {
 
   // Vista de evaluación (PDF + Rúbrica)
   if (selectedAsignacion) {
-    window.open(`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`, '_blank');
+    //window.open(`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`, '_blank');
     return (
       <div className="h-screen bg-gray-100 flex flex-col">
         {/* Alertas */}
@@ -121,39 +118,8 @@ export default function MisAsignaciones() {
             setTimeout(() => { setShowAlert(!showAlert); }, 3000)
           }}
         />
-        <div className="flex-1 flex flex-row overflow-y-auto">
 
-          {/* Sección superior: PDF - Altura fija grande */}
-
-          {
-            /* 
-            selectedAsignacion.trabajo.archivo_url ? (
-              <div className="min-h-[500px] w-1/2 flex flex-col p-4 border-b-2 border-gray-300">
-                <div className="bg-gradient-to-r bg-blue-800 p-4 rounded-t-lg">
-                  <h2 className="text-xl font-bold text-white mb-1">Documento PDF</h2>
-                  <p className="text-blue-100 text-sm">
-                    Versión {selectedAsignacion.trabajo.version} - {selectedAsignacion.trabajo.tipo}
-                  </p>
-                </div>
-                <div className="flex-1 bg-white rounded-b-lg overflow-hidden shadow-lg">
-                  <iframe
-                    src={`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`}
-                    className="w-full h-full"
-                    title="PDF Viewer"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="h-[800px] p-4">
-                <LoadingError error="Error al cargar el PDF" />
-              </div>
-            )
-              */
-          }
-
-          {/* Sección inferior: Rúbrica - Altura automática según contenido 
-          <div className="min-h-[500px] w-1/2 p-4 bg-gray-50">
-          */}
+          
           <div className="min-h-[500px] w-full p-4 bg-gray-50">
             <CardRubric
               asignacion={selectedAsignacion}
@@ -163,8 +129,6 @@ export default function MisAsignaciones() {
               onCancel={() => setSelectedAsignacion(null)}
             />
           </div>
-
-        </div>
       </div>
     );
   }

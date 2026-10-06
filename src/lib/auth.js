@@ -41,6 +41,10 @@ export const authOptions = {
         if (!usuario.activa) {
           throw new Error('CUENTA_NO_VERIFICADA'); 
         }
+        // VALIDAR QUE LA CUENTA NO ESTÉ BLOQUEADA
+        if (usuario.bloqueada) {
+          throw new Error('CUENTA_BLOQUEADA'); 
+        }
 
         // Verificar la contraseña hasheada
         const passwordMatch = await bcrypt.compare(

@@ -120,41 +120,41 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
     return (
         <div className="h-full flex flex-col bg-white">
             {/* Header */}
-            <div className="bg-gradient-to-r rounded-t-lg bg-green-700 p-4">
-                <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-xl font-bold text-white">
-                        Rúbrica de Evaluación - {asignacion?.trabajo?.tipo}
+            <header className="rounded-t-lg flex flex-row flex-wrap bg-green-700 p-4">
+                <div className="flex flex-col mb-2 w-1/3">
+                    <h2 className="text-lg sm:text-xl font-bold text-white break-all">
+                        Rúbrica de Evaluaciónes - {asignacion?.trabajo?.tipo}
                     </h2>
-                    <button
-                        onClick={onCancel}
-                        className="text-white hover:bg-green-950 hover:bg-opacity-20 rounded-lg px-3 py-1 transition-colors flex items-center"
-                    >
-                        <ArrowLeft size={18} className="mr-1" />
-                        Volver
-                    </button>
-                </div>
-                <p className="text-green-100 text-sm">{asignacion.trabajo.convocatoria.titulo}</p>
-            </div>
+                    <p className="text-green-100 text-md md:text-lg break-words">{"Convocatoria asociada: " + asignacion.trabajo.convocatoria.titulo}</p>
 
-            {/* Contenido con scroll */}
-            <div className="flex-1 overflow-y-auto p-6">
-                {/* Progreso */}
-                <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                </div>
+                <div className="flex flex-col w-3/6   rounded-lg p-4">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-semibold text-blue-900">
+                        <span className="text-sm font-semibold text-white">
                             Progreso: {criteriosEvaluados} de {totalCriterios} criterios evaluados
                         </span>
-                        <span className="text-lg font-bold text-blue-700">
+                        <span className="text-lg font-bold text-white">
                             {puntajeTotal.toFixed(1)}%
                         </span>
                     </div>
-                    <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div className="w-full bg-white rounded-full h-2">
                         <div
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-green-400 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${(criteriosEvaluados / totalCriterios) * 100}%` }}
                         />
                     </div>
                 </div>
+                <button
+                    onClick={onCancel}
+                    className="text-white cursor-pointer hover:text-green-200 rounded-lg px-3 py-1 transition-colors flex justify-end items-center w-1/6"
+                >
+                    <ArrowLeft size={18} className="mr-1" />
+                    Volver
+                </button>
+            </header>
+
+            {/* Contenido con scroll */}
+            <div className="flex-1 overflow-y-auto p-6">
 
                 {/* Error */}
                 {error && (
@@ -234,26 +234,6 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                         Proporciona retroalimentación constructiva que ayude al autor a mejorar su trabajo
                     </p>
                 </div>
-
-                {/* Resumen de Evaluación - SIN estados de decisión */}
-                <div className="mb-6 bg-gradient-to-r from-blue-50 to-blue-50 border-2 border-blue-200 rounded-lg p-5">
-                    <h3 className="text-lg font-bold text-blue-900 mb-3">Resumen de Evaluación</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <p className="text-sm text-gray-600 mb-1">Puntaje Total</p>
-                            <p className="text-3xl font-bold text-blue-700">{puntajeTotal.toFixed(1)}%</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-600 mb-1">Calificación Numérica</p>
-                            <p className="text-3xl font-bold text-blue-700">
-                                {(puntajeTotal / 10).toFixed(1)}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="mt-3 text-xs text-gray-600">
-                        <p>Tipo de trabajo: {asignacion?.trabajo?.tipo}</p>
-                    </div>
-                </div>
             </div>
 
             {/* Footer con botones */}
@@ -262,14 +242,14 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
                     <button
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="flex-1 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+                        className="flex-1 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-800 font-semibold py-3 rounded-lg transition-colors cursor-pointer"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={isLoading || criteriosEvaluados < totalCriterios}
-                        className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center"
+                        className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed cursor-pointer text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center"
                     >
                         {isLoading ? (
                             'Enviando...'

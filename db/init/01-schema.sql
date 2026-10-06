@@ -13,6 +13,7 @@ CREATE TYPE "Rol" AS ENUM (
 );
 
 CREATE TYPE "EstadoTrabajo" AS ENUM (
+  'REGISTRADO',
   'EN_REVISION',
   'ACEPTADO',
   'RECHAZADO'
@@ -52,6 +53,7 @@ CREATE TABLE "Usuarios" (
   "password"        VARCHAR(255) NOT NULL,
   "rol"             "Rol" NOT NULL DEFAULT 'AUTOR',
   "activa"          BOOLEAN NOT NULL DEFAULT FALSE,
+  "bloqueada"          BOOLEAN NOT NULL DEFAULT FALSE,
   "createdAt"       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt"       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -83,7 +85,7 @@ EXECUTE FUNCTION set_updated_at();
 CREATE TABLE "Trabajos" (
   "id"                  TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   "archivo_url"         TEXT NOT NULL,
-  "estado"              "EstadoTrabajo" NOT NULL DEFAULT 'EN_REVISION',
+  "estado"              "EstadoTrabajo" NOT NULL DEFAULT 'REGISTRADO',
   "titulo"              VARCHAR(255) NOT NULL,
   "tipo"                "GrupoRubrica" NOT NULL,
   "presencial"          BOOLEAN,

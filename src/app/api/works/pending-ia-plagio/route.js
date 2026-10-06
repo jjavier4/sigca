@@ -63,8 +63,11 @@ export async function GET(request) {
       archivo_url: trabajo.archivo_url,
       nvl_ia: trabajo.nvl_ia,
       nvl_plagio: trabajo.nvl_plagio,
-      autor: `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`,
-      autorEmail: trabajo.usuario.email,
+      autor: {
+        nombre: `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`,
+        email: trabajo.usuario.email,
+        id: trabajo.usuario.id
+      },
       convocatoria: {
         id: trabajo.convocatoria.id,
         titulo: trabajo.convocatoria.titulo,

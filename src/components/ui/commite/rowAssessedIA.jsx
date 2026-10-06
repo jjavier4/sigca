@@ -1,39 +1,79 @@
 import React from 'react'
-import { Download, Save } from 'lucide-react';
+import { Download, Save, Eye, Circle,Loader2 } from 'lucide-react';
 export default function RowAssessedIA({ trabajo, handleDescargarPDF, handleInputChange, formDataMap, handleGuardar, loadingStates }) {
     return (
         <tr className="hover:bg-gray-50 transition-colors">
-            <td className="px-6 py-4">
-                <div>
-                    <p className="font-semibold text-gray-800 text-sm mb-1">
-                        {trabajo.titulo}
-                    </p>
-                    <p className="text-xs text-gray-600 mb-2">
-                        {trabajo.convocatoria.titulo}
-                    </p>
-                    <div className="flex gap-2 items-center">
-                        <span className={`text-xs px-2 py-1 rounded-full ${trabajo.tipo === 'DIFUSION'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-purple-100 text-purple-800'
-                            }`}>
-                            {trabajo.tipo}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                            {trabajo.autor}
-                        </span>
-                    </div>
+            <td className="px-6 py-4 ">
+                <table className="w-full">
+                    <tbody>
+                        <tr className="border-b border-gray-200 mb-2">
+                            <td className=" text-black text-sm font-semibold">
+                                Usuario:
+                            </td>
+                            <td className=" text-black text-sm ">
+                                {trabajo.autor.id}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-gray-200 mb-2">
+                            <td className=" text-black text-sm font-semibold">
+                                Trabajo:
+                            </td>
+                            <td className=" text-black text-sm ">
+                                {trabajo.titulo}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-gray-200 mb-2">
+                            <td className=" text-black text-sm font-semibold">
+                                Convocatoria:
+                            </td>
+                            <td className=" text-black text-sm ">
+                                {trabajo.convocatoria.titulo}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-gray-200 mb-2">
+                            <td className=" text-black text-sm font-semibold">
+                                Nombre Documento:
+                            </td>
+                            <td className=" text-black text-sm ">
+                                {trabajo.id}
+                            </td>
+                        </tr>
+                        <tr className="border-b border-gray-200 mb-2">
+                            <td className=" text-black text-sm font-semibold">
+                                Tipo:
+                            </td>
+                            <td className=" text-black text-sm ">
+                                {trabajo.tipo}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                
+            </td>
+
+            <td className="px-6 py-4 ">
+                <div className="grid grid-row-2 gap-2 items-center justify-center">
+                    <a
+                        href={`/ciidici/api/works/${trabajo.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                    >
+                        <Eye size={16} />
+                        Ver PDF
+                    </a>
+
+                    <a
+                        href={`/ciidici/api/works/${trabajo.id}?download=1`}
+                        className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                    >
+                        <Download size={16} />
+                        Descargar
+                    </a>
                 </div>
             </td>
 
-            <td className="px-6 py-4 text-center">
-                <button
-                    onClick={() => handleDescargarPDF(trabajo.archivo_url, trabajo.titulo)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
-                >
-                    <Download size={16} />
-                    Descargar
-                </button>
-            </td>
 
             <td className="px-6 py-4 text-center">
                 <input
@@ -65,10 +105,13 @@ export default function RowAssessedIA({ trabajo, handleDescargarPDF, handleInput
                 <button
                     onClick={() => handleGuardar(trabajo.id)}
                     disabled={loadingStates[trabajo.id]}
-                    className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
                 >
                     {loadingStates[trabajo.id] ? (
-                        'Guardando...'
+                        <>
+                            <Loader2 size={16} className=" text-yellow-600  animate-spin" />
+                            Guardando
+                        </>
                     ) : (
                         <>
                             <Save size={16} />

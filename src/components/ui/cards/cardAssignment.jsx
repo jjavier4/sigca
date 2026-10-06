@@ -71,14 +71,14 @@ export function CardWorkWithAssignments({ trabajo, isSelected, onSelect, onDelet
                       </div>
                     </div>
                     {
-                      asignacion.activa ?(
-                      <button
-                        onClick={(e) => handleDeleteAssignment(asignacion.id, e)}
-                        className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors "
-                        title="Eliminar asignación"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      asignacion.activa ? (
+                        <button
+                          onClick={(e) => handleDeleteAssignment(asignacion.id, e)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors "
+                          title="Eliminar asignación"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       ) : (
                         <span className="flex items-center text-green-600 text-xs font-semibold">
                           <CheckCircle className="mr-1" size={14} />
@@ -104,8 +104,8 @@ export function CardWorkWithAssignments({ trabajo, isSelected, onSelect, onDelet
         <button
           onClick={() => onSelect(trabajo)}
           className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg font-semibold text-sm transition-colors ${isSelected
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
             }`}
         >
           <UserPlus size={16} />
@@ -131,19 +131,26 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
 
   return (
     <div
-      onClick={() => !yaAsignado && onSelect(trabajo)}
+      onClick={() => !yaAsignado && onSelect()}
       className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border-2 ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
         } ${yaAsignado ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}`}
     >
+
       <div className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-2 flex-1">
-            <FileText className="text-blue-600" size={20} />
-            <div className="flex-1">
-              <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
-                {trabajo.titulo || 'Sin título'}
+          <div className="flex items-center space-x-3 flex-1">
+            <FileText className="text-blue-600" size={22} />
+            <div className="flex-1 space-y-1">
+              <h3 className="font-bold text-gray-800 text-sm ">
+                {`Trabajo: ${trabajo.titulo || 'Sin título'}`}
               </h3>
+              <p className="text-xs text-gray-500">
+                {`Convocatoria: ${trabajo.convocatoria?.titulo }`}
+              </p>
+              <p className="text-xs text-gray-500">
+                {`Nombre Documento: ${trabajo.id}`}
+              </p>
             </div>
           </div>
           {isSelected && !yaAsignado && (
@@ -152,21 +159,10 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
 
         </div>
 
-        {/* Convocatoria */}
-        <div className="bg-gray-50 rounded-lg p-2">
-          <p className="text-xs text-gray-800">
-            {trabajo.convocatoria?.titulo || 'Sin convocatoria'}
-          </p>
-        </div>
-
-        {/* Fecha */}
-        <div className="flex items-center text-gray-600 text-xs">
-          <Calendar className="mr-2" size={14} />
-          <span>Enviado: {formatDate(trabajo.createdAt)}</span>
-        </div>
-
-
       </div>
+
+
+
     </div>
   );
 }

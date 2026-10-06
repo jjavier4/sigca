@@ -14,8 +14,9 @@ export async function DELETE(request) {
         { status: 403 }
       );
     }
-    const { searchParams } = new URL(request.url);
-    const email = searchParams.get('email');
+
+    const body = await request.json();
+    const { email, bloqueada } = body;
 
     // Verificar que el usuario existe
     const usuarioExistente = await prisma.usuarios.findUnique({
@@ -28,25 +29,25 @@ export async function DELETE(request) {
         { status: 404 }
       );
     }
-
-    // Eliminar el usuario
-    await prisma.usuarios.delete({
-      where: { email }
+    //Suspender al usuario en lugar de eliminarlo
+    await prisma.usuarios.update({
+      where: { email },
+      data: { bloqueada: bloqueada }
     });
 
     return NextResponse.json(
       { 
         success: true,
-        message: 'Usuario eliminado correctamente',
+        message: 'Usuario alterado correctamente',
         usuario: email
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Error al eliminar usuario:', error);
+    console.error('Error al alterar usuario:', error);
     return NextResponse.json(
-      { error: 'Error al eliminar el usuario' },
+      { error: 'Error al alterar el usuario' },
       { status: 500 }
     );
   }

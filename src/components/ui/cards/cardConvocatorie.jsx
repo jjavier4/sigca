@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle } from 'lucide-react';
+import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
 import { useSession } from 'next-auth/react';
@@ -315,38 +315,46 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                     <button
                       type="button"
                       className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
-                      onClick={() => { countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1) }}>
-                      <MinusCircleIcon className="text-white " size={25} />
-                    </button>
-                  )}
-                </div>
-
-                <FormLabelInput
-                  title="PDF de tu propuesta"
-                  children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
-                  type="file"
-                  required={true}
-                  change={(e) => setFile(e.target.files[0])}
-                  placeholder="Selecciona tu archivo"
-                  accept=".pdf"
-                  multiple={false}
-                  disabled={uploading} />
-
-
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
-                  {uploading ? 'Enviando...' : 'Enviar Propuesta'}
+                      onClick={() => {
+                        countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1);
+                        const nuevosCoautores = [...dataConvocatoria.coautores];
+                        nuevosCoautores.pop();
+                        setDataConvocatoria({
+                          ...dataConvocatoria,
+                          coautores: nuevosCoautores
+                        });
+                      }}>
+                  <MinusCircleIcon className="text-white " size={25} />
                 </button>
-              </form>
+                  )}
             </div>
-            <button
-              onClick={onClose}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
-            >
-              Cerrar
+
+            <FormLabelInput
+              title="PDF de tu propuesta"
+              children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
+              type="file"
+              required={true}
+              change={(e) => setFile(e.target.files[0])}
+              placeholder="Selecciona tu archivo"
+              accept=".pdf"
+              multiple={false}
+              disabled={uploading} />
+
+
+            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
+              {uploading ? 'Enviando...' : 'Enviar Propuesta'}
             </button>
-          </div>
+          </form>
         </div>
+        <button
+          onClick={onClose}
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
+      </div >
+    </div >
   );
 }

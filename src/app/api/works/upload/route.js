@@ -2,11 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 import { emailPropuestaRecibida, sendEmail } from '@/lib/email';
-
+import { saveFile,deleteFile } from '@/lib/storage'
 export async function POST(request) {
     try {
         const session = await getServerSession(authOptions);
@@ -97,31 +94,13 @@ export async function POST(request) {
             );
         }
 
-        const publicPath = path.join(process.cwd(), 'public');
-        const uploadsPath = path.join(publicPath, 'uploads');
-        const documentsPath = path.join(uploadsPath, 'documents');
-        const userDirectoryPath = path.join(documentsPath, userId);
-
-        if (!existsSync(uploadsPath)) {
-            await mkdir(uploadsPath, { recursive: true });
-        }
-
-        if (!existsSync(documentsPath)) {
-            await mkdir(documentsPath, { recursive: true });
-        }
-
-        if (!existsSync(userDirectoryPath)) {
-            await mkdir(userDirectoryPath, { recursive: true });
-        }
-
         const fileName = `${convocatoriaId}.pdf`;
-        const filePath = path.join(userDirectoryPath, fileName);
 
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        await writeFile(filePath, buffer);
+        await saveFile(userId, fileName, buffer);
 
-        const relativePath = `/uploads/documents/${userId}/${fileName}`;
+        const relativePath = `/uploads/users_files/${userId}/${fileName}`;
 
         async function generarTrabajoId() {
             try {

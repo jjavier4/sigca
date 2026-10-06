@@ -44,6 +44,12 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+    if (usuario.bloqueada) {
+      return NextResponse.json(
+        { error: 'Esta cuenta ha sido bloqueada. Por favor verifica con un coordinador.' },
+        { status: 400 }
+      );
+    }
 
     const token = generarToken();
     await guardarToken(email.toLowerCase(), token);

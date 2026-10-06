@@ -37,12 +37,12 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
       items.push(
         { id: 'add-convocatorie', group: 'convocatorie', icon: LucideFileUp, label: 'Agregar Convocatoria', page: `${baseUrl}/addconvocatorie` },
         { id: 'manage-convocatories', group: 'convocatorie', icon: UserCog, label: 'Gestionar Convocatorias', page: `${baseUrl}/manageconvocatorie` },
+        { id: 'assessed-ia', icon: AlignEndHorizontalIcon, group: 'work', label: 'Niveles de IA y Plagio', page: `${baseUrl}/assessed-ia` },
         { id: 'assign-work', group: 'work', icon: LucideFileUp, label: 'Asignar Trabajo', page: `${baseUrl}/assignconvocatorie` },
+        { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` },
+        { id: 'manage-assessed', group: 'work', icon: FileCog, label: 'Gestionar Asignaciones', page: `${baseUrl}/manageassessed` },        
         { id: 'rubric', icon: FileDiff, group: 'settings', label: 'Criterios Evaluacion', page: `${baseUrl}/rubric` },
         { id: 'send-mail', icon: Mail, group: 'settings', label: 'Invitar revisores', page: `${baseUrl}/sendmail` },
-        { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` },
-        { id: 'assessed-ia', icon: AlignEndHorizontalIcon, group: 'work', label: 'Niveles de IA y Plagio', page: `${baseUrl}/assessed-ia` },
-        { id: 'manage-assessed', group: 'work', icon: FileCog, label: 'Gestionar Asignaciones', page: `${baseUrl}/manageassessed` },
       )
     }
     return items;

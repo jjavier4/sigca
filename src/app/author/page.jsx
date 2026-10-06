@@ -7,7 +7,7 @@ import LoadingError from '@/components/ui/utils/loadingError';
 import Alert from '@/components/ui/utils/alert';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-
+import { EditWork } from '@/components/ui/autor/editWork';
 export default function DashboardAuthor() {
   const { data: session } = useSession();
   const [trabajos, setTrabajos] = useState([]);
@@ -16,6 +16,7 @@ export default function DashboardAuthor() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [SelectEditWork, setSelectEditWork] = useState(null);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -107,6 +108,21 @@ export default function DashboardAuthor() {
     }
   };
 
+  const handleEditWork = async (dataConvocatoria, file, trabajoId,convocatoriaId) => {
+    const formData = new FormData();
+    formData.append('dataConvocatoria', JSON.stringify(dataConvocatoria));
+    formData.append('file', file);
+    formData.append('trabajoId', trabajoId);
+    formData.append('convocatoriaId', convocatoriaId);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/works/updateone`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    return data;
+  };
+
   const trabajosFiltrados = trabajos.filter((trabajo) => {
     if (filtroEstado === 'TODOS') return true;
     return trabajo.estado === filtroEstado;
@@ -153,7 +169,7 @@ export default function DashboardAuthor() {
         </div>
 
         {/* Estadísticas */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="flex flex-wrap flex-row  gap-4 mb-6">
           <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado === 'TODOS'} />
           <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado === 'EN_REVISION'} />
           <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado === 'ACEPTADO'} />
@@ -181,9 +197,19 @@ export default function DashboardAuthor() {
                 trabajo={trabajo}
                 getReferenciaPagoPDF={generarReferenciaPago}
                 onDelete={handleDelete}
+                onEdit={setSelectEditWork}
               />
             ))}
           </div>
+        )}
+
+        {/* Edit Work Modal */}
+        {SelectEditWork && (
+          <EditWork
+            trabajo={SelectEditWork}
+            onClose={() => setSelectEditWork(null)}
+            sendFile={handleEditWork}
+          />
         )}
       </div>
     </div>

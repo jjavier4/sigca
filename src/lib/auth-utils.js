@@ -5,7 +5,7 @@ import { prisma } from './db';
 // Obtener la sesión del usuario actual en Server Components
 export async function getCurrentUser() {
   const session = await getServerSession(authOptions);
-  return session?.user;
+  return session?.user ?? null
 }
 
 // Verificar si el usuario tiene un rol específico

@@ -140,10 +140,10 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
             
             <div class="info-box">
               <p><strong>Título:</strong> ${tituloTrabajo}</p>
-              <p><strong>Estado:</strong> En revisión</p>
+              <p><strong>Estado:</strong>Registrado</p>
             </div>
 
-            <p>Su trabajo será evaluado por nuestro comité de revisores. Le notificaremos cuando haya actualizaciones.</p>
+            <p>Su trabajo será evaluado por nuestro comité de revisores. Le notificaremos cuando haya actualizaciones. En estado de revisión aún tiene tiempo de realizar modificaciones a su propuesta.</p>
 
             <center>
               <a href="${process.env.NEXTAUTH_URL}/auth" class="button">Ver mis propuestas</a>
