@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 import { saveFile, deleteFile, esPdf } from '@/lib/storage'
+import { validar, datosTrabajoSchema } from '@/lib/validation'
 
 export async function POST(request) {
     try {
@@ -13,16 +14,18 @@ export async function POST(request) {
         const trabajoId = formData.get('trabajoId');
         const userId = session.user.id;
 
-        let dataConvocatoriaParsed;
+        let dataConvocatoriaJSON;
         try {
-            dataConvocatoriaParsed = JSON.parse(formData.get('dataConvocatoria'))
+            dataConvocatoriaJSON = JSON.parse(formData.get('dataConvocatoria'))
         } catch {
-            dataConvocatoriaParsed = null;
+            dataConvocatoriaJSON = {};
         }
+        const { data: dataConvocatoriaParsed, error: errorValidacion } = validar(datosTrabajoSchema, dataConvocatoriaJSON);
+        if (errorValidacion) return errorValidacion;
 
-        if (!dataConvocatoriaParsed || !trabajoId) {
+        if (!trabajoId) {
             return NextResponse.json(
-                { error: 'Faltan datos de registro' },
+                { error: 'Falta el trabajo a actualizar' },
                 { status: 400 }
             );
         }

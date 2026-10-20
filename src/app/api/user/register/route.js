@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generarToken, guardarToken, validarTokenRevisor } from '@/lib/tokens';
 import { sendEmail, emailVerificacionCuenta } from '@/lib/email';
+import { validar, registroSchema } from '@/lib/validation';
 
 // Roles que cada rol puede asignar al crear usuarios desde el panel
 const ROLES_ASIGNABLES = {
@@ -25,21 +26,11 @@ async function generarUsuarioId(identificador) {
   }
 }
 
-// Función para validar RFC
-function validarRFC(rfc) {
-  const rfcRegex = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
-  return rfcRegex.test(rfc.toUpperCase());
-}
-
-// Función para validar CURP
-function validarCURP(curp) {
-  const curpRegex = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
-  return curpRegex.test(curp.toUpperCase());
-}
-
 export async function POST(request) {
   try {
-    const body = await request.json();
+    const { data, error } = validar(registroSchema, await request.json());
+    if (error) return error;
+
     const {
       nombre,
       apellidoP,
@@ -52,83 +43,12 @@ export async function POST(request) {
       numero_control,
       rol, // solo lo respeta si lo pide un ADMIN o COMITE autenticado
       invitationToken // invitación de revisor
-    } = body;
+    } = data;
 
-    // Validaciones básicas
-    if (!nombre || !apellidoP || !apellidoM || !email || !password) {
-      return NextResponse.json(
-        { error: 'Todos los campos obligatorios deben ser completados' },
-        { status: 400 }
-      );
-    }
-
-    // Validar que se proporcione RFC o CURP según la selección
-    if (tipoIdentificacion === 'rfc' && !rfc) {
-      return NextResponse.json(
-        { error: 'Debes proporcionar tu RFC' },
-        { status: 400 }
-      );
-    }
-
-    if (tipoIdentificacion === 'curp' && !curp) {
-      return NextResponse.json(
-        { error: 'Debes proporcionar tu CURP' },
-        { status: 400 }
-      );
-    }
-
-    // Validar formato según el tipo de identificación
-    let identificador = '';
-
-    if (tipoIdentificacion === 'rfc') {
-      if (!validarRFC(rfc)) {
-        return NextResponse.json(
-          { error: 'El RFC proporcionado no tiene un formato válido. Debe tener 13 caracteres.' },
-          { status: 400 }
-        );
-      }
-      identificador = rfc.toUpperCase();
-    } else if (tipoIdentificacion === 'curp') {
-      if (!validarCURP(curp)) {
-        return NextResponse.json(
-          { error: 'El CURP proporcionado no tiene un formato válido. Debe tener 18 caracteres.' },
-          { status: 400 }
-        );
-      }
-      identificador = curp.toUpperCase();
-    } else {
-      return NextResponse.json(
-        { error: 'Tipo de identificación no válido' },
-        { status: 400 }
-      );
-    }
-
-    // Validar longitud de contraseña
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: 'La contraseña debe tener al menos 6 caracteres' },
-        { status: 400 }
-      );
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'El email proporcionado no es válido' },
-        { status: 400 }
-      );
-    }
-    const regex = /^\d{8}$/;
+    const identificador = tipoIdentificacion === 'rfc' ? rfc : curp;
 
     //Verificar si el numero de control ya existe (si se proporcionó)
     if (numero_control) {
-      if (!regex.test(numero_control)) {
-        return NextResponse.json(
-          { error: 'El número de control no es válido' },
-          { status: 400 }
-        );
-      }
       const existingUserByNC = await prisma.usuarios.findUnique({
         where: { numero_control: numero_control },
       });

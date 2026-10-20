@@ -3,14 +3,11 @@ import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 import { emailPropuestaRecibida, sendEmail } from '@/lib/email';
 import { saveFile, esPdf } from '@/lib/storage'
+import { validar, datosTrabajoSchema } from '@/lib/validation'
 
-// Solo se aceptan nombre y email de los coautores que manda el cliente
+// Los coautores ya llegan validados; se descartan id y update, que solo aplican al editar
 function limpiarCoautores(coautores) {
-    if (!Array.isArray(coautores)) return [];
-    return coautores.map(c => ({
-        nombre: String(c?.nombre ?? '').trim(),
-        email: String(c?.email ?? '').trim().toLowerCase(),
-    }));
+    return coautores.map(({ nombre, email }) => ({ nombre, email }));
 }
 
 export async function POST(request) {
@@ -24,12 +21,15 @@ export async function POST(request) {
         // El dueño del trabajo es siempre el usuario de la sesión, nunca lo que mande el cliente
         const userId = session.user.id;
 
-        let dataConvocatoriaParsed;
+        let dataConvocatoriaJSON;
         try {
-            dataConvocatoriaParsed = JSON.parse(formData.get('dataConvocatoria'));
+            dataConvocatoriaJSON = JSON.parse(formData.get('dataConvocatoria'));
         } catch {
-            dataConvocatoriaParsed = null;
+            dataConvocatoriaJSON = {};
         }
+        const { data: dataConvocatoriaParsed, error: errorValidacion } = validar(datosTrabajoSchema, dataConvocatoriaJSON);
+        if (errorValidacion) return errorValidacion;
+
         // Validaciones
         if (!(file instanceof File)) {
             return NextResponse.json(
@@ -41,12 +41,6 @@ export async function POST(request) {
         if (!convocatoriaId) {
             return NextResponse.json(
                 { error: 'Falta la convocatoria' },
-                { status: 400 }
-            );
-        }
-        if (!dataConvocatoriaParsed) {
-            return NextResponse.json(
-                { error: 'Faltan datos de registro' },
                 { status: 400 }
             );
         }

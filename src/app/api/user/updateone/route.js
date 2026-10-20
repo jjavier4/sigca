@@ -1,46 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
+import { validar, actualizarUsuarioSchema } from '@/lib/validation';
 
 export async function PATCH(request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
+    const { session, error } = await authorize();
+    if (error) return error;
 
-    const body = await request.json();
-    const { emailActual, email, numeroControl } = body;
-
-    // Validaciones
-    if (!emailActual || !email) {
-      return NextResponse.json(
-        { error: 'Email actual y nuevo email son requeridos' },
-        { status: 400 }
-      );
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Formato de email inválido' },
-        { status: 400 }
-      );
-    }
-
-    // Validar número de control si se proporciona
-    if (numeroControl && !/^\d{8}$/.test(numeroControl)) {
-      return NextResponse.json(
-        { error: 'El número de control debe tener 8 dígitos' },
-        { status: 400 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(actualizarUsuarioSchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { emailActual, email, numeroControl } = data;
 
     // Verificar permisos: solo ADMIN, COMITE o el mismo usuario pueden actualizar
     const esAdmin = session.user.rol === 'ADMIN';

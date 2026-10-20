@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authorize } from '@/lib/auth-utils';
+import { validar, crearConvocatoriaSchema } from '@/lib/validation';
 
 export async function POST(request) {
 
@@ -8,16 +9,9 @@ export async function POST(request) {
     const { error } = await authorize(['COMITE', 'ADMIN']);
     if (error) return error;
 
-    const body = await request.json();
-
-    const { titulo, descripcion, fecha_inicio, fecha_cierre} = body;
-
-    if (!titulo || !descripcion || !fecha_inicio || !fecha_cierre) {
-      return NextResponse.json(
-        { error: 'Faltan campos requeridos' },
-        { status: 400 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(crearConvocatoriaSchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { titulo, descripcion, fecha_inicio, fecha_cierre } = data;
 
     // Convertir fechas a DateTime completo
     const fechaInicio = new Date(fecha_inicio + 'T00:00:00.000Z');

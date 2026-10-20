@@ -1,35 +1,15 @@
 import { prisma } from '@/lib/db';
 import { authorize } from '@/lib/auth-utils';
+import { validar, crearAsignacionesSchema } from '@/lib/validation';
 
 export async function POST(request) {
   try {
     const { error } = await authorize(['COMITE', 'ADMIN']);
     if (error) return error;
 
-    const { trabajoId, revisoresIds } = await request.json();
-
-    if (!trabajoId) {
-      return Response.json(
-        { error: 'Debe proporcionar un trabajo' },
-        { status: 400 }
-      );
-    }
-
-    if (!revisoresIds || !Array.isArray(revisoresIds) || revisoresIds.length === 0) {
-      return Response.json(
-        { error: 'Debe proporcionar al menos un revisor' },
-        { status: 400 }
-      );
-    }
-
-    // Verificar que no haya IDs duplicados
-    const revisoresUnicos = new Set(revisoresIds);
-    if (revisoresUnicos.size !== revisoresIds.length) {
-      return Response.json(
-        { error: 'No se pueden asignar revisores duplicados' },
-        { status: 400 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(crearAsignacionesSchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { trabajoId, revisoresIds } = data;
 
     // Verificar disponibilidad de cada revisor (máximo 4 trabajos activos)
     for (const revisorId of revisoresIds) {

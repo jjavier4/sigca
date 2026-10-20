@@ -1,69 +1,20 @@
 // src/app/api/trabajos/analisis/route.js
 
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
+import { validar, analisisIASchema } from '@/lib/validation';
 import {prisma} from '@/lib/db';
 
 
 export async function PATCH(request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-
     // Solo COMITE y ADMIN pueden actualizar
-    if (session.user.rol !== 'COMITE' && session.user.rol !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'No tienes permisos para realizar esta acción' },
-        { status: 403 }
-      );
-    }
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
-    const body = await request.json();
-    const { trabajoId, nvl_ia, nvl_plagio } = body;
-
-    // Validaciones
-    if (!trabajoId) {
-      return NextResponse.json(
-        { error: 'ID del trabajo es obligatorio' },
-        { status: 400 }
-      );
-    }
-
-    if (nvl_ia === null || nvl_ia === undefined) {
-      return NextResponse.json(
-        { error: 'El nivel de IA es obligatorio' },
-        { status: 400 }
-      );
-    }
-
-    if (nvl_plagio === null || nvl_plagio === undefined) {
-      return NextResponse.json(
-        { error: 'El nivel de plagio es obligatorio' },
-        { status: 400 }
-      );
-    }
-
-    // Validar que sean números válidos entre 0 y 100
-    if (typeof nvl_ia !== 'number' || nvl_ia < 0 || nvl_ia > 100) {
-      return NextResponse.json(
-        { error: 'El nivel de IA debe ser un número entre 0 y 100' },
-        { status: 400 }
-      );
-    }
-
-    if (typeof nvl_plagio !== 'number' || nvl_plagio < 0 || nvl_plagio > 100) {
-      return NextResponse.json(
-        { error: 'El nivel de plagio debe ser un número entre 0 y 100' },
-        { status: 400 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(analisisIASchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { trabajoId, nvl_ia, nvl_plagio } = data;
 
     // Verificar que el trabajo existe
     const trabajoExistente = await prisma.trabajos.findUnique({

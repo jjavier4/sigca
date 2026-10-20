@@ -1,6 +1,7 @@
 // src/app/api/rubricas/add/route.js
 import { NextResponse } from 'next/server';
 import { authorize } from '@/lib/auth-utils';
+import { validar, crearCriterioSchema } from '@/lib/validation';
 import { prisma } from '@/lib/db';
 
 export async function POST(request) {
@@ -8,40 +9,9 @@ export async function POST(request) {
     const { error } = await authorize(['COMITE', 'ADMIN']);
     if (error) return error;
 
-    const body = await request.json();
-    const { nombre, descripcion, grupo, descripcion_puntaje } = body;
-
-    // Validaciones
-    if (!nombre || !descripcion || !grupo) {
-      return NextResponse.json(
-        { error: 'Faltan campos obligatorios' },
-        { status: 400 }
-      );
-    }
-
-    // Validar que grupo sea válido
-    if (!['DIFUSION', 'DIVULGACION'].includes(grupo)) {
-      return NextResponse.json(
-        { error: 'Grupo inválido. Debe ser DIFUSION o DIVULGACION' },
-        { status: 400 }
-      );
-    }
-
-    // Validar que descripcion_puntaje sea un array de 4 elementos
-    if (!Array.isArray(descripcion_puntaje) || descripcion_puntaje.length !== 4) {
-      return NextResponse.json(
-        { error: 'descripcion_puntaje debe ser un array de 4 elementos (10, 8, 6, 0 puntos)' },
-        { status: 400 }
-      );
-    }
-
-    // Validar que todos los elementos del array tengan contenido
-    if (descripcion_puntaje.some(desc => !desc || desc.trim() === '')) {
-      return NextResponse.json(
-        { error: 'Todas las descripciones de puntaje son obligatorias' },
-        { status: 400 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(crearCriterioSchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { nombre, descripcion, grupo, descripcion_puntaje } = data;
 
     // Crear el criterio
     const nuevoCriterio = await prisma.criteriosEvaluacion.create({

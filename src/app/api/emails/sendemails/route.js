@@ -1,61 +1,25 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
+import { validar, invitacionesSchema } from '@/lib/validation';
 import { prisma } from '@/lib/db';
 import { generarToken, guardarToken } from '@/lib/tokens';
 import { sendEmail, emailInvitacionRevisor } from '@/lib/email';
 
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions);
+    // Solo COMITE o ADMIN pueden invitar revisores
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
-    // Verificar que el usuario sea COMITE o ADMIN
-    if (!session || !['COMITE', 'ADMIN'].includes(session.user.rol)) {
-      return NextResponse.json(
-        { error: 'No autorizado. Se requiere rol de Comité o Admin' },
-        { status: 401 }
-      );
-    }
+    const { data, error: errorValidacion } = validar(invitacionesSchema, await request.json());
+    if (errorValidacion) return errorValidacion;
+    const { revisores } = data;
 
-    const body = await request.json();
-    const { revisores } = body;
-
-    // Validaciones
-    if (!revisores || !Array.isArray(revisores) || revisores.length === 0) {
-      return NextResponse.json(
-        { error: 'Debe proporcionar al menos un revisor' },
-        { status: 400 }
-      );
-    }
-
-    // Validar formato de datos
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    for (const revisor of revisores) {
-      if (!revisor.nombre || !revisor.correo) {
-        return NextResponse.json(
-          { error: 'Cada revisor debe tener nombre y correo' },
-          { status: 400 }
-        );
-      }
-
-      if (!emailRegex.test(revisor.correo)) {
-        return NextResponse.json(
-          { error: `Correo inválido: ${revisor.correo}` },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Normalizar correos y eliminar duplicados
+    // Eliminar duplicados (el correo ya viene normalizado por el esquema)
     const revisoresMap = new Map();
     revisores.forEach(revisor => {
-      const correoNormalizado = revisor.correo.toLowerCase().trim();
-      if (!revisoresMap.has(correoNormalizado)) {
-        revisoresMap.set(correoNormalizado, {
-          nombre: revisor.nombre.trim(),
-          correo: correoNormalizado
-        });
+      if (!revisoresMap.has(revisor.correo)) {
+        revisoresMap.set(revisor.correo, revisor);
       }
     });
 
