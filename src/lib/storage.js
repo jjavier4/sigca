@@ -22,8 +22,24 @@ function safePath(userDirectoryPath , storedFilename) {
     return full;
 }
 
+const SEGMENTO_VALIDO = /^[A-Za-z0-9._-]+$/;
+
+/** El userId y el nombre de archivo son un solo segmento de ruta, sin separadores ni "..". */
+function assertSegmento(valor) {
+    if (typeof valor !== 'string' || !SEGMENTO_VALIDO.test(valor) || valor.includes('..')) {
+        throw new Error('Segmento de ruta inválido');
+    }
+}
+
+/** Un PDF real empieza con la firma %PDF- (la extensión del nombre no basta). */
+export function esPdf(buffer) {
+    return buffer.length > 4 && buffer.subarray(0, 5).toString('latin1') === '%PDF-';
+}
+
 /** Escritura atómica: primero a un .tmp y luego rename, así nunca queda un PDF a medias. */
 export async function saveFile(userId, storedFilename, buffer) {
+    assertSegmento(userId);
+    assertSegmento(storedFilename);
     const userDirectoryPath = path.join(UPLOAD_DIR, 'users_files', userId);
     if (!existsSync(UPLOAD_DIR)) {
         await mkdir(UPLOAD_DIR, { recursive: true });
@@ -38,6 +54,8 @@ export async function saveFile(userId, storedFilename, buffer) {
 }
 
 export async function deleteFile(userId, storedFilename) {
+    assertSegmento(userId);
+    assertSegmento(storedFilename);
     const userDirectoryPath = path.join(UPLOAD_DIR, 'users_files', userId);
     try {
         await unlink(safePath(userDirectoryPath, storedFilename));
@@ -48,7 +66,12 @@ export async function deleteFile(userId, storedFilename) {
 
 /** Devuelve { stream, size } o null si el archivo no existe. */
 export async function openFileStream(storedFile) {
-    const full = path.join(process.cwd(),storedFile);
+    // archivo_url se guarda como /uploads/users_files/<userId>/<archivo>; se resuelve dentro de UPLOAD_DIR
+    const relative = String(storedFile).replace(/^\/?uploads\//, '');
+    const full = path.resolve(UPLOAD_DIR, relative);
+    if (!full.startsWith(UPLOAD_DIR + path.sep)) {
+        throw new Error('Path traversal detectado');
+    }
     try {
         const info = await stat(full);
         if (!info.isFile()) return null;

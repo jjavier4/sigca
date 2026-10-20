@@ -1,28 +1,12 @@
 // src/app/api/kpi/route.js
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authorize } from "@/lib/auth-utils";
 import { prisma } from "@/lib/db";
 
 export async function GET(request) {
   try {
-    // Verificar autenticación
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: "No autenticado" },
-        { status: 401 }
-      );
-    }
-
-    // Verificar que el usuario sea COMITE
-    if (session.user.rol === "COMITE") {
-      return NextResponse.json(
-        { error: "No autorizado. Solo usuarios COMITE pueden acceder." },
-        { status: 403 }
-      );
-    }
+    const { error } = await authorize(["COMITE", "ADMIN"]);
+    if (error) return error;
 
     // Obtener año actual
     const currentYear = new Date().getFullYear();

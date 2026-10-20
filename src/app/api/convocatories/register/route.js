@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { authorize } from '@/lib/auth-utils';
 
 export async function POST(request) {
 
   try {
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
+
     const body = await request.json();
-    console.log(' Datos recibidos:', body);
 
     const { titulo, descripcion, fecha_inicio, fecha_cierre} = body;
 
@@ -57,10 +60,7 @@ export async function POST(request) {
     console.error(' Error en registro:', error);
 
     return NextResponse.json(
-      {
-        error: 'Error al registrar convocatoria',
-        details: error.message
-      },
+      { error: 'Error al registrar convocatoria' },
       { status: 500 }
     );
   }

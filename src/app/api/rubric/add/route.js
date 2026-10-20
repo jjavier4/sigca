@@ -1,21 +1,13 @@
 // src/app/api/rubricas/add/route.js
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-
-   
     const body = await request.json();
     const { nombre, descripcion, grupo, descripcion_puntaje } = body;
 

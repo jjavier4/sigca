@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function GET(request) {
     try {
-        const session = await getServerSession();
+        const { session, error } = await authorize(['REVISOR', 'COMITE', 'ADMIN']);
+        if (error) return error;
+
         const anioActual = new Date().getFullYear();
         const { searchParams } = new URL(request.url);
-        const revisorId = searchParams.get('revisorId');
+        // Un revisor solo puede consultar sus propias asignaciones
+        const revisorId = session.user.rol === 'REVISOR'
+            ? session.user.id
+            : searchParams.get('revisorId');
 
         if (!revisorId) {
             return NextResponse.json(
@@ -48,7 +53,6 @@ export async function GET(request) {
                 createdAt: 'desc'
             }
         });
-        console.log('Asignaciones encontradas:', asignaciones);
         return NextResponse.json(
             {
                 asignaciones,

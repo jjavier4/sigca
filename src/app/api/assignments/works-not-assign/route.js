@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function GET(request) {
     try {
-        const session = await getServerSession();
-
+        const { error } = await authorize(['COMITE', 'ADMIN']);
+        if (error) return error;
 
         const anioActual = new Date().getFullYear();
         // Obtener todos los trabajos en revisión con sus asignaciones

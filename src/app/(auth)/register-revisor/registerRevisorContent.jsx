@@ -125,7 +125,7 @@ export default function RegisterRevisorContent() {
           rfc: tipoIdentificacion === 'rfc' ? registerData.rfc.toUpperCase() : null,
           curp: tipoIdentificacion === 'curp' ? registerData.curp.toUpperCase() : null,
           password: registerData.password,
-          rol: 'REVISOR',
+          invitationToken: token,
         }),
       });
 

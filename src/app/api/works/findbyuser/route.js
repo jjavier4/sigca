@@ -1,20 +1,18 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function GET(request) {
     try {
-        const session = await getServerSession();
-        
-        if (!session) {
-            return NextResponse.json(
-                { error: 'No autorizado. Debes iniciar sesión' },
-                { status: 401 }
-            );
-        }
+        const { session, error } = await authorize();
+        if (error) return error;
 
         const { searchParams } = new URL(request.url);
-        const userId = searchParams.get('userId');
+        // Cada usuario solo ve sus propios trabajos; el comité y el admin pueden consultar otros
+        const esStaff = ['COMITE', 'ADMIN'].includes(session.user.rol);
+        const userId = esStaff
+            ? (searchParams.get('userId') || session.user.id)
+            : session.user.id;
 
         if (!userId) {
             return NextResponse.json(

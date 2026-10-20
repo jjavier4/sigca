@@ -2,3 +2,6 @@ node_modules
 .next
 .git
 uploads
+# env files (can opt-in for committing if needed)
+.env*
+.vs/

@@ -1,8 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { generarToken, guardarToken } from '@/lib/tokens';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { generarToken, guardarToken, validarTokenRevisor } from '@/lib/tokens';
 import { sendEmail, emailVerificacionCuenta } from '@/lib/email';
+
+// Roles que cada rol puede asignar al crear usuarios desde el panel
+const ROLES_ASIGNABLES = {
+  ADMIN: ['AUTOR', 'REVISOR', 'COMITE', 'ADMIN'],
+  COMITE: ['AUTOR', 'REVISOR'],
+};
 
 // Función para generar el ID del usuario
 async function generarUsuarioId(identificador) {
@@ -41,8 +49,9 @@ export async function POST(request) {
       rfc,
       curp,
       password,
-      rol,
-      numero_control
+      numero_control,
+      rol, // solo lo respeta si lo pide un ADMIN o COMITE autenticado
+      invitationToken // invitación de revisor
     } = body;
 
     // Validaciones básicas
@@ -171,6 +180,31 @@ export async function POST(request) {
       }
     }
 
+    // El registro público siempre crea un AUTOR. Otro rol solo con invitación válida
+    // o si lo pide un ADMIN o COMITE autenticado.
+    let rolAsignado = 'AUTOR';
+    if (invitationToken) {
+      // La invitación se consume sola: guardarToken() borra los tokens previos del correo
+      const emailInvitado = await validarTokenRevisor(invitationToken);
+      if (!emailInvitado || emailInvitado !== email.toLowerCase()) {
+        return NextResponse.json(
+          { error: 'La invitación no es válida o no corresponde a este correo' },
+          { status: 400 }
+        );
+      }
+      rolAsignado = 'REVISOR';
+    } else if (rol && rol !== 'AUTOR') {
+      const session = await getServerSession(authOptions);
+      const permitidos = ROLES_ASIGNABLES[session?.user?.rol] ?? [];
+      if (!permitidos.includes(rol)) {
+        return NextResponse.json(
+          { error: 'No autorizado para asignar este rol' },
+          { status: 403 }
+        );
+      }
+      rolAsignado = rol;
+    }
+
     // Generar el ID personalizado usando la función de PostgreSQL
     const usuarioId = await generarUsuarioId(identificador);
 
@@ -185,7 +219,7 @@ export async function POST(request) {
       apellidoM,
       email: email.toLowerCase(),
       password: hashedPassword,
-      rol: rol || 'AUTOR',
+      rol: rolAsignado,
       activa: false,
       numero_control: numero_control,
     };
@@ -210,7 +244,6 @@ export async function POST(request) {
         email: true,
         rfc: true,
         curp: true,
-        rol: true,
         activa: true,
         bloqueada:false,
         createdAt: true,

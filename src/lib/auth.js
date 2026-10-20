@@ -3,10 +3,10 @@ import { prisma } from './db';
 import bcrypt from 'bcryptjs';
 
 export const authOptions = {
+  // next-auth arma estas URLs desde el origen de NEXTAUTH_URL, por eso llevan el basePath
   pages: {
-    signIn: '/auth',
-    error: '/auth',
-    signedOut: '/ciidici',
+    signIn: '/ciidici/login',
+    error: '/ciidici/login',
   },
 
   // Configuración de sesión

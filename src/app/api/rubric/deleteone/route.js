@@ -1,20 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function DELETE(request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-
-    
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
     const { searchParams } = new URL(request.url);
     const id= searchParams.get('id');

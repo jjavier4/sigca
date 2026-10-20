@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { openFileStream } from '@/lib/storage';
-import { getCurrentUser, canReadDocument } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,6 +13,9 @@ function contentDisposition(filename, type = 'inline') {
 }
 
 export async function GET(request, { params }) {
+  const { session, error } = await authorize();
+  if (error) return error;
+
   try {
     const { id } = await params; // en Next 15, params es una Promise
     const doc = await prisma.trabajos.findUnique({
@@ -22,8 +23,28 @@ export async function GET(request, { params }) {
       select: {
         titulo: true,
         archivo_url: true,
+        usuarioId: true,
       }
     });
+
+    if (!doc) {
+      return NextResponse.json({ error: 'Trabajo no encontrado' }, { status: 404 });
+    }
+
+    // Pueden verlo: el dueño, el comité/admin y los revisores con una asignación sobre el trabajo
+    const { id: userId, rol } = session.user;
+    let permitido = doc.usuarioId === userId || rol === 'COMITE' || rol === 'ADMIN';
+    if (!permitido && rol === 'REVISOR') {
+      const asignacion = await prisma.asignaciones.findFirst({
+        where: { trabajoId: id, revisorId: userId },
+        select: { id: true },
+      });
+      permitido = Boolean(asignacion);
+    }
+    if (!permitido) {
+      // 404 y no 403 para no revelar qué trabajos existen
+      return NextResponse.json({ error: 'Trabajo no encontrado' }, { status: 404 });
+    }
 
     const file = await openFileStream(doc.archivo_url);
     if (!file) {

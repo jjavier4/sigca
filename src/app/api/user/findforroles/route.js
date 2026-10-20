@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
     // Obtener roles del query string (ej: ?roles=REVISOR,COMITE)
     const { searchParams } = new URL(request.url);
@@ -74,7 +67,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error al obtener usuarios por rol:', error);
     return NextResponse.json(
-      { error: 'Error al obtener usuarios por rol', details: error.message },
+      { error: 'Error al obtener usuarios por rol' },
       { status: 500 }
     );
   }

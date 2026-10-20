@@ -1,7 +1,11 @@
 import { prisma } from '@/lib/db';
+import { authorize } from '@/lib/auth-utils';
 
 export async function GET() {
   try {
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
+
     const anioActual = new Date().getFullYear();
     const revisores = await prisma.usuarios.findMany({
       where: { rol: 'REVISOR',activa:true },

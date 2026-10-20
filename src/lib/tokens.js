@@ -63,6 +63,9 @@ export async function validarToken(token) {
   }
 }
 
+// Las invitaciones de revisor duran más que los tokens de verificación o de reset
+const INVITACION_VIGENCIA_DIAS = 7;
+
 export async function validarTokenRevisor(token) {
   try {
     const tokenRecord = await prisma.tokens.findUnique({
@@ -70,11 +73,15 @@ export async function validarTokenRevisor(token) {
     });
 
     if (!tokenRecord) {
-      console.log('Token no encontrado');
       return null;
     }
 
-    console.log(`Token válido para ${tokenRecord.email}`);
+    const edadDias = (Date.now() - new Date(tokenRecord.createdAt).getTime()) / 1000 / 60 / 60 / 24;
+    if (edadDias > INVITACION_VIGENCIA_DIAS) {
+      await prisma.tokens.delete({ where: { token } });
+      return null;
+    }
+
     return tokenRecord.email;
   } catch (error) {
     console.error('Error al validar token:', error);

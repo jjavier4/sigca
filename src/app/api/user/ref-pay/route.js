@@ -1,26 +1,35 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { generarReferenciaPagoPDF } from '@/lib/pdfGeneratorRef';
 import { prisma } from '@/lib/db';
 
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { session, error } = await authorize();
+    if (error) return error;
 
-    if (!session) {
+    // La referencia se genera siempre para el usuario de la sesión
+    const userId = session.user.id;
+    const { trabajoid } = await request.json();
+    if (!trabajoid) {
       return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-    const { userId, trabajoid, } = await request.json();
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'ID de usuario requerido' },
+        { error: 'ID de trabajo requerido' },
         { status: 400 }
       );
     }
+
+    // El trabajo debe ser del usuario y estar aceptado
+    const trabajo = await prisma.trabajos.findFirst({
+      where: { id: trabajoid, usuarioId: userId, estado: 'ACEPTADO' },
+      select: { id: true }
+    });
+    if (!trabajo) {
+      return NextResponse.json(
+        { error: 'Trabajo no encontrado' },
+        { status: 404 }
+      );
+    }
+
     const usuario = await prisma.usuarios.findUnique({
       where: {
         id: userId

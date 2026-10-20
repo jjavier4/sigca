@@ -3,6 +3,10 @@ import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
+
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/ciidici", request.url));
+  }
   // Rutas protegidas
   const protectedRoutes = [
     '/admin',
@@ -11,12 +15,21 @@ export async function middleware(request) {
     '/reviewer'
   ];
 
+  const rutas_publicas = [
+    /^\/login\/?$/,
+    /^\/register-revisor\/?$/,
+    /^\/restablecer\/[^/]+\/?$/,
+  ];
+
   // Verificar si es ruta protegida
   const isProtectedRoute = protectedRoutes.some(route =>
     pathname.startsWith(route)
   );
 
-  if (!isProtectedRoute) {
+  // Verificar si es ruta pública
+  const isPublicRoute = rutas_publicas.some(pattern => pattern.test(pathname));
+
+  if (!isProtectedRoute && !isPublicRoute) {
     return NextResponse.next();
   }
   // Obtener token de sesión
@@ -26,7 +39,10 @@ export async function middleware(request) {
   });
   // Si no hay token, redirigir a login
   if (!token) {
-    const url = new URL(`${process.env.NEXT_PUBLIC_APP_URL}/auth`, request.url);
+    // nextUrl.clone() conserva el basePath (/ciidici); new URL('/login', ...) lo perdería
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.search = '';
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
@@ -47,9 +63,10 @@ export async function middleware(request) {
 
 
     if (!allowedRoles.includes(userRole)) {
-      return NextResponse.redirect(
-        new URL('/unauthorized', request.url)
-      );
+      const url = request.nextUrl.clone();
+      url.pathname = '/unauthorized';
+      url.search = '';
+      return NextResponse.redirect(url);
     }
   }
   return NextResponse.next();

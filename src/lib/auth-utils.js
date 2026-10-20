@@ -1,6 +1,6 @@
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth';
-import { prisma } from './db';
 
 // Obtener la sesión del usuario actual en Server Components
 export async function getCurrentUser() {
@@ -11,7 +11,7 @@ export async function getCurrentUser() {
 // Verificar si el usuario tiene un rol específico
 export async function checkUserRole(allowedRoles) {
   const user = await getCurrentUser();
-  
+
   if (!user) {
     return false;
   }
@@ -19,26 +19,27 @@ export async function checkUserRole(allowedRoles) {
   return allowedRoles.includes(user.rol);
 }
 
-// Obtener el usuario completo de la base de datos
-export async function getUserFromSession() {
+/**
+ * Autorización para route handlers (y futuras Server Actions).
+ * Uso:
+ *   const { session, error } = await authorize(['COMITE', 'ADMIN']);
+ *   if (error) return error;
+ * Sin `roles` solo exige sesión iniciada.
+ */
+export async function authorize(roles) {
   const session = await getServerSession(authOptions);
-  
-  if (!session?.user?.email) {
-    return null;
+
+  if (!session?.user?.id) {
+    return {
+      error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }),
+    };
   }
 
-  const usuario = await prisma.usuario.findUnique({
-    where: { email: session.user.email },
-    select: {
-      id: true,
-      email: true,
-      nombre: true,
-      apellido: true,
-      institucion: true,
-      rol: true,
-      image: true,
-    },
-  });
+  if (roles && !roles.includes(session.user.rol)) {
+    return {
+      error: NextResponse.json({ error: 'No autorizado' }, { status: 403 }),
+    };
+  }
 
-  return usuario;
+  return { session };
 }

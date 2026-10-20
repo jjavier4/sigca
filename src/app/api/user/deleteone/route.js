@@ -1,22 +1,21 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 
 export async function DELETE(request) {
   try {
-    // Verificar autenticación
-    const session = await getServerSession(authOptions);
-    
-    if (!session && session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
-      return NextResponse.json(
-        { error: 'No autorizado. ' },
-        { status: 403 }
-      );
-    }
+    const { session, error } = await authorize(['ADMIN', 'COMITE']);
+    if (error) return error;
 
     const body = await request.json();
     const { email, bloqueada } = body;
+
+    if (typeof email !== 'string' || typeof bloqueada !== 'boolean') {
+      return NextResponse.json(
+        { error: 'Datos inválidos' },
+        { status: 400 }
+      );
+    }
 
     // Verificar que el usuario existe
     const usuarioExistente = await prisma.usuarios.findUnique({
@@ -27,6 +26,13 @@ export async function DELETE(request) {
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
         { status: 404 }
+      );
+    }
+    // Solo un ADMIN puede bloquear o desbloquear a otro ADMIN
+    if (usuarioExistente.rol === 'ADMIN' && session.user.rol !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'No autorizado' },
+        { status: 403 }
       );
     }
     //Suspender al usuario en lugar de eliminarlo

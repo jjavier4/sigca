@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 
 export async function DELETE(request) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
+    const { session, error } = await authorize();
+    if (error) return error;
 
     const { searchParams } = new URL(request.url);
     const trabajoId = searchParams.get('trabajoId');
@@ -29,7 +22,10 @@ export async function DELETE(request) {
       where: { id: trabajoId }
     });
 
-    if (!trabajo) {
+    // Solo el dueño, el comité o el admin pueden borrarlo (404 para no revelar su existencia)
+    const esDueno = trabajo?.usuarioId === session.user.id;
+    const esStaff = ['COMITE', 'ADMIN'].includes(session.user.rol);
+    if (!trabajo || (!esDueno && !esStaff)) {
       return NextResponse.json(
         { error: 'Trabajo no encontrado' },
         { status: 404 }
@@ -63,7 +59,7 @@ export async function DELETE(request) {
   } catch (error) {
     console.error('Error al eliminar trabajo:', error);
     return NextResponse.json(
-      { error: 'Error al eliminar trabajo', details: error.message },
+      { error: 'Error al eliminar trabajo' },
       { status: 500 }
     );
   }

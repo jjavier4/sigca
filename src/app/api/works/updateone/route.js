@@ -1,34 +1,48 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
-import { emailPropuestaRecibida, sendEmail } from '@/lib/email';
-import { saveFile, deleteFile } from '@/lib/storage'
+import { saveFile, deleteFile, esPdf } from '@/lib/storage'
+
 export async function POST(request) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session) {
-            return NextResponse.json(
-                { error: 'No autorizado. Debes iniciar sesión' },
-                { status: 401 }
-            );
-        }
+        const { session, error } = await authorize();
+        if (error) return error;
 
         const formData = await request.formData()
-        const dataConvocatoria = formData.get('dataConvocatoria')
-        const dataConvocatoriaParsed = JSON.parse(dataConvocatoria)
         const file = formData.get('file');
         const trabajoId = formData.get('trabajoId');
         const userId = session.user.id;
-        const convocatoriaId = formData.get('convocatoriaId')
 
-        if (!dataConvocatoriaParsed) {
+        let dataConvocatoriaParsed;
+        try {
+            dataConvocatoriaParsed = JSON.parse(formData.get('dataConvocatoria'))
+        } catch {
+            dataConvocatoriaParsed = null;
+        }
+
+        if (!dataConvocatoriaParsed || !trabajoId) {
             return NextResponse.json(
                 { error: 'Faltan datos de registro' },
                 { status: 400 }
             );
         }
+
+        // Solo el dueño del trabajo puede editarlo
+        const trabajoActual = await prisma.trabajos.findFirst({
+            where: { id: trabajoId, usuarioId: userId },
+            select: { convocatoriaId: true }
+        });
+
+        if (!trabajoActual) {
+            return NextResponse.json(
+                { error: 'Trabajo no encontrado' },
+                { status: 404 }
+            );
+        }
+
+        // La convocatoria sale del trabajo guardado, no del cliente
+        const convocatoriaId = trabajoActual.convocatoriaId;
+
         // Verificar que la convocatoria existe y está abierta
         const convocatoria = await prisma.convocatorias.findUnique({
             where: { id: convocatoriaId }
@@ -49,6 +63,7 @@ export async function POST(request) {
             );
         }
 
+        let buffer = null;
         if (file instanceof File) {
             // Validar que el archivo sea PDF
             if (!file.name.endsWith('.pdf')) {
@@ -67,43 +82,54 @@ export async function POST(request) {
                 );
             }
 
-            const fileName = `${convocatoriaId}.pdf`;
-
-            const bytes = await file.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-            deleteFile(userId, fileName); // Eliminar el archivo anterior si existe
-            await saveFile(userId, fileName, buffer);
-
-        }
-
-
-        const oldCoauthors = dataConvocatoriaParsed.coautores.filter(coautor => coautor.id && coautor.update === true); // Coautores existentes
-        const newCoauthors = dataConvocatoriaParsed.coautores.filter(coautor => !coautor.id); // Nuevos coautores
-
-        await prisma.$transaction(async (tx) => {
-            await Promise.all(
-                oldCoauthors.map(item =>
-                    tx.coautores.update({
-                        where: { id: item.id },
-                        data: { nombre: item.nombre, email: item.email }
-                    })
-                )
-            );
-        });
-        const trabajoData = {
-            titulo: dataConvocatoriaParsed.tituloPropuesta,
-            tipo: dataConvocatoriaParsed.tipo,
-            coautores: {
-                create: newCoauthors || []
+            buffer = Buffer.from(await file.arrayBuffer());
+            if (!esPdf(buffer)) {
+                return NextResponse.json(
+                    { error: 'El archivo no es un PDF válido' },
+                    { status: 400 }
+                );
             }
         }
 
+        if (buffer) {
+            const fileName = `${convocatoriaId}.pdf`;
+            await deleteFile(userId, fileName); // Eliminar el archivo anterior si existe
+            await saveFile(userId, fileName, buffer);
+        }
 
-        const trabajo = await prisma.trabajos.update({
-            where: { id: trabajoId },
-            data: trabajoData
+        // Solo se aceptan nombre y email de los coautores que manda el cliente
+        const coautores = Array.isArray(dataConvocatoriaParsed.coautores) ? dataConvocatoriaParsed.coautores : [];
+        const oldCoauthors = coautores.filter(coautor => coautor.id && coautor.update === true); // Coautores existentes
+        const newCoauthors = coautores
+            .filter(coautor => !coautor.id) // Nuevos coautores
+            .map(coautor => ({
+                nombre: String(coautor.nombre ?? '').trim(),
+                email: String(coautor.email ?? '').trim().toLowerCase(),
+            }));
+
+        const trabajo = await prisma.$transaction(async (tx) => {
+            for (const item of oldCoauthors) {
+                // idTrabajo en el where evita editar coautores de otros trabajos
+                await tx.coautores.updateMany({
+                    where: { id: item.id, idTrabajo: trabajoId },
+                    data: {
+                        nombre: String(item.nombre ?? '').trim(),
+                        email: String(item.email ?? '').trim().toLowerCase(),
+                    }
+                });
+            }
+
+            return tx.trabajos.update({
+                where: { id: trabajoId },
+                data: {
+                    titulo: dataConvocatoriaParsed.tituloPropuesta,
+                    tipo: dataConvocatoriaParsed.tipo,
+                    coautores: {
+                        create: newCoauthors
+                    }
+                }
+            });
         });
-
 
         return NextResponse.json(
             {
@@ -114,7 +140,7 @@ export async function POST(request) {
         );
 
     } catch (error) {
-        console.error('Error al subir archivo:', error);
+        console.error('Error al actualizar propuesta:', error);
         return NextResponse.json(
             { error: 'Error al procesar la solicitud' },
             { status: 500 }

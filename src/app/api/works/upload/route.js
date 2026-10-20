@@ -1,38 +1,46 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 import { emailPropuestaRecibida, sendEmail } from '@/lib/email';
-import { saveFile,deleteFile } from '@/lib/storage'
+import { saveFile, esPdf } from '@/lib/storage'
+
+// Solo se aceptan nombre y email de los coautores que manda el cliente
+function limpiarCoautores(coautores) {
+    if (!Array.isArray(coautores)) return [];
+    return coautores.map(c => ({
+        nombre: String(c?.nombre ?? '').trim(),
+        email: String(c?.email ?? '').trim().toLowerCase(),
+    }));
+}
+
 export async function POST(request) {
     try {
-        const session = await getServerSession(authOptions);
-
-        if (!session) {
-            return NextResponse.json(
-                { error: 'No autorizado. Debes iniciar sesión' },
-                { status: 401 }
-            );
-        }
+        const { session, error } = await authorize();
+        if (error) return error;
 
         const formData = await request.formData();
-        const dataConvocatoria = formData.get('dataConvocatoria');
-        const dataConvocatoriaParsed = JSON.parse(dataConvocatoria);
         const file = formData.get('file');
         const convocatoriaId = formData.get('convocatoriaId');
-        const userId = formData.get('userId');
-        console.log('dataConvocatoria:', dataConvocatoria);
+        // El dueño del trabajo es siempre el usuario de la sesión, nunca lo que mande el cliente
+        const userId = session.user.id;
+
+        let dataConvocatoriaParsed;
+        try {
+            dataConvocatoriaParsed = JSON.parse(formData.get('dataConvocatoria'));
+        } catch {
+            dataConvocatoriaParsed = null;
+        }
         // Validaciones
-        if (!file) {
+        if (!(file instanceof File)) {
             return NextResponse.json(
                 { error: 'No se proporcionó ningún archivo' },
                 { status: 400 }
             );
         }
 
-        if (!convocatoriaId || !userId) {
+        if (!convocatoriaId) {
             return NextResponse.json(
-                { error: 'Faltan datos requeridos (convocatoriaId o userId)' },
+                { error: 'Falta la convocatoria' },
                 { status: 400 }
             );
         }
@@ -98,6 +106,12 @@ export async function POST(request) {
 
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
+        if (!esPdf(buffer)) {
+            return NextResponse.json(
+                { error: 'El archivo no es un PDF válido' },
+                { status: 400 }
+            );
+        }
         await saveFile(userId, fileName, buffer);
 
         const relativePath = `/uploads/users_files/${userId}/${fileName}`;
@@ -119,7 +133,7 @@ export async function POST(request) {
             titulo: dataConvocatoriaParsed.tituloPropuesta,
             tipo: dataConvocatoriaParsed.tipo,
             coautores: {
-                create: dataConvocatoriaParsed.coautores || []
+                create: limpiarCoautores(dataConvocatoriaParsed.coautores)
             },
             convocatoriaId: convocatoriaId,
             usuarioId: userId,

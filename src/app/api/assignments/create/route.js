@@ -1,7 +1,11 @@
 import { prisma } from '@/lib/db';
+import { authorize } from '@/lib/auth-utils';
 
 export async function POST(request) {
   try {
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
+
     const { trabajoId, revisoresIds } = await request.json();
 
     if (!trabajoId) {

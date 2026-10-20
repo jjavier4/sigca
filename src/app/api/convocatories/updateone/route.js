@@ -1,27 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { getServerSession } from 'next-auth'
+import { authorize } from '@/lib/auth-utils'
 
 export async function PATCH(request) {
   try {
-    const session = await getServerSession()
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
-    if (session?.user?.rol) {
-      return NextResponse.json(
-        { error: 'No autorizado. ' },
-        { status: 403 }
-      );
-    }
+    const { error } = await authorize(['COMITE', 'ADMIN'])
+    if (error) return error
 
     const body = await request.json()
     const { id, titulo, descripcion, fecha_inicio, fecha_cierre } = body
-    console.log(body)
     if (!id) {
       return NextResponse.json(
         { error: 'ID de convocatoria requerido' },
