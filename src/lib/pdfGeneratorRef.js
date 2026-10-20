@@ -35,7 +35,7 @@ export async function generarReferenciaPagoPDF(datos) {
         const templateHTML = fs.readFileSync(templatePath, 'utf-8');
 
         // Convertir imágenes a Base64
-        const logoITTPath = path.join(process.cwd(), 'public', 'images', 'logo-itt.png');
+        const logoITTPath = path.join(process.cwd(), 'public', 'logo-itt.png');
         const logoITT = imageToBase64(logoITTPath);
 
         // Agregar las imágenes a los datos

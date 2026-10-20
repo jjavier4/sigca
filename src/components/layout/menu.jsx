@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Home, UserPlus, Settings, Users, LucideFileUp, FileCog,
@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { href } from '@/utils/route';
 
 export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [openGroups, setOpenGroups] = useState({});
 
   // Función para alternar el estado de los grupos
@@ -47,11 +47,6 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
     }
     return items;
   };
-
-  useEffect(() => {
-    if (session?.user?.rol) {
-    }
-  }, [status]);
 
   const groupConfig = {
     user: { label: 'Usuarios', icon: Users },

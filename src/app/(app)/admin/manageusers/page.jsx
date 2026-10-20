@@ -17,10 +17,12 @@ export default function ManageUsers() {
     const [onEdit, setOnEdit] = useState(false);
     const [selectedUserEdit, setSelectedUserEdit] = useState(null);
 
-    const deleteUser = async (userEmail) => {
+    const deleteUser = async (userEmail, bloqueada) => {
         try {
-            const response = await fetch(`/api/user/deleteone?email=${userEmail}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/deleteone`, {
                 method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, bloqueada: !bloqueada }),
             });
             const data = await response.json();
             if (response.ok) {
@@ -40,7 +42,7 @@ export default function ManageUsers() {
 
     const findUserforRole = async () => {
         try {
-            const response = await fetch(`/api/user/findforroles?roles=REVISOR,AUTOR,COMITE`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/findforroles?roles=REVISOR,AUTOR,COMITE`, {
                 method: 'GET',
             });
             const data = await response.json();
@@ -66,13 +68,12 @@ export default function ManageUsers() {
         setSuccess('');
 
         try {
-            const response = await fetch('/api/user/updateone', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/updateone`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: selectedUserEdit.id,
+                    emailActual: selectedUserEdit.emailActual,
                     email: selectedUserEdit.email,
-                    rol:selectedUserEdit.rol,
                 }),
             });
 
@@ -182,6 +183,7 @@ export default function ManageUsers() {
                                 <table className="w-full">
                                     <thead className="bg-gray-50">
                                         <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Identificador</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
@@ -193,11 +195,13 @@ export default function ManageUsers() {
                                             users?.map((user) => (
                                                 <RowUser
                                                     key={user.id}
+                                                    id={user.id}
                                                     name={user.nombre}
                                                     email={user.email}
                                                     role={user.rol}
-                                                    onEdit={() => { setOnEdit(true); setSelectedUserEdit(user) }}
-                                                    onDelete={() => deleteUser(user.email)}
+                                                    bloqueada={user.bloqueada}
+                                                    onEdit={() => { setOnEdit(true); setSelectedUserEdit({ ...user, emailActual: user.email }) }}
+                                                    onDelete={() => deleteUser(user.email, user.bloqueada)}
                                                 />
                                             ))
                                         }

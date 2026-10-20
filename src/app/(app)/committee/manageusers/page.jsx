@@ -78,7 +78,7 @@ export default function ManageUsers() {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: selectedUserEdit.id,
+                    emailActual: selectedUserEdit.emailActual,
                     email: selectedUserEdit.email,
                 }),
             });
@@ -214,7 +214,7 @@ export default function ManageUsers() {
                                                         email={user.email}
                                                         role={user.rol}
                                                         bloqueada={user.bloqueada}
-                                                        onEdit={() => { setOnEdit(true); setSelectedUserEdit(user) }}
+                                                        onEdit={() => { setOnEdit(true); setSelectedUserEdit({ ...user, emailActual: user.email }) }}
                                                         onDelete={() => deleteUser(user.email,user.bloqueada)}
                                                     />
                                                 ))

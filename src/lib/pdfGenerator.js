@@ -27,7 +27,7 @@ export async function generarDictamenPDF(tipo, datos) {
     const templatePath = path.join(process.cwd(), 'templates', templateName);
     const templateHTML = fs.readFileSync(templatePath, 'utf-8');
     
-    const logoITTPath = path.join(process.cwd(), 'public', 'images', 'logo-itt.png');
+    const logoITTPath = path.join(process.cwd(), 'public', 'logo-itt.png');
     const logoITT = imageToBase64(logoITTPath);
     
     const datosConImagenes = {

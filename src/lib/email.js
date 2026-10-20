@@ -59,6 +59,16 @@ export async function sendEmail({ to, subject, html, text, attachments = [] }) {
   }
 }
 
+/** Escapa texto del usuario antes de meterlo en el HTML del correo (evita inyectar etiquetas o enlaces). */
+function escapeHtml(valor) {
+  return String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /**
  * Plantilla: Confirmación de propuesta recibida
  */
@@ -133,19 +143,19 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
             <p>CIIDiCI - Instituto Tecnológico de Toluca</p>
           </div>
           <div class="content">
-            <p>Estimado/a <strong>${nombreAutor}</strong>,</p>
+            <p>Estimado/a <strong>${escapeHtml(nombreAutor)}</strong>,</p>
             
             <p>Hemos recibido exitosamente su propuesta para el Congreso Internacional de Investigación y Divulgación de la Ciencia y la Ingeniería.</p>
             
             <div class="info-box">
-              <p><strong>Título:</strong> ${tituloTrabajo}</p>
+              <p><strong>Título:</strong> ${escapeHtml(tituloTrabajo)}</p>
               <p><strong>Estado:</strong>Registrado</p>
             </div>
 
             <p>Su trabajo será evaluado por nuestro comité de revisores. Le notificaremos cuando haya actualizaciones. En estado de revisión aún tiene tiempo de realizar modificaciones a su propuesta.</p>
 
             <center>
-              <a href="${process.env.NEXTAUTH_URL}/auth" class="button">Ver mis propuestas</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/author" class="button">Ver mis propuestas</a>
             </center>
 
             <p>Atentamente,<br><strong>Comité Organizador CIIDiCI</strong></p>
@@ -255,7 +265,7 @@ export function emailInvitacionRevisor({ nombreRevisor, token }) {
             <p>CIIDiCI - Instituto Tecnológico de Toluca</p>
           </div>
           <div class="content">
-            <p>Estimado/a <strong>${nombreRevisor}</strong>,</p>
+            <p>Estimado/a <strong>${escapeHtml(nombreRevisor)}</strong>,</p>
             
             <p>Es un honor invitarle a participar como revisor académico en el próximo Congreso Internacional de Investigación y Divulgación de la Ciencia y la Ingeniería.</p>
             
@@ -378,13 +388,13 @@ export function emailTrabajoAceptado({ nombreCompleto, titulo, modalidad, califi
               <span class="badge">TRABAJO ACEPTADO</span>
             </center>
 
-            <p>Estimado/a <strong>${nombreCompleto}</strong>,</p>
+            <p>Estimado/a <strong>${escapeHtml(nombreCompleto)}</strong>,</p>
             
             <p>Nos complace informarle que su trabajo ha sido <strong>ACEPTADO</strong> para su presentación en el CIIDiCI ${anio}.</p>
             
             <div class="info-box">
-              <p><strong>Título:</strong> ${titulo}</p>
-              <p><strong>Modalidad:</strong> ${modalidad}</p>
+              <p><strong>Título:</strong> ${escapeHtml(titulo)}</p>
+              <p><strong>Modalidad:</strong> ${escapeHtml(modalidad)}</p>
               <p><strong>Calificación Final:</strong> ${calificacion}%</p>
             </div>
 
@@ -493,14 +503,14 @@ export function emailTrabajoRechazado({ nombreCompleto, titulo, motivo, califica
               <span class="badge">TRABAJO NO ACEPTADO</span>
             </center>
 
-            <p>Estimado/a <strong>${nombreCompleto}</strong>,</p>
+            <p>Estimado/a <strong>${escapeHtml(nombreCompleto)}</strong>,</p>
             
             <p>Lamentamos informarle que su trabajo no ha sido aceptado para su presentación en el CIIDiCI ${anio}.</p>
             
             <div class="info-box">
-              <p><strong>Título:</strong> ${titulo}</p>
+              <p><strong>Título:</strong> ${escapeHtml(titulo)}</p>
               ${calificacion ? `<p><strong>Calificación Final:</strong> ${calificacion}%</p>` : ''}
-              <p><strong>Motivo:</strong> ${motivo}</p>
+              <p><strong>Motivo:</strong> ${escapeHtml(motivo)}</p>
             </div>
 
             <p>Le agradecemos su interés y le animamos a considerar las observaciones para futuras presentaciones. El dictamen oficial se adjunta a este correo.</p>
@@ -614,7 +624,7 @@ export function emailVerificacionCuenta({ nombreCompleto, token }) {
             <p>SIGCA - Instituto Tecnológico de Toluca</p>
           </div>
           <div class="content">
-            <p>¡Hola <strong>${nombreCompleto}</strong>!</p>
+            <p>¡Hola <strong>${escapeHtml(nombreCompleto)}</strong>!</p>
             
             <p>Gracias por registrarte en SIGCA. Para completar tu registro y activar tu cuenta, necesitamos verificar tu correo electrónico.</p>
             
@@ -741,7 +751,7 @@ export function emailRestablecerPassword({ nombreCompleto, token }) {
             <p>SIGCA - Instituto Tecnológico de Toluca</p>
           </div>
           <div class="content">
-            <p>Hola <strong>${nombreCompleto}</strong>,</p>
+            <p>Hola <strong>${escapeHtml(nombreCompleto)}</strong>,</p>
             
             <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en SIGCA.</p>
             

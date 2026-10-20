@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { FileText, ArrowLeft } from 'lucide-react';
+import { FileText, ArrowLeft, Eye } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Alert from '@/components/ui/utils/alert';
 import CardInfo from '@/components/ui/cards/cardInfo';
@@ -106,7 +106,6 @@ export default function MisAsignaciones() {
 
   // Vista de evaluación (PDF + Rúbrica)
   if (selectedAsignacion) {
-    //window.open(`${process.env.NEXT_PUBLIC_APP_URL}${selectedAsignacion.trabajo.archivo_url}`, '_blank');
     return (
       <div className="h-screen bg-gray-100 flex flex-col">
         {/* Alertas */}
@@ -119,7 +118,17 @@ export default function MisAsignaciones() {
           }}
         />
 
-          
+          <div className="w-full px-4 pt-4 bg-gray-50">
+            <a
+              href={`${process.env.NEXT_PUBLIC_APP_URL}/api/works/${selectedAsignacion.trabajo.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+            >
+              <Eye size={16} />
+              Ver PDF del trabajo
+            </a>
+          </div>
           <div className="min-h-[500px] w-full p-4 bg-gray-50">
             <CardRubric
               asignacion={selectedAsignacion}
