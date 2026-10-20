@@ -1,42 +1,51 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
+// Rutas de página protegidas, con los roles que pueden entrar a cada una
+const rolePermissions = {
+  '/admin': ['ADMIN'],
+  '/author': ['AUTOR', 'ADMIN'],
+  '/committee': ['COMITE', 'ADMIN'],
+  '/reviewer': ['REVISOR', 'ADMIN']
+};
+const protectedRoutes = Object.keys(rolePermissions);
+
+// Endpoints de /api que se pueden usar sin sesión. Todo lo demás exige estar autenticado.
+const rutasApiPublicas = [
+  /^\/api\/auth(\/|$)/,                  // next-auth, verificación, reset de contraseña, invitaciones
+  /^\/api\/convocatories\/findall2\/?$/, // lista pública de convocatorias
+  /^\/api\/user\/register\/?$/,          // registro (el rol lo restringe la propia ruta)
+];
+
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/ciidici", request.url));
-  }
-  // Rutas protegidas
-  const protectedRoutes = [
-    '/admin',
-    '/author',
-    '/committee',
-    '/reviewer'
-  ];
-
-  const rutas_publicas = [
-    /^\/login\/?$/,
-    /^\/register-revisor\/?$/,
-    /^\/restablecer\/[^/]+\/?$/,
-  ];
-
-  // Verificar si es ruta protegida
-  const isProtectedRoute = protectedRoutes.some(route =>
-    pathname.startsWith(route)
-  );
-
-  // Verificar si es ruta pública
-  const isPublicRoute = rutas_publicas.some(pattern => pattern.test(pathname));
-
-  if (!isProtectedRoute && !isPublicRoute) {
-    return NextResponse.next();
-  }
   // Obtener token de sesión
-  const token = await getToken({
+  const getSessionToken = () => getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET
   });
+
+  // API: segunda barrera. Cada ruta sigue comprobando su rol y la propiedad de los datos
+  // con authorize(); esto solo evita que una ruta nueva quede abierta por olvido.
+  if (pathname.startsWith('/api/')) {
+    if (rutasApiPublicas.some(patron => patron.test(pathname))) {
+      return NextResponse.next();
+    }
+    const token = await getSessionToken();
+    if (!token) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    }
+    return NextResponse.next();
+  }
+
+  // Páginas protegidas
+  const baseRoute = protectedRoutes.find(route => pathname.startsWith(route));
+  if (!baseRoute) {
+    return NextResponse.next();
+  }
+
+  const token = await getSessionToken();
   // Si no hay token, redirigir a login
   if (!token) {
     // nextUrl.clone() conserva el basePath (/ciidici); new URL('/login', ...) lo perdería
@@ -46,34 +55,21 @@ export async function middleware(request) {
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
   }
+
   // Verificar permisos por rol
-  const rolePermissions = {
-    '/admin': ['ADMIN'],
-    '/author': ['AUTOR', 'ADMIN'],
-    '/committee': ['COMITE', 'ADMIN'],
-    '/reviewer': ['REVISOR', 'ADMIN']
-  };
-
-  // Encontrar la ruta base que coincide
-  const baseRoute = protectedRoutes.find(route => pathname.startsWith(route));
-
-  if (baseRoute) {
-    const allowedRoles = rolePermissions[baseRoute];
-    const userRole = token.rol;
-
-
-    if (!allowedRoles.includes(userRole)) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/unauthorized';
-      url.search = '';
-      return NextResponse.redirect(url);
-    }
+  if (!rolePermissions[baseRoute].includes(token.rol)) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/unauthorized';
+    url.search = '';
+    return NextResponse.redirect(url);
   }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
+    '/api/:path*',
     '/admin/:path*',
     '/author/:path*',
     '/committee/:path*',
