@@ -12,6 +12,18 @@ export async function PATCH(request) {
     if (errorValidacion) return errorValidacion
     const { id, titulo, descripcion, fecha_inicio, fecha_cierre } = data
 
+    const convocatoriaActiva = await prisma.convocatorias.findFirst({
+      where: { id, activa: true },
+      select: { id: true }
+    })
+
+    if (!convocatoriaActiva) {
+      return NextResponse.json(
+        { error: 'Convocatoria no encontrada o inactiva' },
+        { status: 404 }
+      )
+    }
+
     const convocatoriaActualizada = await prisma.convocatorias.update({
       where: { id },
       data: {

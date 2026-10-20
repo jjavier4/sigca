@@ -11,6 +11,18 @@ export async function POST(request) {
     if (errorValidacion) return errorValidacion;
     const { trabajoId, revisoresIds } = data;
 
+    // El trabajo debe existir y su convocatoria seguir activa
+    const trabajoValido = await prisma.trabajos.findFirst({
+      where: { id: trabajoId, convocatoria: { activa: true } },
+      select: { id: true }
+    });
+    if (!trabajoValido) {
+      return Response.json(
+        { error: 'Trabajo no encontrado' },
+        { status: 404 }
+      );
+    }
+
     // Verificar disponibilidad de cada revisor (máximo 4 trabajos activos)
     for (const revisorId of revisoresIds) {
       const cargaRevisor = await prisma.asignaciones.count({

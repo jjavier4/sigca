@@ -33,8 +33,8 @@ export async function DELETE(request) {
     }
 
     // Verificar que la asignación existe
-    const asignacionExistente = await prisma.asignaciones.findUnique({
-      where: { id: asignacionId }
+    const asignacionExistente = await prisma.asignaciones.findFirst({
+      where: { id: asignacionId, trabajo: { convocatoria: { activa: true } } }
     });
 
     if (!asignacionExistente) {

@@ -8,7 +8,8 @@ export async function GET(request) {
             where: {
                 id: {
                     startsWith: `${anioActual}-`
-                }
+                },
+                activa: true
             },
             orderBy: {
                 fecha_inicio: 'desc'

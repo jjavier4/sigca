@@ -27,7 +27,8 @@ export async function GET(request) {
                 revisorId: revisorId,
                 id: {
                     startsWith: `${anioActual}-`
-                }
+                },
+                trabajo: { convocatoria: { activa: true } }
             },
             include: {
                 trabajo: {

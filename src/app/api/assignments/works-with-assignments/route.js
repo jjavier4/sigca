@@ -1,18 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
 
     const anioActual = new Date().getFullYear();
     // Obtener trabajos que tengan al menos una asignación
@@ -23,7 +16,8 @@ export async function GET() {
         },
         id: {
           startsWith: `${anioActual}-`
-        }
+        },
+        convocatoria: { activa: true }
       },
       include: {
         convocatoria: {

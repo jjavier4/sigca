@@ -66,7 +66,7 @@ export async function POST(request) {
             where: { id: convocatoriaId }
         });
 
-        if (!convocatoria) {
+        if (!convocatoria || !convocatoria.activa) {
             return NextResponse.json(
                 { error: 'La convocatoria no existe' },
                 { status: 404 }

@@ -22,10 +22,11 @@ export async function PATCH(request) {
       select: {
         id: true,
         titulo: true,
+        convocatoria: { select: { activa: true } },
       }
     });
 
-    if (!trabajoExistente) {
+    if (!trabajoExistente || !trabajoExistente.convocatoria.activa) {
       return NextResponse.json(
         { error: 'Trabajo no encontrado' },
         { status: 404 }

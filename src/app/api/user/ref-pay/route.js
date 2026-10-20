@@ -20,7 +20,7 @@ export async function POST(request) {
 
     // El trabajo debe ser del usuario y estar aceptado
     const trabajo = await prisma.trabajos.findFirst({
-      where: { id: trabajoid, usuarioId: userId, estado: 'ACEPTADO' },
+      where: { id: trabajoid, usuarioId: userId, estado: 'ACEPTADO', convocatoria: { activa: true } },
       select: { id: true }
     });
     if (!trabajo) {

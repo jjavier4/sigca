@@ -40,7 +40,8 @@ export async function GET(request) {
       where: {
         id: {
           startsWith: `${currentYear}-`
-        }
+        },
+        activa: true
       },
       select: {
         id: true,

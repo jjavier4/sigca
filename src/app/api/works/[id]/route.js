@@ -24,10 +24,11 @@ export async function GET(request, { params }) {
         titulo: true,
         archivo_url: true,
         usuarioId: true,
+        convocatoria: { select: { activa: true } },
       }
     });
 
-    if (!doc) {
+    if (!doc || !doc.convocatoria.activa) {
       return NextResponse.json({ error: 'Trabajo no encontrado' }, { status: 404 });
     }
 

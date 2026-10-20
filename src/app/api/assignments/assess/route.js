@@ -22,7 +22,8 @@ export async function PATCH(request) {
           select: {
             id: true,
             titulo: true,
-            tipo: true
+            tipo: true,
+            convocatoria: { select: { activa: true } }
           }
         },
         revisor: {
@@ -34,7 +35,7 @@ export async function PATCH(request) {
       }
     });
 
-    if (!asignacionExistente) {
+    if (!asignacionExistente || !asignacionExistente.trabajo.convocatoria.activa) {
       return NextResponse.json(
         { error: 'Asignación no encontrada' },
         { status: 404 }

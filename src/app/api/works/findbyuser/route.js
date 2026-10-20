@@ -23,7 +23,8 @@ export async function GET(request) {
 
         const trabajos = await prisma.trabajos.findMany({
             where: {
-                usuarioId: userId
+                usuarioId: userId,
+                convocatoria: { activa: true }
             },
             include: {
                 convocatoria: {

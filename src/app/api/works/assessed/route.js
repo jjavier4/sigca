@@ -1,27 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 import { prisma } from '@/lib/db';
 
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions);
-    /** 
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      );
-    }
-
     // Solo COMITE y ADMIN pueden ver esta vista
-    if (session.user.rol !== 'COMITE' && session.user.rol !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'No tienes permisos para acceder a esta información' },
-        { status: 403 }
-      );
-    }
-*/
+    const { error } = await authorize(['COMITE', 'ADMIN']);
+    if (error) return error;
+
     const anioActual = new Date().getFullYear();
 
     // Obtener trabajos del año actual con sus asignaciones
@@ -29,7 +15,8 @@ export async function GET(request) {
       where: {
         id: {
           startsWith: `${anioActual}-`
-        }
+        },
+        convocatoria: { activa: true }
       },
       include: {
         usuario: {

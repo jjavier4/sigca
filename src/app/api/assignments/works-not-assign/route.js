@@ -15,6 +15,7 @@ export async function GET(request) {
                 id: {
                     startsWith: `${anioActual}-`
                 },
+                convocatoria: { activa: true },
                 nvl_ia: {
                     lt: 30
                 },

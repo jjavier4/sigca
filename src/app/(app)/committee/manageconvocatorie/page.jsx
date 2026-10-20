@@ -21,7 +21,12 @@ export default function ManageConvocatories() {
     const [selectedConvocatorieEdit, setSelectedConvocatorieEdit] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
 
-    const deleteConvocatorie = async (id) => {
+    const deleteConvocatorie = async (convocatorie) => {
+        const aviso = convocatorie._count?.trabajos
+            ? `Se desactivará la convocatoria "${convocatorie.titulo}". Sus ${convocatorie._count.trabajos} trabajo(s) se conservan, pero se eliminarán sus asignaciones de revisión (con sus calificaciones y comentarios). ¿Continuar?`
+            : `Se desactivará la convocatoria "${convocatorie.titulo}". ¿Continuar?`
+        if (!window.confirm(aviso)) return
+        const id = convocatorie.id
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/deleteone?id=${id}`, {
                 method: 'DELETE',
@@ -257,6 +262,12 @@ export default function ManageConvocatories() {
                                             Fecha Fin
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Trabajos
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Estado
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                             Acciones
                                         </th>
                                     </tr>
@@ -268,11 +279,13 @@ export default function ManageConvocatories() {
                                             titulo={convocatorie.titulo}
                                             fecha_inicio={convocatorie.fecha_inicio}
                                             fecha_cierre={convocatorie.fecha_cierre}
+                                            activa={convocatorie.activa}
+                                            totalTrabajos={convocatorie._count?.trabajos ?? 0}
                                             onEdit={() => {
                                                 setOnEdit(true)
                                                 setSelectedConvocatorieEdit(convocatorie)
                                             }}
-                                            onDelete={() => deleteConvocatorie(convocatorie.id)}
+                                            onDelete={() => deleteConvocatorie(convocatorie)}
                                         />
                                     ))}
                                 </tbody>

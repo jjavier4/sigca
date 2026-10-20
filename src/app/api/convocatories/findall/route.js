@@ -34,7 +34,11 @@ export async function GET(request) {
         descripcion: true,
         fecha_inicio: true,
         fecha_cierre: true,
-      }
+        activa: true,
+        _count: { select: { trabajos: true } },
+      },
+      // las activas primero
+      orderBy: [{ activa: 'desc' }, { fecha_inicio: 'desc' }]
     });
 
     return NextResponse.json(

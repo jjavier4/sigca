@@ -1,14 +1,25 @@
 import React from 'react'
-import Link from 'next/link'
-export default function RowConvocatorie({titulo, fecha_inicio, fecha_cierre, onEdit, onDelete}) {
+export default function RowConvocatorie({titulo, fecha_inicio, fecha_cierre, activa = true, totalTrabajos = 0, onEdit, onDelete}) {
     return (
-        <tr>
+        <tr className={activa ? '' : 'bg-gray-50 text-gray-400'}>
             <td className="px-6 py-4 whitespace-nowrap">{titulo}</td>
             <td className="px-6 py-4 whitespace-nowrap">{fecha_inicio.substr(0,10)}</td>
             <td className="px-6 py-4 whitespace-nowrap">{fecha_cierre.substr(0,10)}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{totalTrabajos}</td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <button  onClick={onEdit} className="text-blue-600 hover:text-blue-800 mr-3">Editar</button>
-                <button onClick={onDelete} className="text-red-600 hover:text-red-800">Eliminar</button>
+                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${activa ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>
+                    {activa ? 'Activa' : 'Inactiva'}
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                {activa ? (
+                    <>
+                        <button  onClick={onEdit} className="text-blue-600 hover:text-blue-800 mr-3">Editar</button>
+                        <button onClick={onDelete} className="text-red-600 hover:text-red-800">Desactivar</button>
+                    </>
+                ) : (
+                    <span className="text-xs">Sin acciones</span>
+                )}
             </td>
         </tr>
     )

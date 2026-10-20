@@ -36,7 +36,7 @@ export async function PATCH(request) {
             }
         });
 
-        if (!trabajo) {
+        if (!trabajo || !trabajo.convocatoria.activa) {
             return NextResponse.json(
                 { error: 'Trabajo no encontrado' },
                 { status: 404 }
@@ -95,7 +95,7 @@ export async function PATCH(request) {
         // Preparar datos para el PDF
         const nombreCompleto = `${trabajo.usuario.nombre} ${trabajo.usuario.apellidoP} ${trabajo.usuario.apellidoM}`;
         const autores = trabajo.coautores.length > 0
-            ? trabajo.coautores.nombre.join(', ')
+            ? trabajo.coautores.map(coautor => coautor.nombre).join(', ')
             : 'Sin coautores';
         const fecha = new Date().toLocaleDateString('es-MX', {
             day: 'numeric',

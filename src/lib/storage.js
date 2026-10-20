@@ -1,6 +1,6 @@
 import 'server-only';
 import path from 'node:path';
-import { mkdir, writeFile, rename, unlink, stat } from 'node:fs/promises';
+import { mkdir, writeFile, rename, unlink, stat, rmdir } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { existsSync } from 'fs';
@@ -64,14 +64,38 @@ export async function deleteFile(userId, storedFilename) {
     }
 }
 
-/** Devuelve { stream, size } o null si el archivo no existe. */
-export async function openFileStream(storedFile) {
-    // archivo_url se guarda como /uploads/users_files/<userId>/<archivo>; se resuelve dentro de UPLOAD_DIR
+/**
+ * archivo_url se guarda como /uploads/users_files/<userId>/<archivo>;
+ * se resuelve dentro de UPLOAD_DIR y nunca fuera de él.
+ */
+function resolveStored(storedFile) {
     const relative = String(storedFile).replace(/^\/?uploads\//, '');
     const full = path.resolve(UPLOAD_DIR, relative);
     if (!full.startsWith(UPLOAD_DIR + path.sep)) {
         throw new Error('Path traversal detectado');
     }
+    return full;
+}
+
+/** Borra el archivo que apunta archivo_url (y la carpeta del usuario si queda vacía). Si no existe, no hace nada. */
+export async function deleteStoredFile(storedFile) {
+    const full = resolveStored(storedFile);
+    try {
+        await unlink(full);
+    } catch (err) {
+        if (err.code !== 'ENOENT') throw err;
+    }
+    try {
+        await rmdir(path.dirname(full));
+    } catch (err) {
+        // ENOTEMPTY: aún hay otros archivos del usuario; ENOENT: ya no existe
+        if (err.code !== 'ENOTEMPTY' && err.code !== 'ENOENT') throw err;
+    }
+}
+
+/** Devuelve { stream, size } o null si el archivo no existe. */
+export async function openFileStream(storedFile) {
+    const full = resolveStored(storedFile);
     try {
         const info = await stat(full);
         if (!info.isFile()) return null;

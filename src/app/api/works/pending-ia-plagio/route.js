@@ -29,7 +29,8 @@ export async function GET(request) {
       where: {
         id: {
           startsWith: `${anioActual}-`
-        }
+        },
+        convocatoria: { activa: true }
       },
       include: {
         usuario: {

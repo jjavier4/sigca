@@ -1,31 +1,27 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 
+// Borrado lógico: la convocatoria pasa a activa = false y deja de mostrarse y de aceptar envíos.
+// Sus trabajos se conservan; las asignaciones de esos trabajos se eliminan.
 export async function DELETE(request) {
   try {
-    // Verificar autenticación
-    const session = await getServerSession(authOptions);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
-    if (session.user.rol !== 'ADMIN' && session.user.rol !== 'COMITE') {
-      return NextResponse.json(
-        { error: 'No autorizado. ' },
-        { status: 403 }
-      );
-    }
-    const { searchParams } = new URL(request.url);
-    const id= searchParams.get('id');
+    const { error } = await authorize(['ADMIN', 'COMITE']);
+    if (error) return error;
 
-    // Verificar que la convocatoria existe
-    const convocatoriaExistente = await prisma.convocatorias.findUnique({
-      where: { id }
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID de convocatoria requerido' },
+        { status: 400 }
+      );
+    }
+
+    // Verificar que la convocatoria existe y sigue activa
+    const convocatoriaExistente = await prisma.convocatorias.findFirst({
+      where: { id, activa: true }
     });
 
     if (!convocatoriaExistente) {
@@ -35,36 +31,30 @@ export async function DELETE(request) {
       );
     }
 
-    /**
-     // Verificar si existen trabajos asociados
-        const trabajosAsociados = await prisma.trabajos.count({
-            where: { convocatoriaId: id }
-        })
-
-        if (trabajosAsociados > 0) {
-            return NextResponse.json(
-                { error: `No se puede eliminar. Hay ${trabajosAsociados} trabajos asociados a esta convocatoria` },
-                { status: 400 }
-            )
-        }
-     */
-    // Eliminar la convocatoria
-    await prisma.convocatorias.delete({
-      where: { id }
-    });
+    // Se borran las asignaciones de los trabajos de la convocatoria y se desactiva en una sola transacción
+    const [asignacionesEliminadas] = await prisma.$transaction([
+      prisma.asignaciones.deleteMany({
+        where: { trabajo: { convocatoriaId: id } }
+      }),
+      prisma.convocatorias.update({
+        where: { id },
+        data: { activa: false }
+      })
+    ]);
 
     return NextResponse.json(
-      { 
+      {
         success: true,
-        message: 'Convocatoria eliminado correctamente',
+        message: `Convocatoria desactivada correctamente. Asignaciones eliminadas: ${asignacionesEliminadas.count}`,
+        asignacionesEliminadas: asignacionesEliminadas.count
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Error al eliminar convocatoria:', error);
+    console.error('Error al desactivar convocatoria:', error);
     return NextResponse.json(
-      { error: 'Error al eliminar el convocatoria' },
+      { error: 'Error al desactivar la convocatoria' },
       { status: 500 }
     );
   }

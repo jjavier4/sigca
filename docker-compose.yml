@@ -31,9 +31,10 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - ./uploads:/app/public/uploads/documents
+      - ./uploads:/app/uploads
     environment:
       - NODE_ENV=development
+      - UPLOAD_DIR=/app/uploads
       - DATABASE_URL=postgresql://sigca_user:postgres@db:5432/sigca
     depends_on:
       db:

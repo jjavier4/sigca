@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { authorize } from '@/lib/auth-utils';
+import { deleteStoredFile } from '@/lib/storage';
 
 export async function DELETE(request) {
   try {
@@ -19,13 +20,14 @@ export async function DELETE(request) {
 
     // Buscar el trabajo
     const trabajo = await prisma.trabajos.findUnique({
-      where: { id: trabajoId }
+      where: { id: trabajoId },
+      include: { convocatoria: { select: { activa: true } } }
     });
 
     // Solo el dueño, el comité o el admin pueden borrarlo (404 para no revelar su existencia)
     const esDueno = trabajo?.usuarioId === session.user.id;
     const esStaff = ['COMITE', 'ADMIN'].includes(session.user.rol);
-    if (!trabajo || (!esDueno && !esStaff)) {
+    if (!trabajo || !trabajo.convocatoria.activa || (!esDueno && !esStaff)) {
       return NextResponse.json(
         { error: 'Trabajo no encontrado' },
         { status: 404 }
@@ -47,6 +49,13 @@ export async function DELETE(request) {
     await prisma.trabajos.delete({
       where: { id: trabajoId }
     });
+
+    // El registro ya no existe: si el archivo no se puede borrar solo queda huérfano en disco
+    try {
+      await deleteStoredFile(trabajo.archivo_url);
+    } catch (errorArchivo) {
+      console.error(`No se pudo borrar el archivo del trabajo ${trabajoId}:`, errorArchivo);
+    }
 
     return NextResponse.json(
       {
