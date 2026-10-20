@@ -48,7 +48,7 @@ CREATE SEQUENCE IF NOT EXISTS convocatoria_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 100
+  MAXVALUE 999
   CYCLE;
 
 -- Función para generar ID de convocatoria: año-numero
@@ -78,7 +78,7 @@ CREATE SEQUENCE IF NOT EXISTS asignacion_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 100
+  MAXVALUE 999
   CYCLE;
 
 -- Función para generar ID de asignacion: año-numero
@@ -115,7 +115,7 @@ CREATE SEQUENCE IF NOT EXISTS trabajo_sequence
   START WITH 1
   INCREMENT BY 1
   MINVALUE 1
-  MAXVALUE 100
+  MAXVALUE 999
   CYCLE;
 
 -- Función para generar ID de trabajo: año-numero
@@ -161,7 +161,7 @@ COMMENT ON COLUMN "Convocatorias"."id" IS 'ID generado con formato: año-identif
 COMMENT ON COLUMN "Usuarios"."numero_control" IS 'Número de control único del usuario, puede ser nulo si el usuario no es estudiante';
 COMMENT ON COLUMN "Usuarios"."activa" IS 'Indica si la cuenta del usuario está activa. Por defecto es FALSE, y se activa mediante un token de verificación enviado al correo electrónico del usuario.'; 
 COMMENT ON COLUMN "Trabajos"."archivo_url" IS 'URL del archivo subido para el trabajo';
-COMMENT ON COLUMN "Trabajos"."estado" IS 'Estado actual del trabajo, por defecto es EN_REVISION';
+COMMENT ON COLUMN "Trabajos"."estado" IS 'Estado actual del trabajo, por defecto es REGISTRADO; pasa a EN_REVISION al registrar el análisis de IA y plagio';
 COMMENT ON COLUMN "Trabajos"."tipo" IS 'Tipo de trabajo, por ejemplo: DIFUSION o DIVULGACION';
 COMMENT ON COLUMN "Trabajos"."presencial" IS 'Indica si el trabajo es presencial. Por defecto es NULL.';
 COMMENT ON COLUMN "Trabajos"."nvl_ia" IS 'Nivel de inteligencia artificial detectado en el trabajo. Por defecto es NULL.';

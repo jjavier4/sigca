@@ -14,7 +14,7 @@ model Asignaciones {
   comentario   String?
   calificacion Float?
   trabajoId    String
-  revisorId    String    @db.VarChar(11)
+  revisorId    String    @db.VarChar(255)
   createdAt    DateTime  @default(now()) @db.Timestamptz(6)
   closeAt      DateTime? @db.Timestamptz(6)
   revisor     Usuarios  @relation(fields: [revisorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_asignaciones_revisor")
@@ -29,7 +29,7 @@ model Asignaciones {
 model Coautores {
   id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
   idTrabajo String
-  nombre    String   @db.VarChar(20)
+  nombre    String   @db.VarChar(255)
   email     String   @db.VarChar(255)
   trabajo  Trabajos @relation(fields: [idTrabajo], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_coautores_trabajo")
 
@@ -38,8 +38,8 @@ model Coautores {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Convocatorias {
-  id           String     @id @db.VarChar(11)
-  titulo       String     @db.VarChar(50)
+  id           String     @id @db.VarChar(255)
+  titulo       String     @db.VarChar(255)
   descripcion  String
   fecha_inicio DateTime   @db.Timestamptz(6)
   fecha_cierre DateTime   @db.Timestamptz(6)
@@ -53,7 +53,7 @@ model Convocatorias {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model CriteriosEvaluacion {
   id                  String       @id @default(dbgenerated("(gen_random_uuid())::text"))
-  nombre              String       @db.VarChar(20)
+  nombre              String       @db.VarChar(255)
   descripcion         String
   grupo               GrupoRubrica
   descripcion_puntaje String[]     @default([])
@@ -63,7 +63,7 @@ model CriteriosEvaluacion {
 
 model Tokens {
   email     String   @db.VarChar(255)
-  token     String   @unique @db.VarChar(20)
+  token     String   @unique @db.VarChar(255)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 
   @@index([createdAt], map: "idx_tokens_createdat")
@@ -75,16 +75,16 @@ model Tokens {
 model Trabajos {
   id                 String         @id @default(dbgenerated("(gen_random_uuid())::text"))
   archivo_url        String
-  estado             EstadoTrabajo  @default(EN_REVISION)
-  titulo             String         @db.VarChar(50)
+  estado             EstadoTrabajo  @default(REGISTRADO)
+  titulo             String         @db.VarChar(255)
   tipo               GrupoRubrica
   presencial         Boolean?
   nvl_ia             Float?
   nvl_plagio         Float?
   calificacion_final Float?
   referencia_pago    String?        @unique @db.VarChar(255)
-  usuarioId          String         @db.VarChar(11)
-  convocatoriaId     String         @db.VarChar(11)
+  usuarioId          String         @db.VarChar(255)
+  convocatoriaId     String         @db.VarChar(255)
   createdAt          DateTime       @default(now()) @db.Timestamptz(6)
   updatedAt          DateTime       @default(now()) @db.Timestamptz(6)
   asignaciones       Asignaciones[]
@@ -99,15 +99,15 @@ model Trabajos {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Usuarios {
-  id             String         @id @db.VarChar(11)
+  id             String         @id @db.VarChar(255)
   email          String         @unique @db.VarChar(255)
-  rfc            String?        @unique @db.VarChar(13)
-  curp           String?        @unique @db.VarChar(18)
-  numero_control String?        @unique @db.VarChar(8)
-  nombre         String         @db.VarChar(20)
-  apellidoP      String         @db.VarChar(20)
-  apellidoM      String         @db.VarChar(20)
-  password       String         @db.VarChar(20)
+  rfc            String?        @unique @db.VarChar(255)
+  curp           String?        @unique @db.VarChar(255)
+  numero_control String?        @unique @db.VarChar(255)
+  nombre         String         @db.VarChar(255)
+  apellidoP      String         @db.VarChar(255)
+  apellidoM      String         @db.VarChar(255)
+  password       String         @db.VarChar(255)
   rol            Rol            @default(AUTOR)
   activa         Boolean        @default(false)
   bloqueada         Boolean        @default(false)
@@ -122,7 +122,6 @@ enum EstadoTrabajo {
   ACEPTADO
   RECHAZADO
   REGISTRADO
-  PENDIENTE
 }
 
 enum GrupoRubrica {
