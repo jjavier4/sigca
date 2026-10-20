@@ -116,6 +116,8 @@ export default function Loginform() {
                     }
                 } else if (result.error === 'CUENTA_BLOQUEADA') {
                     setError('Tu cuenta está bloqueada. Contacta al administrador.');
+                } else if (result.error === 'RATE_LIMIT') {
+                    setError('Demasiados intentos fallidos. Espera unos minutos antes de volver a intentarlo.');
                 } else {
                     setError('Credenciales incorrectas. Verifica tu email y contraseña.');
                 }

@@ -45,7 +45,6 @@ export async function sendEmail({ to, subject, html, text, attachments = [] }) {
 
     const info = await transporter.sendMail(mailOptions);
     
-    console.log('Correo enviado:', info.messageId);
     return {
       success: true,
       messageId: info.messageId,

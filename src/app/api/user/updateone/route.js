@@ -87,7 +87,7 @@ export async function PATCH(request) {
   } catch (error) {
     console.error('Error al actualizar usuario:', error);
     return NextResponse.json(
-      { error: 'Error al actualizar usuario', details: error.message },
+      { error: 'Error al actualizar usuario' },
       { status: 500 }
     );
   }

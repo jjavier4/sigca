@@ -50,7 +50,6 @@ export default function ManageConvocatories() {
             })
             const data = await response.json()
             if (response.ok) {
-                console.log(data.convocatorias)
                 setConvocatories(data.convocatorias)
             } else {
             setErrorLoading(true)

@@ -49,7 +49,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error al obtener convocatorias:', error);
     return NextResponse.json(
-      { error: 'Error al obtener convocatorias', details: error.message },
+      { error: 'Error al obtener convocatorias' },
       { status: 500 }
     );
   }

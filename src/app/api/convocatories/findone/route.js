@@ -78,7 +78,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Error al obtener usuario por email:', error);
     return NextResponse.json(
-      { error: 'Error al obtener usuario', details: error.message },
+      { error: 'Error al obtener usuario' },
       { status: 500 }
     );
   }

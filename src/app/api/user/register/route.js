@@ -6,6 +6,7 @@ import { authOptions } from '@/lib/auth';
 import { generarToken, guardarToken, validarTokenRevisor } from '@/lib/tokens';
 import { sendEmail, emailVerificacionCuenta } from '@/lib/email';
 import { validar, registroSchema } from '@/lib/validation';
+import { limitarPeticion, UNA_HORA } from '@/lib/rate-limit';
 
 // Roles que cada rol puede asignar al crear usuarios desde el panel
 const ROLES_ASIGNABLES = {
@@ -28,6 +29,15 @@ async function generarUsuarioId(identificador) {
 
 export async function POST(request) {
   try {
+    // El registro es público: se limita por IP, salvo cuando lo hace el comité o el admin desde el panel
+    const session = await getServerSession(authOptions);
+    if (!ROLES_ASIGNABLES[session?.user?.rol]) {
+      const limitado = limitarPeticion(request, 'register', {
+        porIp: { limite: 5, ventanaMs: UNA_HORA },
+      });
+      if (limitado) return limitado;
+    }
+
     const { data, error } = validar(registroSchema, await request.json());
     if (error) return error;
 
@@ -114,7 +124,6 @@ export async function POST(request) {
       }
       rolAsignado = 'REVISOR';
     } else if (rol && rol !== 'AUTOR') {
-      const session = await getServerSession(authOptions);
       const permitidos = ROLES_ASIGNABLES[session?.user?.rol] ?? [];
       if (!permitidos.includes(rol)) {
         return NextResponse.json(

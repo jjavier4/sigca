@@ -45,7 +45,6 @@ export default function ManageUsers() {
             });
             const data = await response.json();
             if (response.ok) {
-                console.log(data.usuarios);
                 setUsers(data.usuarios);
             } else {
                 setError(data.error);

@@ -50,7 +50,6 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
 
   useEffect(() => {
     if (session?.user?.rol) {
-      console.log('User role:', session.user.rol);
     }
   }, [status]);
 

@@ -28,7 +28,6 @@ export async function guardarToken(email, token) {
       },
     });
 
-    console.log(`Token guardado para ${email}`);
     return true;
   } catch (error) {
     console.error('Error al guardar token:', error);
@@ -43,19 +42,16 @@ export async function validarToken(token) {
     });
 
     if (!tokenRecord) {
-      console.log('Token no encontrado');
       return null;
     }
 
     if (tokenExpirado(tokenRecord.createdAt)) {
-      console.log('Token expirado');
       await prisma.tokens.delete({
         where: { token },
       });
       return null;
     }
 
-    console.log(`Token válido para ${tokenRecord.email}`);
     return tokenRecord.email;
   } catch (error) {
     console.error('Error al validar token:', error);
@@ -95,7 +91,6 @@ export async function eliminarToken(token) {
     await prisma.tokens.delete({
       where: { token },
     });
-    console.log('Token eliminado');
     return true;
   } catch (error) {
     console.error('Error al eliminar token:', error);
@@ -109,7 +104,6 @@ export async function eliminarTokensPorEmail(email) {
     const resultado = await prisma.tokens.deleteMany({
       where: { email: email.toLowerCase() },
     });
-    console.log(`${resultado.count} tokens eliminados para ${email}`);
     return resultado.count;
   } catch (error) {
     console.error('Error al eliminar tokens por email:', error);

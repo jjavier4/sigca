@@ -114,7 +114,6 @@ export async function GET(request) {
         createdAt: trabajo.createdAt
       };
     });
-    console.log(trabajosFormateados);
     return NextResponse.json({
       anio: anioActual,
       total: trabajosFormateados.length,

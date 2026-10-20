@@ -73,7 +73,7 @@ export async function POST(request) {
           enviado: true,
           registrado: false,
           tokenGenerado: emailResult.success,
-          error: emailResult.error || null,
+          error: emailResult.success ? null : 'No se pudo enviar el correo',
         });
 
       } catch (error) {
@@ -84,7 +84,7 @@ export async function POST(request) {
           enviado: false,
           registrado: false,
           tokenGenerado: false,
-          error: error.message
+          error: 'No se pudo procesar la invitación'
         });
       }
     }
@@ -108,7 +108,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error al enviar invitaciones:', error);
     return NextResponse.json(
-      { error: 'Error al procesar la solicitud', details: error.message },
+      { error: 'Error al procesar la solicitud' },
       { status: 500 }
     );
   }

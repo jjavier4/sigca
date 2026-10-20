@@ -68,7 +68,6 @@ export default function DashboardAuthor() {
 
       if (response.ok) {
         setTrabajos(data.trabajos);
-        console.log('Trabajos:', data.trabajos);
       } else {
         setError(data.error);
       }
