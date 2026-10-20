@@ -1,28 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authorize } from '@/lib/auth-utils';
 
 export async function GET(request) {
   try {
-    // Verificar autenticación
-    const session = await getServerSession(authOptions);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'No autenticado' },
-        { status: 401 }
-      );
-    }
+    const { error } = await authorize(['ADMIN', 'COMITE']);
+    if (error) return error;
 
-    if (session.user.rol !== 'ADMIN' || session.user.rol !== 'COMITE') {
-      return NextResponse.json(
-        { error: 'No autorizado para ver usuarios' },
-        { status: 403 }
-      );
-    }
-
-    const usuarios = await prisma.usuario.findMany({
+    const usuarios = await prisma.usuarios.findMany({
       select: {
         id: true,
         email: true,

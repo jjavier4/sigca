@@ -48,7 +48,7 @@ export async function GET(request) {
     }
 
     // Buscar usuario por email
-    const usuario = await prisma.usuario.findUnique({
+    const usuario = await prisma.usuarios.findUnique({
       where: { email },
       select: {
         id: true,
