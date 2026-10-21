@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import RowUser from '@/components/ui/utils/rowUser'
 import Alert from '@/components/ui/utils/alert'
+import ModalConfirm from '@/components/ui/utils/modalConfirm'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import { Mail, ListChecks } from 'lucide-react'
 import { useSession } from 'next-auth/react';
@@ -18,8 +19,19 @@ export default function ManageUsers() {
     const [success, setSuccess] = useState('');
     const [onEdit, setOnEdit] = useState(false);
     const [selectedUserEdit, setSelectedUserEdit] = useState(null);
+    const [usuarioACambiar, setUsuarioACambiar] = useState(null);
+    const [cambiandoBloqueo, setCambiandoBloqueo] = useState(false);
+
+    const mensajeBloqueo = (usuario) => {
+        if (!usuario) return ''
+        const persona = `${usuario.nombre} (${usuario.email})`
+        return usuario.bloqueada
+            ? `Se desbloqueará la cuenta de ${persona}. Podrá volver a iniciar sesión.`
+            : `Se bloqueará la cuenta de ${persona}. No podrá volver a iniciar sesión mientras esté bloqueada.`
+    }
 
     const deleteUser = async (userEmail,bloqueada) => {
+        setCambiandoBloqueo(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/deleteone`, {
                 method: 'DELETE',
@@ -39,6 +51,9 @@ export default function ManageUsers() {
 
         } catch (error) {
             console.error('Error al alterar usuario:', error);
+        } finally {
+            setCambiandoBloqueo(false);
+            setUsuarioACambiar(null);
         }
     }
 
@@ -131,6 +146,16 @@ export default function ManageUsers() {
 
     return (
         <div>
+            <ModalConfirm
+                abierto={usuarioACambiar !== null}
+                titulo={usuarioACambiar?.bloqueada ? 'Desbloquear cuenta' : 'Bloquear cuenta'}
+                mensaje={mensajeBloqueo(usuarioACambiar)}
+                textoConfirmar={usuarioACambiar?.bloqueada ? 'Desbloquear' : 'Bloquear'}
+                peligro={!usuarioACambiar?.bloqueada}
+                cargando={cambiandoBloqueo}
+                onConfirmar={() => deleteUser(usuarioACambiar.email, usuarioACambiar.bloqueada)}
+                onCancelar={() => setUsuarioACambiar(null)}
+            />
             <Alert
                 type={error ? 'error' : 'success'}
                 message={error || success}
@@ -215,7 +240,7 @@ export default function ManageUsers() {
                                                         role={user.rol}
                                                         bloqueada={user.bloqueada}
                                                         onEdit={() => { setOnEdit(true); setSelectedUserEdit({ ...user, emailActual: user.email }) }}
-                                                        onDelete={() => deleteUser(user.email,user.bloqueada)}
+                                                        onDelete={() => setUsuarioACambiar(user)}
                                                     />
                                                 ))
                                             }

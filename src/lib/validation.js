@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { PUNTAJES_RUBRICA } from './rubrica';
 
 /**
  * Valida `data` contra un esquema zod.
@@ -217,6 +218,12 @@ export const crearAsignacionesSchema = z.object({
 
 export const evaluarAsignacionSchema = z.object({
   id: texto('El ID de asignación', 50),
-  calificacion: porcentaje('La calificación'),
   comentarios: texto('Los comentarios', 5000),
+  respuestas: z.record(
+    z.string(),
+    z
+      .number({ error: 'Las respuestas deben ser números' })
+      .refine((valor) => PUNTAJES_RUBRICA.includes(valor), 'Cada respuesta debe valer 10, 8, 6 o 0'),
+    { error: 'Debes evaluar todos los criterios antes de enviar' }
+  ),
 });

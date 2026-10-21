@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server';
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth';
+
+export async function getSession() {
+  return getServerSession(authOptions);
+}
+
+export async function requireSession(roles) {
+  const session = await getSession();
+
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
+  if (roles && !roles.includes(session.user.rol)) {
+    redirect('/unauthorized');
+  }
+
+  return session;
+}
 
 // Obtener la sesión del usuario actual en Server Components
 export async function getCurrentUser() {

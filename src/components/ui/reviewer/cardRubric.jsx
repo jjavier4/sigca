@@ -1,10 +1,10 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ArrowLeft, Send, AlertCircle } from 'lucide-react';
-import Loading from '../utils/loading';
 import LoadingError from '@/components/ui/utils/loadingError';
+import { calcularPorcentaje } from '@/lib/rubrica';
 
-export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }) {
+export default function CardRubric({ asignacion, criterios, onSubmit, isLoading, onCancel }) {
     // Nueva estructura de opciones con ponderación 10, 8, 6, 0
     const OPCIONES_RUBRICA = [
         { valor: 10, etiqueta: '10 puntos', indice: 0 },
@@ -13,50 +13,12 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         { valor: 0, etiqueta: '0 puntos', indice: 3 }
     ];
 
-    const [criteriosEvaluacion, setCriteriosEvaluacion] = useState([]);
-    const [loadingCriterios, setLoadingCriterios] = useState(true);
-    const [errorLoadingCriterios, setErrorLoadingCriterios] = useState('');
-    const [evaluaciones, setEvaluaciones] = useState({});
+    const criteriosEvaluacion = criterios;
+    const [evaluaciones, setEvaluaciones] = useState(() =>
+        Object.fromEntries(criterios.map(criterio => [criterio.id, null]))
+    );
     const [comentarios, setComentarios] = useState('');
     const [error, setError] = useState('');
-
-    // Cargar criterios según el tipo de trabajo (DIFUSION o DIVULGACION)
-    useEffect(() => {
-        if (asignacion?.trabajo?.tipo) {
-            fetchCriteriosPorGrupo();
-        }
-    }, []);
-
-    const fetchCriteriosPorGrupo = async () => {
-        try {
-            setLoadingCriterios(true);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/rubric/findbygroup?tipo=${asignacion?.trabajo?.tipo}`);
-
-            if (response.ok) {
-                const result = await response.json();
-
-                if (result.criterios.length === 0) {
-                    setErrorLoadingCriterios(`No hay criterios de evaluación configurados para ${asignacion?.trabajo?.tipo}. Por favor contacta al administrador.`);
-                } else {
-                    setCriteriosEvaluacion(result.criterios);
-                    // Inicializar evaluaciones vacías
-                    const initialEvaluaciones = {};
-                    result.criterios.forEach(criterio => {
-                        initialEvaluaciones[criterio.id] = null;
-                    });
-                    setEvaluaciones(initialEvaluaciones);
-                }
-            } else {
-                const errorData = await response.json();
-                setErrorLoadingCriterios(errorData.error || 'Error al cargar los criterios de evaluación');
-            }
-        } catch (error) {
-            console.error('Error al cargar criterios:', error);
-            setErrorLoadingCriterios('Error de conexión al cargar criterios');
-        } finally {
-            setLoadingCriterios(false);
-        }
-    };
 
     const handleEvaluacionChange = (criterioId, valor) => {
         setEvaluaciones(prev => ({
@@ -66,15 +28,9 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
         setError('');
     };
 
-    // Calcular puntaje total con nueva ponderación (10, 8, 6, 0)
     const calcularPuntajeTotal = () => {
         const valores = Object.values(evaluaciones).filter(v => v !== null);
-        if (valores.length === 0) return 0;
-
-        const suma = valores.reduce((acc, val) => acc + val, 0);
-        const maximo = criteriosEvaluacion.length * 10; // Máximo ahora es 10 por criterio
-
-        return (suma / maximo) * 100;
+        return calcularPorcentaje(criteriosEvaluacion.length, valores);
     };
 
     const handleSubmit = () => {
@@ -93,24 +49,15 @@ export default function CardRubric({ asignacion, onSubmit, isLoading, onCancel }
             return;
         }
 
-        const puntajeTotal = calcularPuntajeTotal();
-
-        // Solo enviar datos de evaluación, sin estados
         onSubmit({
             id: asignacion.id,
             comentarios: comentarios.trim(),
-            calificacion: parseFloat(puntajeTotal.toFixed(2))
+            respuestas: evaluaciones
         });
     };
 
-    // Mostrar loading mientras se cargan los criterios
-    if (loadingCriterios) {
-        return <Loading />;
-    }
-
-    // Mostrar error si no hay criterios
-    if (errorLoadingCriterios) {
-        return <LoadingError error={errorLoadingCriterios} />;
+    if (criteriosEvaluacion.length === 0) {
+        return <LoadingError error={`No hay criterios de evaluación configurados para ${asignacion?.trabajo?.tipo}. Por favor contacta al administrador.`} />;
     }
 
     const puntajeTotal = calcularPuntajeTotal();
