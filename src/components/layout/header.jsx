@@ -1,24 +1,22 @@
 'use client';
 import React, { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { Home, LogIn, LogOut, Loader, Menu, X, UserPlus, Settings, Users } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { Home, LogIn, LogOut, Menu, X, UserPlus, Settings, Users } from 'lucide-react';
 import MenuComponent from './menu';
 import Link from 'next/link';
 import { href } from '@/utils/route';
-export default function Header() {
-  const { data: session, status } = useSession()
-  const loading = status === 'loading'
+export default function Header({ usuario }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   return (
     <>
 
-      <MenuComponent isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <MenuComponent isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} rol={usuario?.rol} />
       <header className="bg-gray-900 text-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
 
           <nav className="flex items-center space-x-4">
-            {session &&
+            {usuario &&
               <div className="flex items-center gap-4">
                 <button
                   onClick={toggleSidebar}
@@ -35,20 +33,15 @@ export default function Header() {
           </nav>
 
           <nav className="flex items-center space-x-4">
-            {loading ? (
-              // Mientras carga la sesión
-              <div className="w-10 h-10  flex items-center">
-                <Loader className="animate-spin text-white mx-auto" />
-              </div>
-            ) : session ? (
+            {usuario ? (
               // Usuario autenticado
               <>
 
                 <span className="text-stone-300">
-                  Hola, <span className="font-semibold">{session.user.name}</span>
+                  Hola, <span className="font-semibold">{usuario.name}</span>
                 </span>
-                <Link href={href(session?.user?.rol)} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                  <span>{session.user.rol}</span>
+                <Link href={href(usuario.rol)} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                  <span>{usuario.rol}</span>
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })}

@@ -1,5 +1,6 @@
-import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import './globals.css';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
@@ -16,13 +17,18 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await getServerSession(authOptions);
+  const usuario = session?.user
+    ? { name: session.user.name, rol: session.user.rol }
+    : null;
+
   return (
     <html lang="es">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <main className="flex-grow">
-          <SessionProvider basePath="/ciidici/api/auth">
-            <Header />
+          <SessionProvider session={session} basePath="/ciidici/api/auth">
+            <Header usuario={usuario} />
             {children}
             <Footer />
           </SessionProvider>

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import RowConvocatorie from '@/components/ui/utils/rowConvocatorie'
 import Alert from '@/components/ui/utils/alert'
+import ModalConfirm from '@/components/ui/utils/modalConfirm'
 import FormLabelInput from '@/components/ui/form/FormLabelInput'
 import FormTextArea from '@/components/ui/form/FormTextArea'
 import { FileText, Calendar, ListChecks } from 'lucide-react'
@@ -20,13 +21,21 @@ export default function ManageConvocatories() {
     const [onEdit, setOnEdit] = useState(false)
     const [selectedConvocatorieEdit, setSelectedConvocatorieEdit] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
+    const [convocatoriaADesactivar, setConvocatoriaADesactivar] = useState(null)
+    const [desactivando, setDesactivando] = useState(false)
 
-    const deleteConvocatorie = async (convocatorie) => {
-        const aviso = convocatorie._count?.trabajos
-            ? `Se desactivará la convocatoria "${convocatorie.titulo}". Sus ${convocatorie._count.trabajos} trabajo(s) se conservan, pero se eliminarán sus asignaciones de revisión (con sus calificaciones y comentarios). ¿Continuar?`
-            : `Se desactivará la convocatoria "${convocatorie.titulo}". ¿Continuar?`
-        if (!window.confirm(aviso)) return
-        const id = convocatorie.id
+    const mensajeDesactivacion = (convocatorie) => {
+        if (!convocatorie) return ''
+        const total = convocatorie._count?.trabajos ?? 0
+        if (total === 0) {
+            return `Se desactivará la convocatoria "${convocatorie.titulo}". Esta acción no se puede deshacer desde la aplicación.`
+        }
+        return `Se desactivará la convocatoria "${convocatorie.titulo}". Sus ${total} trabajo(s) se conservan, pero se eliminarán sus asignaciones de revisión, con sus calificaciones y comentarios. Esta acción no se puede deshacer desde la aplicación.`
+    }
+
+    const deleteConvocatorie = async () => {
+        const id = convocatoriaADesactivar.id
+        setDesactivando(true)
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/convocatories/deleteone?id=${id}`, {
                 method: 'DELETE',
@@ -44,6 +53,9 @@ export default function ManageConvocatories() {
         } catch (error) {
             console.error('Error al eliminar convocatoria:', error)
             setError('Error al eliminar convocatoria')
+        } finally {
+            setDesactivando(false)
+            setConvocatoriaADesactivar(null)
         }
     }
 
@@ -129,6 +141,15 @@ export default function ManageConvocatories() {
     }
     return (
         <div>
+            <ModalConfirm
+                abierto={convocatoriaADesactivar !== null}
+                titulo="Desactivar convocatoria"
+                mensaje={mensajeDesactivacion(convocatoriaADesactivar)}
+                textoConfirmar="Desactivar"
+                cargando={desactivando}
+                onConfirmar={deleteConvocatorie}
+                onCancelar={() => setConvocatoriaADesactivar(null)}
+            />
             <Alert
                 type={error ? 'error' : 'success'}
                 message={error || success}
@@ -285,7 +306,7 @@ export default function ManageConvocatories() {
                                                 setOnEdit(true)
                                                 setSelectedConvocatorieEdit(convocatorie)
                                             }}
-                                            onDelete={() => deleteConvocatorie(convocatorie)}
+                                            onDelete={() => setConvocatoriaADesactivar(convocatorie)}
                                         />
                                     ))}
                                 </tbody>

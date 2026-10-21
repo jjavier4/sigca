@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import {
   Home, UserPlus, Settings, Users, LucideFileUp, FileCog,
   UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers, FileCheck, AlignEndHorizontalIcon
@@ -7,8 +6,7 @@ import {
 import Link from 'next/link';
 import { href } from '@/utils/route';
 
-export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
-  const { data: session } = useSession();
+export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
   const [openGroups, setOpenGroups] = useState({});
 
   // Función para alternar el estado de los grupos
@@ -56,7 +54,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar }) {
   };
 
   const getProcessedItems = () => {
-    const rawItems = menuitems(session?.user?.rol || '');
+    const rawItems = menuitems(rol || '');
     const processed = [];
     const groups = {};
 
