@@ -12,12 +12,10 @@ export async function PATCH(request) {
     if (errorValidacion) return errorValidacion;
     const { emailActual, email, numeroControl } = data;
 
-    // Verificar permisos: solo ADMIN, COMITE o el mismo usuario pueden actualizar
     const esAdmin = session.user.rol === 'ADMIN';
     const esComite = session.user.rol === 'COMITE';
-    const esMismoUsuario = session.user.email === emailActual;
 
-    if (!esAdmin && !esComite && !esMismoUsuario) {
+    if (!esAdmin && !esComite) {
       return NextResponse.json(
         { error: 'No autorizado para actualizar este usuario' },
         { status: 403 }

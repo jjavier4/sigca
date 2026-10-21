@@ -1,20 +1,13 @@
 "use client";
 import React, { useState } from 'react';
-import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle, MinusCircleIcon } from 'lucide-react';
+import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle, MinusCircleIcon, AlertCircle } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
-import Alert from '@/components/ui/utils/alert';
-import { useSession } from 'next-auth/react';
+import { formatearDiaCalendario } from '@/utils/fechas';
+
+const TAMANO_MAXIMO = 10 * 1024 * 1024;
 // Componente Card de Convocatoria
-export function CardConvocatorie({ convocatoria, onClick }) {
-  const { data: session } = useSession();
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+export function CardConvocatorie({ convocatoria, onClick, esAutor }) {
+  const formatDate = formatearDiaCalendario;
 
   const getEstado = () => {
     const now = new Date();
@@ -48,7 +41,7 @@ export function CardConvocatorie({ convocatoria, onClick }) {
   return (
     <div
       onClick={() => onClick(convocatoria)}
-      className={`bg-white rounded-xl shadow-md transition-all duration-300 overflow-hidden border border-gray-200  ${session?.user?.rol === 'AUTOR' && 'cursor-pointer hover:shadow-xl hover:border-blue-400 transform hover:-translate-y-1'}`}
+      className={`bg-white rounded-xl shadow-md transition-all duration-300 overflow-hidden border border-gray-200  ${esAutor ? 'cursor-pointer hover:shadow-xl hover:border-blue-400 transform hover:-translate-y-1' : ''}`}
     >
       {/* Header con estado */}
       <div className="bg-gray-900 p-4">
@@ -125,7 +118,7 @@ export function CardConvocatorie({ convocatoria, onClick }) {
 }
 
 // Modal de Detalle
-export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
+export function ModalConvocatorie({ convocatoria, onClose, onEnviar, pendiente }) {
   const [file, setFile] = useState(null);
   const [countCoauthors, setCountCoauthors] = useState(0);
   const [dataConvocatoria, setDataConvocatoria] = useState({
@@ -133,10 +126,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
     tipo: 'DIVULGACION',
     coautores: []
   });
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState('');
-  const [visible, setVisible] = useState(false);
+  const [errorLocal, setErrorLocal] = useState('');
   if (!convocatoria) return null;
 
   const manageCoauthors = (index, key, value) => {
@@ -157,62 +147,38 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorLocal('');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!dataConvocatoria.tituloPropuesta.trim()) {
-      setUploadError('El título de la propuesta es obligatorio');
-      setVisible(true);
-      setTimeout(() => {
-        setUploadError('');
-        setVisible(false);
-      }, 3000);
+      setErrorLocal('El título de la propuesta es obligatorio');
       return;
     }
-    if (dataConvocatoria.coautores.length > 0) {
-      const invalidEmails = dataConvocatoria.coautores.filter(coautor => !emailRegex.test(coautor.email));
-      if (invalidEmails.length > 0) {
-        setUploadError('Por favor, ingresa correos electrónicos válidos para los coautores');
-        setVisible(true);
-        setTimeout(() => {
-          setUploadError('');
-          setVisible(false);
-        }, 3000);
-        return;
-      }
+    if (dataConvocatoria.coautores.some(coautor => !coautor || !emailRegex.test(coautor.email))) {
+      setErrorLocal('Por favor, ingresa correos electrónicos válidos para los coautores');
+      return;
+    }
+    if (!file) {
+      setErrorLocal('Selecciona el PDF de tu propuesta');
+      return;
+    }
+    if (file.size > TAMANO_MAXIMO) {
+      setErrorLocal('El archivo excede el tamaño máximo permitido (10MB)');
+      return;
     }
 
+    const formData = new FormData();
+    formData.append('dataConvocatoria', JSON.stringify(dataConvocatoria));
+    formData.append('file', file);
+    formData.append('convocatoriaId', convocatoria.id);
 
-    setUploading(true);
-    setUploadError('');
-    setUploadSuccess('');
-
-    try {
-      const data = await sendFile(dataConvocatoria, file, convocatoria.id, user.id);
-      if (data.error) {
-        setUploadError(data.error);
-      } else { setUploadSuccess('Propuesta enviada exitosamente'); }
-      setVisible(true);
-      setTimeout(() => {
-        setUploadSuccess('')
-        setUploadError('')
-        setFile(null);
-        setVisible(false);
-        onClose();
-      }, 2000);
-    } catch (error) {
-      console.log(error.message || 'Error al enviar la propuesta');
-    } finally {
-      setUploading(false);
-    }
+    const resultado = await onEnviar(formData);
+    if (resultado.ok) onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <Alert
-          type={uploadSuccess ? 'success' : 'error'}
-          message={uploadSuccess ? uploadSuccess : uploadError}
-          isVisible={visible}
-        />
         {/* Header */}
         <div className="bg-gradient-to-r bg-blue-600 p-6 sticky top-0">
           <div className="flex justify-between items-start">
@@ -247,6 +213,12 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
           <div className="flex flex-col gap-3 pt-4 ">
 
             <div className="flex-1 border border-gray-200 p-2 rounded-lg">
+              {errorLocal && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center">
+                  <AlertCircle className="text-red-600 mr-2" size={20} />
+                  <p className="text-red-800 text-sm">{errorLocal}</p>
+                </div>
+              )}
               <form className="space-y-4" onSubmit={handleSubmit}> {/**handleSubmit */}
 
                 <FormLabelInput
@@ -257,7 +229,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                   value={dataConvocatoria.tituloPropuesta}
                   change={(e) => setDataConvocatoria({ ...dataConvocatoria, tituloPropuesta: e.target.value })}
                   placeholder="Ingresa el título de tu propuesta"
-                  disabled={uploading}
+                  disabled={pendiente}
                 />
                 <div>
                   <label className="block text-sm font-medium text-black mb-2" >
@@ -287,7 +259,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                         value={dataConvocatoria.coautores[index]?.nombre || ''}
                         change={(e) => manageCoauthors(index, 'nombre', e.target.value)}
                         placeholder="Ingresa el nombre"
-                        disabled={uploading}
+                        disabled={pendiente}
                       />
                       <FormLabelInput
                         title={`Correo coautor ${index + 1}`}
@@ -297,7 +269,7 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                         value={dataConvocatoria.coautores[index]?.email || ''}
                         change={(e) => manageCoauthors(index, 'email', e.target.value)}
                         placeholder="Ingresa el correo"
-                        disabled={uploading}
+                        disabled={pendiente}
                       />
                     </div>
 
@@ -316,12 +288,10 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
                       type="button"
                       className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
                       onClick={() => {
-                        countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1);
-                        const nuevosCoautores = [...dataConvocatoria.coautores];
-                        nuevosCoautores.pop();
+                        setCountCoauthors(countCoauthors - 1);
                         setDataConvocatoria({
                           ...dataConvocatoria,
-                          coautores: nuevosCoautores
+                          coautores: dataConvocatoria.coautores.slice(0, countCoauthors - 1)
                         });
                       }}>
                   <MinusCircleIcon className="text-white " size={25} />
@@ -338,11 +308,11 @@ export function ModalConvocatorie({ convocatoria, onClose, user, sendFile }) {
               placeholder="Selecciona tu archivo"
               accept=".pdf"
               multiple={false}
-              disabled={uploading} />
+              disabled={pendiente} />
 
 
             <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
-              {uploading ? 'Enviando...' : 'Enviar Propuesta'}
+              {pendiente ? 'Enviando...' : 'Enviar Propuesta'}
             </button>
           </form>
         </div>

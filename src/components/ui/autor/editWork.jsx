@@ -1,11 +1,12 @@
 "use client";
 import React, { useState } from 'react';
-import { FileText, User, Pen, PlusCircle, MinusCircleIcon, Trash2, CheckCircle, CircleX } from 'lucide-react';
+import { FileText, User, Pen, PlusCircle, MinusCircleIcon, Trash2, CheckCircle, CircleX, AlertCircle } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
-import Alert from '@/components/ui/utils/alert';
+
+const TAMANO_MAXIMO = 10 * 1024 * 1024;
 
 
-export function EditWork({ trabajo, onClose, sendFile }) {
+export function EditWork({ trabajo, onClose, onGuardar, pendiente }) {
   const [file, setFile] = useState(null);
   const [countCoauthors, setCountCoauthors] = useState(0);
   const [dataConvocatoria, setDataConvocatoria] = useState({
@@ -22,10 +23,7 @@ export function EditWork({ trabajo, onClose, sendFile }) {
       email: ''
     }
   });
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [uploadSuccess, setUploadSuccess] = useState('');
-  const [visible, setVisible] = useState(false);
+  const [errorLocal, setErrorLocal] = useState('');
   if (!trabajo) return null;
 
   const manageCoauthors = (index, key, value) => {
@@ -46,74 +44,43 @@ export function EditWork({ trabajo, onClose, sendFile }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorLocal('');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!dataConvocatoria.tituloPropuesta.trim()) {
-      setUploadError('El título de la propuesta es obligatorio');
-      setVisible(true);
-      setTimeout(() => {
-        setUploadError('');
-        setVisible(false);
-      }, 3000);
+      setErrorLocal('El título de la propuesta es obligatorio');
       return;
     }
-    if (dataConvocatoria.coautores.length > 0) {
-      const invalidEmails = dataConvocatoria.coautores.filter(coautor => !emailRegex.test(coautor.email));
-      if (invalidEmails.length > 0) {
-        setUploadError('Por favor, ingresa correos electrónicos válidos para los coautores');
-        setVisible(true);
-        setTimeout(() => {
-          setUploadError('');
-          setVisible(false);
-        }, 3000);
-        return;
-      }
+    if (dataConvocatoria.coautores.some(coautor => !coautor || !emailRegex.test(coautor.email))) {
+      setErrorLocal('Por favor, ingresa correos electrónicos válidos para los coautores');
+      return;
+    }
+    if (currentCoauthors.some(coautor => !emailRegex.test(coautor.email))) {
+      setErrorLocal('Por favor, ingresa correos electrónicos válidos para los coautores');
+      return;
+    }
+    if (file && file.size > TAMANO_MAXIMO) {
+      setErrorLocal('El archivo excede el tamaño máximo permitido (10MB)');
+      return;
     }
 
+    const coautores = [
+      ...currentCoauthors.map(({ id, nombre, email }) => ({ id, nombre, email })),
+      ...dataConvocatoria.coautores
+    ];
 
-    setUploading(true);
-    setUploadError('');
-    setUploadSuccess('');
+    const formData = new FormData();
+    formData.append('dataConvocatoria', JSON.stringify({ ...dataConvocatoria, coautores }));
+    formData.append('trabajoId', trabajo.id);
+    if (file) formData.append('file', file);
 
-  
-    
-
-    try {
-      const totalCoauthors = [...currentCoauthors, ...dataConvocatoria.coautores];
-
-      const dataToSend = {
-        ...dataConvocatoria,
-        coautores: totalCoauthors,
-      };
-
-      const data = await sendFile(dataToSend, file, trabajo.id, trabajo.convocatoria.id);
-      if (data.error) {
-        setUploadError(data.error);
-      } else { setUploadSuccess('Propuesta actualizada exitosamente'); }
-      setVisible(true);
-      setTimeout(() => {
-        setUploadSuccess('')
-        setUploadError('')
-        setFile(null);
-        setVisible(false);
-        onClose();
-      }, 2000);
-    } catch (error) {
-      console.log(error.message || 'Error al actualizar la propuesta');
-    } finally {
-      setUploading(false);
-    }
- 
+    const resultado = await onGuardar(formData);
+    if (resultado.ok) onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-       
-        <Alert
-          type={uploadSuccess ? 'success' : 'error'}
-          message={uploadSuccess ? uploadSuccess : uploadError}
-          isVisible={visible}
-        />
         {/* Header */}
         <div className="bg-gradient-to-r bg-blue-600 p-6 sticky top-0 flex justify-end">
           <button
@@ -141,6 +108,12 @@ export function EditWork({ trabajo, onClose, sendFile }) {
           <div className="flex flex-col gap-3 pt-4 ">
 
             <div className="flex-1 border border-gray-200 p-2 rounded-lg">
+              {errorLocal && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center">
+                  <AlertCircle className="text-red-600 mr-2" size={20} />
+                  <p className="text-red-800 text-sm">{errorLocal}</p>
+                </div>
+              )}
               <form className="space-y-4" onSubmit={handleSubmit}> {/**handleSubmit */}
 
                 <FormLabelInput
@@ -151,7 +124,7 @@ export function EditWork({ trabajo, onClose, sendFile }) {
                   value={dataConvocatoria.tituloPropuesta}
                   change={(e) => setDataConvocatoria({ ...dataConvocatoria, tituloPropuesta: e.target.value })}
                   placeholder="Ingresa el título de tu propuesta"
-                  disabled={uploading}
+                  disabled={pendiente}
                 />
                 <div>
                   <label className="block text-sm font-medium text-black mb-2" >
@@ -303,7 +276,7 @@ export function EditWork({ trabajo, onClose, sendFile }) {
                         value={dataConvocatoria.coautores[index]?.nombre || ''}
                         change={(e) => manageCoauthors(index, 'nombre', e.target.value)}
                         placeholder="Ingresa el nombre"
-                        disabled={uploading}
+                        disabled={pendiente}
                       />
                       <FormLabelInput
                         title={`Correo coautor ${index + 1}`}
@@ -313,7 +286,7 @@ export function EditWork({ trabajo, onClose, sendFile }) {
                         value={dataConvocatoria.coautores[index]?.email || ''}
                         change={(e) => manageCoauthors(index, 'email', e.target.value)}
                         placeholder="Ingresa el correo"
-                        disabled={uploading}
+                        disabled={pendiente}
                       />
                     </div>
 
@@ -333,7 +306,13 @@ export function EditWork({ trabajo, onClose, sendFile }) {
                       type="button"
                       title="Eliminar coautor"
                       className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors"
-                      onClick={() => { countCoauthors >= 1 && setCountCoauthors(countCoauthors - 1) }}>
+                      onClick={() => {
+                        setCountCoauthors(countCoauthors - 1);
+                        setDataConvocatoria({
+                          ...dataConvocatoria,
+                          coautores: dataConvocatoria.coautores.slice(0, countCoauthors - 1)
+                        });
+                      }}>
                       <MinusCircleIcon className="text-white " size={25} />
                     </button>
                   )}
@@ -348,11 +327,11 @@ export function EditWork({ trabajo, onClose, sendFile }) {
                   placeholder="Selecciona tu archivo"
                   accept=".pdf"
                   multiple={false}
-                  disabled={uploading} />
+                  disabled={pendiente} />
 
 
                 <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
-                  {uploading ? 'Guardando...' : 'Guardar Cambios'}
+                  {pendiente ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
               </form>
             </div>

@@ -1,15 +1,9 @@
 import React from 'react'
 import { Clock, CircleCheck, CircleXIcon } from 'lucide-react';
+import { formatearDiaCorto } from '@/utils/fechas';
 
 export default function CardAssigment({ asignacion, onSelect, isSelected }) {
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-MX', {
-            month: 'short',
-            day: 'numeric'
-        });
-    };
-
+    const formatDate = formatearDiaCorto;
 
     return (
         <button

@@ -1,18 +1,10 @@
 import React from 'react';
 import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins, Trash2, FileCheckIcon, Edit2,Eye } from 'lucide-react';
+import { formatearFechaHora } from '@/utils/fechas';
 
 // Componente Card de Trabajo
-export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEdit }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEdit, ocupado = false }) {
+  const formatDate = formatearFechaHora;
 
   const getEstadoConfig = (estado) => {
     const configs = {
@@ -85,7 +77,7 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEd
                 <Edit2 size={18} />
               </button>
               <button
-                onClick={() => onDelete(trabajo.id)}
+                onClick={() => onDelete(trabajo)}
                 className="text-red-400 hover:text-red-300 transition-colors p-1 rounded-lg hover:bg-red-900/20"
                 title="Eliminar trabajo"
               >
@@ -158,7 +150,7 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEd
           }
           {/*Consulta de PDF */}
           <a
-            href={`/ciidici/api/works/${trabajo.id}`}
+            href={`${process.env.NEXT_PUBLIC_APP_URL}/api/works/${trabajo.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
@@ -192,7 +184,7 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEd
               <button
                 onClick={() => getReferenciaPagoPDF(trabajo.id)}
                 className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 cursor-pointer disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium py-3 rounded-lg transition-colors group"
-                disabled={estadoBotonRefPago()}
+                disabled={estadoBotonRefPago() || ocupado}
               >
                 <Coins className="mr-2" size={18} />
                 Generar referencia de pago

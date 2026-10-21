@@ -1,12 +1,11 @@
-'use client';
 import { FileText, Users, CheckCircle, Calendar } from 'lucide-react';
 import React from 'react'
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { getSession } from '@/lib/auth-utils';
 import { href } from '@/utils/route';
-export default function AboutPage() {
-    const { data: session } = useSession();
-    const baseUrl = session ? `${href(session.user.rol)}` : '/ciidici/auth';
+export default async function AboutPage() {
+    const session = await getSession();
+    const baseUrl = session ? href(session.user.rol) : '/login';
     const features = [
         {
             icon: <FileText className="w-8 h-8" />,

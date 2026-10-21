@@ -120,6 +120,10 @@ export const actualizarUsuarioSchema = z.object({
   numeroControl,
 });
 
+export const actualizarPerfilSchema = z.object({
+  numeroControl: numeroControl.transform((valor) => valor || null),
+});
+
 export const bloqueoUsuarioSchema = z.object({
   email,
   bloqueada: z.boolean({ error: 'El estado de bloqueo es obligatorio' }),
@@ -186,9 +190,7 @@ export const crearCriterioSchema = z.object({
 // ── Trabajos ────────────────────────────────────────────────────────────────
 
 const coautorSchema = z.object({
-  // los coautores ya guardados traen id y update; los nuevos no
   id: z.string().max(100).optional(),
-  update: z.boolean().optional(),
   nombre: texto('El nombre del coautor'),
   email,
 });
