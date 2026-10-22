@@ -38,11 +38,6 @@ const email = z
   .max(254, 'El correo electrónico es demasiado largo')
   .pipe(z.email({ error: 'El correo electrónico no es válido' }));
 
-const fechaISO = (nombre) =>
-  z
-    .string({ error: `${nombre} es obligatoria` })
-    .refine((v) => !Number.isNaN(Date.parse(v)), `${nombre} no es una fecha válida`);
-
 const fechaDia = (nombre) =>
   z
     .string({ error: `${nombre} es obligatoria` })
@@ -145,10 +140,10 @@ export const invitacionesSchema = z.object({
 // ── Convocatorias ───────────────────────────────────────────────────────────
 
 const fechasCoherentes = (d, ctx) => {
-  if (new Date(d.fecha_cierre) <= new Date(d.fecha_inicio)) {
+  if (new Date(d.fecha_cierre) < new Date(d.fecha_inicio)) {
     ctx.addIssue({
       code: 'custom',
-      message: 'La fecha de cierre debe ser posterior a la fecha de inicio',
+      message: 'La fecha de cierre no puede ser anterior a la fecha de inicio',
       path: ['fecha_cierre'],
     });
   }
@@ -168,9 +163,9 @@ export const actualizarConvocatoriaSchema = z
   .object({
     id: texto('El ID de convocatoria', 50),
     titulo: texto('El título', 200),
-    descripcion: z.string().trim().max(5000, 'La descripción no puede superar 5000 caracteres').nullish(),
-    fecha_inicio: fechaISO('La fecha de inicio'),
-    fecha_cierre: fechaISO('La fecha de cierre'),
+    descripcion: texto('La descripción', 5000),
+    fecha_inicio: fechaDia('La fecha de inicio'),
+    fecha_cierre: fechaDia('La fecha de cierre'),
   })
   .superRefine(fechasCoherentes);
 

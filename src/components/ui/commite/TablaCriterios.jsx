@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 import { Plus, ListChecks } from 'lucide-react';
-export default function TablaCriterios({ criterios, grupo, titulo, deleteLoading, handleEliminar, handleAbrirModal }) {
+export default function TablaCriterios({ criterios, grupo, titulo, handleEliminar, handleAbrirModal }) {
     return (
         <>
             <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden mb-8">
@@ -66,11 +66,10 @@ export default function TablaCriterios({ criterios, grupo, titulo, deleteLoading
                                         </td>
                                         <td className="px-6 py-4">
                                             <button
-                                                onClick={() => handleEliminar(criterio.id, grupo)}
-                                                disabled={deleteLoading === criterio.id}
+                                                onClick={() => handleEliminar(criterio)}
                                                 className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300"
                                             >
-                                                {deleteLoading === criterio.id ? 'Eliminando...' : 'Eliminar'}
+                                                Eliminar
                                             </button>
                                         </td>
                                     </tr>

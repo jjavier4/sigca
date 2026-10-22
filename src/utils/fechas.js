@@ -27,3 +27,7 @@ export function formatearDiaCorto(valor) {
     timeZone: ZONA_INSTITUCION,
   });
 }
+
+export function formatearDiaISO(valor) {
+  return new Date(valor).toISOString().slice(0, 10);
+}
