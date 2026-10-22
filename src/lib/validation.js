@@ -109,12 +109,6 @@ export const registroSchema = z
 // Solicitudes que solo reciben un correo (reset de contraseña, reenvío de verificación)
 export const solicitudEmailSchema = z.object({ email });
 
-export const actualizarUsuarioSchema = z.object({
-  emailActual: email,
-  email,
-  numeroControl,
-});
-
 export const actualizarPerfilSchema = z.object({
   numeroControl: numeroControl.transform((valor) => valor || null),
 });

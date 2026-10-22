@@ -208,7 +208,7 @@ export default function TrabajosCalificados() {
             </div>
 
             {/* Estadísticas */}
-            <div className="flex flex-wrap flex-row  gap-4 mb-6">
+            <div className="grid grid-cols-3 lg:grid-cols-5  gap-4 mb-6">
 
                 <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado === 'TODOS'} />
                 <CardInfo title="Registrados" stats={stats.registrados} classN="border-blue-400" onclick={() => setFiltroEstado('REGISTRADO')} select={filtroEstado === 'REGISTRADO'} />

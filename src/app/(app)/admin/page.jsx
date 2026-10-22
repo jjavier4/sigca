@@ -1,50 +1,28 @@
-"use client"
-import React, { useState } from 'react';
-import { Menu, X, Users, UserPlus, Home, Settings, LogOut } from 'lucide-react';
+import { requireSession } from '@/lib/auth-utils';
+import { contarUsuariosPorRol } from '@/lib/data/usuarios';
 
-export default function DashboardAdmin() {
-    return (
+const TARJETAS = [
+  { clave: 'AUTOR', titulo: 'AUTORES', borde: 'border-blue-500' },
+  { clave: 'REVISOR', titulo: 'REVISORES', borde: 'border-green-500' },
+  { clave: 'COMITE', titulo: 'COMITÉ', borde: 'border-purple-500' },
+  { clave: 'total', titulo: 'TOTAL USUARIOS', borde: 'border-orange-500' },
+];
 
-        <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Panel de Administración</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                    <h3 className="text-gray-600 text-sm font-semibold mb-2">AUTORES</h3>
-                    <p className="text-3xl font-bold text-gray-800">48</p>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                    <h3 className="text-gray-600 text-sm font-semibold mb-2">REVISORES</h3>
-                    <p className="text-3xl font-bold text-gray-800">12</p>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
-                    <h3 className="text-gray-600 text-sm font-semibold mb-2">COMITÉ</h3>
-                    <p className="text-3xl font-bold text-gray-800">5</p>
-                </div>
-                <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-orange-500">
-                    <h3 className="text-gray-600 text-sm font-semibold mb-2">TOTAL USUARIOS</h3>
-                    <p className="text-3xl font-bold text-gray-800">65</p>
-                </div>
-            </div>
+export default async function DashboardAdmin() {
+  await requireSession(['ADMIN']);
+  const conteos = await contarUsuariosPorRol();
 
-            <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Actividad Reciente</h3>
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between py-3 border-b">
-                        <div>
-                            <p className="font-medium text-gray-800">Nuevo autor registrado</p>
-                            <p className="text-sm text-gray-500">juan.perez@example.com</p>
-                        </div>
-                        <span className="text-sm text-gray-400">Hace 2 horas</span>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b">
-                        <div>
-                            <p className="font-medium text-gray-800">Revisor asignado</p>
-                            <p className="text-sm text-gray-500">maria.lopez@example.com</p>
-                        </div>
-                        <span className="text-sm text-gray-400">Hace 5 horas</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-};
+  return (
+    <div>
+      <h2 className="text-3xl font-bold text-gray-800 mb-6">Panel de Administración</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {TARJETAS.map(({ clave, titulo, borde }) => (
+          <div key={clave} className={`bg-white p-6 rounded-lg shadow-md border-l-4 ${borde}`}>
+            <h3 className="text-gray-600 text-sm font-semibold mb-2">{titulo}</h3>
+            <p className="text-3xl font-bold text-gray-800">{conteos[clave] ?? 0}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
