@@ -1,5 +1,6 @@
 import { XCircle } from 'lucide-react';
 import RegisterRevisorForm from '@/components/ui/auth/registerformrevisor';
+import { consultarToken } from '@/lib/tokens';
 
 const MENSAJE_INVALIDO =
   'El enlace de invitación puede haber expirado o ser inválido. Por favor contacte al comité organizador para solicitar una nueva invitación.';
@@ -8,21 +9,8 @@ async function validarInvitacion(token) {
   if (!token) {
     return { valid: false, error: 'No se proporcionó un token de invitación válido.' };
   }
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/validate-invitation-token?token=${encodeURIComponent(token)}`,
-      { cache: 'no-store' }
-    );
-    const data = await response.json().catch(() => ({}));
-
-    if (response.ok && data.valid) {
-      return { valid: true, email: data.email };
-    }
-    return { valid: false, error: data.error || MENSAJE_INVALIDO };
-  } catch {
-    return { valid: false, error: 'Error al validar la invitación.' };
-  }
+  const email = await consultarToken(token, 'INVITACION');
+  return email ? { valid: true, email } : { valid: false, error: MENSAJE_INVALIDO };
 }
 
 export default async function RegisterRevisorPage({ searchParams }) {

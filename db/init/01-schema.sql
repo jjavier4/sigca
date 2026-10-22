@@ -24,6 +24,12 @@ CREATE TYPE "GrupoRubrica" AS ENUM (
   'DIVULGACION'
 );
 
+CREATE TYPE "TipoToken" AS ENUM (
+  'VERIFICACION',
+  'RESTABLECIMIENTO',
+  'INVITACION'
+);
+
 -- ==========================================
 -- 2. FUNCIÓN TRIGGER PARA @updatedAt
 -- ==========================================
@@ -178,13 +184,14 @@ BEFORE UPDATE ON "CriteriosEvaluacion"
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
--- Tabla: Tokens (sin clave primaria en el modelo de Prisma)
+-- Tabla: Tokens
 CREATE TABLE "Tokens" (
+  "token"      VARCHAR(255) PRIMARY KEY,
   "email"      VARCHAR(255) NOT NULL,
-  "token"      VARCHAR(255) NOT NULL UNIQUE,
-  "createdAt"  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "tipo"       "TipoToken" NOT NULL,
+  "createdAt"  TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "expiresAt"  TIMESTAMPTZ NOT NULL
 );
 
-CREATE INDEX idx_tokens_email ON "Tokens"("email");
-CREATE INDEX idx_tokens_token ON "Tokens"("token");
-CREATE INDEX idx_tokens_createdAt ON "Tokens"("createdAt");
+CREATE INDEX idx_tokens_email_tipo ON "Tokens"("email", "tipo");
+CREATE INDEX idx_tokens_expiresAt ON "Tokens"("expiresAt");

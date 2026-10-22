@@ -6,8 +6,9 @@ import { Mail, Lock,Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+import { solicitarRestablecimiento, reenviarVerificacion } from '@/actions/auth';
 
-export default function Loginform() {
+export default function Loginform({ callbackUrl = '/' }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -54,19 +55,11 @@ export default function Loginform() {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/reset-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: resetEmail }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
+            const resultado = await solicitarRestablecimiento({ email: resetEmail });
+            if (resultado.ok) {
                 setSuccess('Se ha enviado un enlace de restablecimiento a tu correo electrónico. Por favor revisa tu bandeja de entrada.');
             } else {
-                setError(data.error);
-
+                setError(resultado.error);
             }
         } catch (err) {
             console.error('Error al solicitar restablecimiento de contraseña:', err);
@@ -97,18 +90,11 @@ export default function Loginform() {
                     setError('Tu cuenta no está verificada. Revisa tu correo electrónico.');
 
                     try {
-                        const resendResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/resend-verification`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: loginData.email }),
-                        });
-
-                        const resendData = await resendResponse.json();
-
-                        if (resendResponse.ok) {
+                        const resultado = await reenviarVerificacion({ email: loginData.email });
+                        if (resultado.ok) {
                             setSuccess('Se ha enviado un nuevo enlace de verificación a tu correo.');
                         } else {
-                            setError(`Tu cuenta no está verificada. ${resendData.error}`);
+                            setError(`Tu cuenta no está verificada. ${resultado.error}`);
                         }
                     } catch (resendError) {
                         console.error('Error al reenviar verificación:', resendError);
@@ -122,7 +108,7 @@ export default function Loginform() {
                     setError('Credenciales incorrectas. Verifica tu email y contraseña.');
                 }
             } else {
-                router.push('/');
+                router.push(callbackUrl);
                 router.refresh();
             }
         } catch (err) {

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Lock, CheckCircle, Check, X, Loader2 } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+import { actualizarPassword } from '@/actions/auth';
 
 const LOGIN_PATH = '/login';
 const MIN_LENGTH = 6;
@@ -61,24 +62,15 @@ export default function ResetPasswordForm({ token }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/auth/update-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, ...form }),
-      });
-      const data = await response.json().catch(() => ({}));
+      const resultado = await actualizarPassword({ token, ...form });
 
-      if (!response.ok) {
-        setError(
-          data.expired
-            ? 'El enlace ha expirado. Por favor solicita un nuevo enlace de restablecimiento.'
-            : data.error || 'Error al restablecer la contraseña'
-        );
+      if (!resultado.ok) {
+        setError(resultado.error || 'Error al restablecer la contraseña');
         return;
       }
 
       setForm({ password: '', confirmPassword: '' });
-      setSuccess('¡Contraseña restablecida exitosamente! Redirigiendo al inicio de sesión...');
+      setSuccess(resultado.message);
     } catch {
       setError('Error de conexión. Intenta nuevamente.');
     } finally {

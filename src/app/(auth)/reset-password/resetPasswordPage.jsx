@@ -1,5 +1,6 @@
 import { XCircle, AlertCircle } from 'lucide-react';
 import ResetPasswordForm from '@/components/ui/auth/resetpasswordform';
+import { consultarToken } from '@/lib/tokens';
 
 const MENSAJE_INVALIDO =
   'El enlace de restablecimiento es inválido o ha expirado. Por favor solicita un nuevo enlace de restablecimiento de contraseña.';
@@ -8,21 +9,8 @@ async function validarToken(token) {
   if (!token) {
     return { valid: false, error: 'No se proporcionó un token de restablecimiento válido' };
   }
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/validate-token-time?token=${encodeURIComponent(token)}`,
-      { cache: 'no-store' }
-    );
-    const data = await response.json().catch(() => ({}));
-
-    if (response.ok && data.valid) {
-      return { valid: true, email: data.email };
-    }
-    return { valid: false, error: data.error || MENSAJE_INVALIDO };
-  } catch {
-    return { valid: false, error: 'Error al validar el enlace de restablecimiento' };
-  }
+  const email = await consultarToken(token, 'RESTABLECIMIENTO');
+  return email ? { valid: true, email } : { valid: false, error: MENSAJE_INVALIDO };
 }
 
 export default async function ResetPasswordPage({ searchParams }) {

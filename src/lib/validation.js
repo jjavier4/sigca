@@ -109,6 +109,20 @@ export const registroSchema = z
 // Solicitudes que solo reciben un correo (reset de contraseña, reenvío de verificación)
 export const solicitudEmailSchema = z.object({ email });
 
+export const actualizarPasswordSchema = z
+  .object({
+    token: texto('El token', 200),
+    password: z
+      .string({ error: 'La contraseña es obligatoria' })
+      .min(6, 'La contraseña debe tener al menos 6 caracteres')
+      .max(72, 'La contraseña no puede superar 72 caracteres'),
+    confirmPassword: z.string({ error: 'Confirma la contraseña' }),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  });
+
 export const actualizarPerfilSchema = z.object({
   numeroControl: numeroControl.transform((valor) => valor || null),
 });

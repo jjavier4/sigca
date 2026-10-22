@@ -84,7 +84,7 @@ export default function MisTrabajos({ trabajos }) {
           </h1>
         </div>
 
-        <div className="flex flex-wrap flex-row  gap-4 mb-6">
+        <div className="grid grid-cols-3 lg:grid-cols-5  gap-4 mb-6">
           <CardInfo title="Total de Trabajos" stats={stats.total} classN="border-gray-400" onclick={() => setFiltroEstado('TODOS')} select={filtroEstado === 'TODOS'} />
           <CardInfo title="En Revisión" stats={stats.enRevision} classN="border-blue-400" onclick={() => setFiltroEstado('EN_REVISION')} select={filtroEstado === 'EN_REVISION'} />
           <CardInfo title="Aceptados" stats={stats.aceptados} classN="border-green-400" onclick={() => setFiltroEstado('ACEPTADO')} select={filtroEstado === 'ACEPTADO'} />

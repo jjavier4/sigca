@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { autorizarAccion, validarDatos, resultadoOk, resultadoError } from '@/lib/actions';
 import { registroSchema, bloqueoUsuarioSchema, invitacionesSchema } from '@/lib/validation';
 import { ROLES_ASIGNABLES, puedeAdministrar, registrarUsuario } from '@/lib/usuarios';
-import { generarToken, guardarToken } from '@/lib/tokens';
+import { crearToken } from '@/lib/tokens';
 import { sendEmail, emailInvitacionRevisor } from '@/lib/email';
 
 function revalidarUsuarios() {
@@ -60,8 +60,7 @@ export async function cambiarBloqueo(datos) {
 
 async function enviarInvitacion(revisor) {
   try {
-    const token = generarToken();
-    await guardarToken(revisor.correo, token);
+    const token = await crearToken(revisor.correo, 'INVITACION');
 
     const { html, text } = emailInvitacionRevisor({ nombreRevisor: revisor.nombre, token });
     const resultado = await sendEmail({

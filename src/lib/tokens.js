@@ -1,112 +1,59 @@
+import 'server-only';
 import crypto from 'crypto';
 import { prisma } from './db';
 
-export function generarToken() {
+const minuto = 60 * 1000;
+
+const vigenciaPorTipo = {
+  VERIFICACION: 15 * minuto,
+  RESTABLECIMIENTO: 15 * minuto,
+  INVITACION: 7 * 24 * 60 * minuto,
+};
+
+function generarToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-export function tokenExpirado(createdAt) {
-  if (!createdAt) return true;
-  
+export async function crearToken(email, tipo) {
+  const correo = email.toLowerCase();
+  const token = generarToken();
   const ahora = new Date();
-  const fechaToken = new Date(createdAt);
-  const diferenciaMinutos = (ahora - fechaToken) / 1000 / 60;
-  
-  return diferenciaMinutos > 15;
-}
 
-
-export async function guardarToken(email, token) {
-  try {
-    await prisma.tokens.deleteMany({
-      where: { email: email.toLowerCase() },
-    });
-    await prisma.tokens.create({
+  await prisma.$transaction([
+    prisma.tokens.deleteMany({
+      where: { OR: [{ email: correo, tipo }, { expiresAt: { lte: ahora } }] },
+    }),
+    prisma.tokens.create({
       data: {
-        email: email.toLowerCase(),
         token,
+        email: correo,
+        tipo,
+        expiresAt: new Date(ahora.getTime() + vigenciaPorTipo[tipo]),
       },
-    });
+    }),
+  ]);
 
-    return true;
-  } catch (error) {
-    console.error('Error al guardar token:', error);
-    throw error;
-  }
+  return token;
 }
 
-export async function validarToken(token) {
-  try {
-    const tokenRecord = await prisma.tokens.findUnique({
-      where: { token },
-    });
+export async function consultarToken(token, tipo) {
+  if (typeof token !== 'string' || !token) return null;
 
-    if (!tokenRecord) {
-      return null;
-    }
+  const registro = await prisma.tokens.findFirst({
+    where: { token, tipo, expiresAt: { gt: new Date() } },
+    select: { email: true },
+  });
 
-    if (tokenExpirado(tokenRecord.createdAt)) {
-      await prisma.tokens.delete({
-        where: { token },
-      });
-      return null;
-    }
-
-    return tokenRecord.email;
-  } catch (error) {
-    console.error('Error al validar token:', error);
-    throw error;
-  }
+  return registro?.email ?? null;
 }
 
-// Las invitaciones de revisor duran más que los tokens de verificación o de reset
-const INVITACION_VIGENCIA_DIAS = 7;
+export async function consumirToken(token, tipo) {
+  const email = await consultarToken(token, tipo);
+  if (!email) return null;
 
-export async function validarTokenRevisor(token) {
-  try {
-    const tokenRecord = await prisma.tokens.findUnique({
-      where: { token },
-    });
+  const { count } = await prisma.tokens.deleteMany({
+    where: { token, tipo, expiresAt: { gt: new Date() } },
+  });
 
-    if (!tokenRecord) {
-      return null;
-    }
-
-    const edadDias = (Date.now() - new Date(tokenRecord.createdAt).getTime()) / 1000 / 60 / 60 / 24;
-    if (edadDias > INVITACION_VIGENCIA_DIAS) {
-      await prisma.tokens.delete({ where: { token } });
-      return null;
-    }
-
-    return tokenRecord.email;
-  } catch (error) {
-    console.error('Error al validar token:', error);
-    throw error;
-  }
-}
-
-
-export async function eliminarToken(token) {
-  try {
-    await prisma.tokens.delete({
-      where: { token },
-    });
-    return true;
-  } catch (error) {
-    console.error('Error al eliminar token:', error);
-    return false;
-  }
-}
-
-
-export async function eliminarTokensPorEmail(email) {
-  try {
-    const resultado = await prisma.tokens.deleteMany({
-      where: { email: email.toLowerCase() },
-    });
-    return resultado.count;
-  } catch (error) {
-    console.error('Error al eliminar tokens por email:', error);
-    return 0;
-  }
+  return count === 1 ? email : null;
 }

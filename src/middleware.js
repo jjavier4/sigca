@@ -12,9 +12,7 @@ const protectedRoutes = Object.keys(rolePermissions);
 
 // Endpoints de /api que se pueden usar sin sesión. Todo lo demás exige estar autenticado.
 const rutasApiPublicas = [
-  /^\/api\/auth(\/|$)/,                  // next-auth, verificación, reset de contraseña, invitaciones
-  /^\/api\/convocatories\/findall2\/?$/, // lista pública de convocatorias
-  /^\/api\/user\/register\/?$/,          // registro (el rol lo restringe la propia ruta)
+  /^\/api\/auth(\/|$)/,                  // next-auth
 ];
 
 export async function middleware(request) {

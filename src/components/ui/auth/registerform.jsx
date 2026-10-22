@@ -6,6 +6,7 @@ import { Mail, Lock, User, FileText, CreditCard, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+import { registrarAutor } from '@/actions/auth';
 
 export default function Registerform() {
     const router = useRouter();
@@ -54,9 +55,9 @@ export default function Registerform() {
         }
 
         if (tipoIdentificacion === 'rfc') {
-            const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+            const rfcRegex = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
             if (!rfcRegex.test(registerData.rfc.toUpperCase())) {
-                setError('El RFC no tiene un formato válido. Ejemplo: PAJA850101XXX (12-13 caracteres)');
+                setError('El RFC no tiene un formato válido. Debe tener 13 caracteres. Ejemplo: PAJA850101XXX');
                 setIsLoading(false);
                 return;
             }
@@ -93,21 +94,12 @@ export default function Registerform() {
             numero_control: isAlumno ? registerData.numero_control : null
         }
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dataRegister),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.error || 'Error al registrar usuario');
-                throw new Error(data.error || 'Error al registrar usuario');
+            const resultado = await registrarAutor(dataRegister);
+            if (!resultado.ok) {
+                setError(resultado.error || 'Error al registrar usuario');
+                return;
             }
-
-            setSuccess(`¡Registro exitoso! Hemos enviado un correo de verificación a ${registerData.email}. Por favor revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.`);
-
+            setSuccess(resultado.message);
             setRegisterData({
                 nombre: '',
                 apellidoP: '',

@@ -1,5 +1,6 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 /**
  * Limitador de peticiones en memoria (ventana fija).
@@ -69,8 +70,18 @@ export function ipDe(headers) {
  *   porClave: { limite, ventanaMs } + clave       → se cuenta por clave (p. ej. el correo)
  */
 export function limitarPeticion(request, nombre, { porIp, porClave, clave } = {}) {
+  const espera = revisarLimites(ipDe(request.headers), nombre, { porIp, porClave, clave });
+
+  if (!espera) return null;
+  return NextResponse.json(
+    { error: 'Demasiados intentos. Intenta de nuevo más tarde.' },
+    { status: 429, headers: { 'Retry-After': String(espera) } }
+  );
+}
+
+function revisarLimites(ip, nombre, { porIp, porClave, clave }) {
   const revisiones = [];
-  if (porIp) revisiones.push([`${nombre}:ip:${ipDe(request.headers)}`, porIp]);
+  if (porIp) revisiones.push([`${nombre}:ip:${ip}`, porIp]);
   if (porClave && clave) revisiones.push([`${nombre}:clave:${clave}`, porClave]);
 
   let espera = 0;
@@ -78,10 +89,10 @@ export function limitarPeticion(request, nombre, { porIp, porClave, clave } = {}
     const resultado = consumir(claveRevision, limite, ventanaMs);
     if (!resultado.permitido) espera = Math.max(espera, resultado.reintentarEn);
   }
+  return espera;
+}
 
-  if (!espera) return null;
-  return NextResponse.json(
-    { error: 'Demasiados intentos. Intenta de nuevo más tarde.' },
-    { status: 429, headers: { 'Retry-After': String(espera) } }
-  );
+export async function limitarAccion(nombre, { porIp, porClave, clave } = {}) {
+  const ip = ipDe(await headers());
+  return revisarLimites(ip, nombre, { porIp, porClave, clave }) > 0;
 }

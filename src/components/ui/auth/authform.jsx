@@ -9,7 +9,7 @@ const TABS = [
   { id: 'register', label: 'Registrarse' },
 ];
 
-export default function AuthForm() {
+export default function AuthForm({ callbackUrl }) {
   const [tab, setTab] = useState('login');
 
   return (
@@ -29,7 +29,7 @@ export default function AuthForm() {
         ))}
       </div>
 
-      {tab === 'login' ? <LoginForm /> : <RegisterForm />}
+      {tab === 'login' ? <LoginForm callbackUrl={callbackUrl} /> : <RegisterForm />}
     </div>
   );
 }

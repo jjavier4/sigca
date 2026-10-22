@@ -8,9 +8,9 @@ export default function CardAssigment({ asignacion, onSelect, isSelected }) {
     return (
         <button
             onClick={() => onSelect(asignacion)}
-            className={`w-full text-left p-4 rounded-lg border-2  transition-all border-blue-200 ${!asignacion.activa
-                ? ' bg-blue-50'
-                : ' hover:border-blue-300 bg-white cursor-pointer'
+            className={`w-full text-left p-4 rounded-lg border-2  transition-all  ${!asignacion.activa
+                ? ' bg-white-50  border-gray-300'
+                : ' border-blue-200 hover:border-blue-300 bg-white cursor-pointer'
                 }`}
             disabled={!asignacion.activa}
         >

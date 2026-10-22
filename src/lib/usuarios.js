@@ -1,7 +1,7 @@
 import 'server-only';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
-import { generarToken, guardarToken } from '@/lib/tokens';
+import { crearToken } from '@/lib/tokens';
 import { sendEmail, emailVerificacionCuenta } from '@/lib/email';
 
 export const ROLES_ASIGNABLES = {
@@ -33,7 +33,7 @@ async function buscarDuplicado({ email, tipoIdentificacion, rfc, curp, numero_co
   return null;
 }
 
-export async function registrarUsuario(datos, rolAsignado) {
+export async function registrarUsuario(datos, rolAsignado, { verificado = false } = {}) {
   const email = datos.email.toLowerCase();
   const esRfc = datos.tipoIdentificacion === 'rfc';
   const rfc = esRfc ? datos.rfc.toUpperCase() : null;
@@ -61,7 +61,7 @@ export async function registrarUsuario(datos, rolAsignado) {
         email,
         password,
         rol: rolAsignado,
-        activa: false,
+        activa: verificado,
         numero_control: datos.numero_control,
         rfc,
         curp,
@@ -74,10 +74,10 @@ export async function registrarUsuario(datos, rolAsignado) {
     throw error;
   }
 
-  const token = generarToken();
-  await guardarToken(email, token);
-
   const nombreCompleto = `${datos.nombre} ${datos.apellidoP} ${datos.apellidoM}`;
+  if (verificado) return { usuario: { id, email, nombre: nombreCompleto } };
+
+  const token = await crearToken(email, 'VERIFICACION');
   const { html, text } = emailVerificacionCuenta({ nombreCompleto, token });
 
   try {

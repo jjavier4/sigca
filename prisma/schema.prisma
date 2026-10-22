@@ -62,13 +62,14 @@ model CriteriosEvaluacion {
 }
 
 model Tokens {
-  email     String   @db.VarChar(255)
-  token     String   @unique @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  token     String    @id @db.VarChar(255)
+  email     String    @db.VarChar(255)
+  tipo      TipoToken
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  expiresAt DateTime  @db.Timestamptz(6)
 
-  @@index([createdAt], map: "idx_tokens_createdat")
-  @@index([email], map: "idx_tokens_email")
-  @@index([token], map: "idx_tokens_token")
+  @@index([email, tipo], map: "idx_tokens_email_tipo")
+  @@index([expiresAt], map: "idx_tokens_expiresat")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -127,6 +128,12 @@ enum EstadoTrabajo {
 enum GrupoRubrica {
   DIFUSION
   DIVULGACION
+}
+
+enum TipoToken {
+  VERIFICACION
+  RESTABLECIMIENTO
+  INVITACION
 }
 
 enum Rol {

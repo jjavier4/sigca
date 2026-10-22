@@ -6,9 +6,10 @@ import Link from 'next/link';
 import { Mail, Lock, User, FileText, CreditCard, Loader2, CheckCircle } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
+import { registrarRevisor } from '@/actions/auth';
 
 const LOGIN_PATH = '/login';
-const RFC_REGEX = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+const RFC_REGEX = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/;
 const CURP_REGEX = /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/;
 
 const INITIAL_STATE = {
@@ -31,7 +32,7 @@ function validar(form, tipoIdentificacion) {
   if (form.password !== form.confirmPassword) return 'Las contraseñas no coinciden';
   if (form.password.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
   if (tipoIdentificacion === 'rfc' && !RFC_REGEX.test(form.rfc)) {
-    return 'El RFC no tiene un formato válido. Ejemplo: PAJA850101XXX (12-13 caracteres)';
+    return 'El RFC no tiene un formato válido. Debe tener 13 caracteres. Ejemplo: PAJA850101XXX';
   }
   if (tipoIdentificacion === 'curp' && !CURP_REGEX.test(form.curp)) {
     return 'El CURP no tiene un formato válido. Debe tener 18 caracteres. Ejemplo: PAJA850101HMCLRV09';
@@ -55,7 +56,7 @@ export default function RegisterRevisorForm({ token, email }) {
 
   useEffect(() => {
     if (!success) return;
-    const timer = setTimeout(() => router.replace(LOGIN_PATH), 6000);
+    const timer = setTimeout(() => router.replace(LOGIN_PATH), 3000);
     return () => clearTimeout(timer);
   }, [success, router]);
 
@@ -76,32 +77,25 @@ export default function RegisterRevisorForm({ token, email }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: form.nombre.trim(),
-          apellidoP: form.apellidoP.trim(),
-          apellidoM: form.apellidoM.trim(),
-          email,
-          tipoIdentificacion,
-          rfc: tipoIdentificacion === 'rfc' ? form.rfc : null,
-          curp: tipoIdentificacion === 'curp' ? form.curp : null,
-          password: form.password,
-          invitationToken: token,
-        }),
+      const resultado = await registrarRevisor({
+        nombre: form.nombre.trim(),
+        apellidoP: form.apellidoP.trim(),
+        apellidoM: form.apellidoM.trim(),
+        email,
+        tipoIdentificacion,
+        rfc: tipoIdentificacion === 'rfc' ? form.rfc : null,
+        curp: tipoIdentificacion === 'curp' ? form.curp : null,
+        password: form.password,
+        invitationToken: token,
       });
-      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        setError(data.error || 'Error al registrar revisor');
+      if (!resultado.ok) {
+        setError(resultado.error || 'Error al registrar revisor');
         return;
       }
 
       setForm(INITIAL_STATE);
-      setSuccess(
-        '¡Registro exitoso! Hemos enviado un correo de verificación a tu email. Por favor verifica tu cuenta para poder iniciar sesión.'
-      );
+      setSuccess(resultado.message);
     } catch {
       setError('Error de conexión. Intenta nuevamente.');
     } finally {
