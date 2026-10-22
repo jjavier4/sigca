@@ -31,3 +31,12 @@ export function formatearDiaCorto(valor) {
 export function formatearDiaISO(valor) {
   return new Date(valor).toISOString().slice(0, 10);
 }
+
+export function formatearDiaInstitucion(valor) {
+  return new Date(valor).toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: ZONA_INSTITUCION,
+  });
+}

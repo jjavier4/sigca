@@ -1,19 +1,10 @@
 import { FileText, User, UserCheck, Calendar, CheckCircle, XCircle, AlertCircle, Users, Trash2, UserPlus } from 'lucide-react';
+import { formatearFechaHora } from '@/utils/fechas';
+import { maxAsignacionesRevisor } from '@/utils/evaluacion';
 export function CardWorkWithAssignments({ trabajo, isSelected, onSelect, onDeleteAssignment }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const handleDeleteAssignment = (asignacionId, e) => {
+  const handleDeleteAssignment = (asignacion, e) => {
     e.stopPropagation();
-    onDeleteAssignment(asignacionId);
+    onDeleteAssignment(asignacion);
   };
 
   return (
@@ -58,39 +49,37 @@ export function CardWorkWithAssignments({ trabajo, isSelected, onSelect, onDelet
                   key={asignacion.id}
                   className="bg-gray-50 rounded-lg p-3 space-y-1 border border-gray-200 "
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-2 flex-1">
-                      <User className="text-gray-600" size={14} />
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-gray-800">
-                          {asignacion.revisor.nombre} {asignacion.revisor.apellidoP} {asignacion.revisor.apellidoM}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {asignacion.revisor.email}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-end ml-auto gap-2">
+                    <button
+                      onClick={(e) => handleDeleteAssignment(asignacion, e)}
+                      className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors"
+                      title="Eliminar asignación"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                     {
-                      asignacion.activa ? (
-                        <button
-                          onClick={(e) => handleDeleteAssignment(asignacion.id, e)}
-                          className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors "
-                          title="Eliminar asignación"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      ) : (
-                        <span className="flex items-center text-green-600 text-xs font-semibold">
-                          <CheckCircle className="mr-1" size={14} />
-                          Evaluada
+                      !asignacion.activa && (
+                        <span title='Evaluada' className="text-green-600 text-xs font-semibold flex items-center">
+                          <CheckCircle size={14} />
                         </span>
                       )
                     }
+                  </div>
+                  <div className="flex items-center space-x-2 flex-1">
+                    <User className="text-gray-600" size={14} />
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-gray-800">
+                        {asignacion.revisor.nombre} {asignacion.revisor.apellidoP} {asignacion.revisor.apellidoM}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {asignacion.revisor.email}
+                      </p>
+                    </div>
 
                   </div>
-                  <div className="flex items-center text-gray-500 text-xs pl-6">
-                    <Calendar className="mr-1" size={12} />
-                    <span>Asignado: {formatDate(asignacion.createdAt)}</span>
+                  <div className="flex items-center text-gray-500 text-xs mt-2">
+                    <Calendar className="mr-2 " size={12} />
+                    <span>Asignado: {formatearFechaHora(asignacion.createdAt)}</span>
                   </div>
                 </div>
               ))}
@@ -118,15 +107,6 @@ export function CardWorkWithAssignments({ trabajo, isSelected, onSelect, onDelet
 
 // Componente Card de Trabajo Sin Asignar
 export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesCount }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const yaAsignado = asignacionesCount > 0;
 
   return (
@@ -146,7 +126,7 @@ export function CardNotAssignment({ trabajo, isSelected, onSelect, asignacionesC
                 {`Trabajo: ${trabajo.titulo || 'Sin título'}`}
               </h3>
               <p className="text-xs text-gray-500">
-                {`Convocatoria: ${trabajo.convocatoria?.titulo }`}
+                {`Convocatoria: ${trabajo.convocatoria?.titulo}`}
               </p>
               <p className="text-xs text-gray-500">
                 {`Nombre Documento: ${trabajo.id}`}
@@ -206,7 +186,7 @@ export function CardReviewer({ revisor, isSelected, onSelect, disabled }) {
         <div className="flex items-center justify-between pt-2 border-t border-gray-200">
           <div className="text-center flex-1">
             <p className="text-xs text-gray-600">Trabajos Activos</p>
-            <p className="text-lg font-bold text-blue-600">{revisor.trabajosActivos}/4</p>
+            <p className="text-lg font-bold text-blue-600">{revisor.trabajosActivos}/{maxAsignacionesRevisor}</p>
           </div>
           <div className="text-center flex-1 border-l border-gray-200">
             {/* Estado Badge */}

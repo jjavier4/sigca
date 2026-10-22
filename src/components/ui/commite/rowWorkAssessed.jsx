@@ -1,8 +1,7 @@
+'use client'
 import React, { useState } from 'react'
-import { CheckCircle, XCircle, ChevronDown } from 'lucide-react';
-
-// Umbral usado por la lógica existente de aceptar/rechazar
-const UMBRAL_PORCENTAJE = 30;
+import { CheckCircle, XCircle, ChevronDown, Send } from 'lucide-react';
+import { superaUmbral } from '@/utils/evaluacion';
 
 const clasesEstado = (estado) =>
     estado === 'ACEPTADO'
@@ -20,7 +19,7 @@ const clasesTipo = (tipo) =>
 
 const formatoPorcentaje = (valor) => (valor !== null ? `${valor}%` : '?');
 
-export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPresencialChange }) {
+export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPresencialChange, onReenviar }) {
     const [expandido, setExpandido] = useState(false);
 
     const deshabilitarAceptar = () => {
@@ -32,7 +31,7 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
         */
         if (trabajo.estado !== 'EN_REVISION' ||
             trabajo.nvl_plagio === null || trabajo.nvl_ia === null ||
-            trabajo.nvl_plagio > 30 || trabajo.nvl_ia > 30 ||
+            superaUmbral(trabajo.nvl_plagio) || superaUmbral(trabajo.nvl_ia) ||
             trabajo.promedioCalificacion === null) {
             return true;
         }
@@ -49,7 +48,7 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
         ) {
             return true;
         } else {
-            if (trabajo.nvl_plagio > 30 || trabajo.nvl_ia > 30) {
+            if (superaUmbral(trabajo.nvl_plagio) || superaUmbral(trabajo.nvl_ia)) {
                 return false;
             } else {
                 if (trabajo.promedioCalificacion === null) {
@@ -66,8 +65,8 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
     const rechazarDeshabilitado = deshabilitarRechazar();
     const enRevision = trabajo.estado === 'EN_REVISION';
     const tieneAsignaciones = trabajo.calificaciones.length > 0;
-    const plagioAlto = trabajo.nvl_plagio !== null && trabajo.nvl_plagio > UMBRAL_PORCENTAJE;
-    const iaAlto = trabajo.nvl_ia !== null && trabajo.nvl_ia > UMBRAL_PORCENTAJE;
+    const plagioAlto = superaUmbral(trabajo.nvl_plagio);
+    const iaAlto = superaUmbral(trabajo.nvl_ia);
     const detalleId = `detalle-trabajo-${trabajo.id}`;
 
     const toggle = () => setExpandido((prev) => !prev);
@@ -167,6 +166,18 @@ export default function RowWorkAssessed({ trabajo, onAceptar, onRechazar, onPres
                             >
                                 <XCircle size={16} />
                                 <span className="hidden xl:inline">RECHAZAR</span>
+                            </button>
+                        </div>
+                    ) : trabajo.estado === 'ACEPTADO' || trabajo.estado === 'RECHAZADO' ? (
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => onReenviar(trabajo.id)}
+                                title="Reenviar dictamen"
+                                aria-label="Reenviar dictamen"
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold p-2 xl:px-3 xl:py-1.5 rounded-lg inline-flex items-center gap-1.5 text-xs"
+                            >
+                                <Send size={16} />
+                                <span className="hidden xl:inline">REENVIAR DICTAMEN</span>
                             </button>
                         </div>
                     ) : (

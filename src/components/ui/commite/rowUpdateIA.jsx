@@ -17,9 +17,11 @@ export default function RowUpdateIA({
     setNvlPlagio(trabajo.nvl_plagio?.toString() || '');
   };
 
-  const handleGuardar = () => {
-    handleActualizarIA(trabajo.id, parseFloat(nvl_ia), parseFloat(nvl_plagio));
-    setIsEditing(false);
+  const handleGuardar = async () => {
+    const resultado = await handleActualizarIA(trabajo.id, parseFloat(nvl_ia), parseFloat(nvl_plagio));
+    if (resultado) {
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -107,7 +109,9 @@ export default function RowUpdateIA({
 
       <td className="px-6 py-4 text-center">
         <div className="flex gap-2 justify-center">
-          {!isEditing ? (
+          {!trabajo.editable ? (
+            <span className="text-gray-400 text-sm">Resuelto</span>
+          ) : !isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
               className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"

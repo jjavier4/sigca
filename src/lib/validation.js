@@ -196,6 +196,11 @@ export const analisisIASchema = z.object({
   nvl_plagio: porcentaje('El nivel de plagio'),
 });
 
+export const aceptarTrabajoSchema = z.object({
+  trabajoId: texto('El ID del trabajo', 50),
+  presencial: z.boolean({ error: 'La modalidad debe ser presencial o virtual' }),
+});
+
 // ── Asignaciones ────────────────────────────────────────────────────────────
 
 export const crearAsignacionesSchema = z.object({

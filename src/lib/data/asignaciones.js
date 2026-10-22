@@ -26,3 +26,15 @@ export async function getAsignacionesDeRevisor(revisorId) {
     orderBy: { createdAt: 'desc' },
   });
 }
+
+export async function getAsignacionesDeTrabajo(trabajoId) {
+  const anioActual = new Date().getFullYear();
+
+  return prisma.asignaciones.count({
+    where: {
+      trabajoId,
+      id: { startsWith: `${anioActual}-` },
+      trabajo: { convocatoria: { activa: true } },
+    },
+  });
+}

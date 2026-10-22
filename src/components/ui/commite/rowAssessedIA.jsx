@@ -1,6 +1,7 @@
+'use client'
 import React from 'react'
 import { Download, Save, Eye, Circle,Loader2 } from 'lucide-react';
-export default function RowAssessedIA({ trabajo, handleDescargarPDF, handleInputChange, formDataMap, handleGuardar, loadingStates }) {
+export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap, handleGuardar, loadingStates }) {
     return (
         <tr className="hover:bg-gray-50 transition-colors">
             <td className="px-6 py-4 ">
