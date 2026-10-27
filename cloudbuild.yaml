@@ -1,0 +1,19 @@
+steps:
+  # 1. Compilar la imagen Docker de la app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest',
+      '.'
+    ]
+
+  # 2. Subir la imagen a Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest'
+    ]
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest'
