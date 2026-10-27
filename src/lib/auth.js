@@ -1,6 +1,7 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from './db';
 import bcrypt from 'bcryptjs';
+import { basePath } from '@/utils/basePath.mjs';
 import { consumir, excedido, reiniciar, ipDe, QUINCE_MINUTOS } from './rate-limit';
 
 const INTENTOS_POR_EMAIL = 5;
@@ -10,8 +11,8 @@ const HASH_FALSO = bcrypt.hashSync('contraseña-que-nadie-usa', 10);
 export const authOptions = {
   // next-auth arma estas URLs desde el origen de NEXTAUTH_URL, por eso llevan el basePath
   pages: {
-    signIn: '/ciidici/login',
-    error: '/ciidici/login',
+    signIn: `${basePath}/login`,
+    error: `${basePath}/login`,
   },
 
   // Configuración de sesión

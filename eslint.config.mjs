@@ -12,6 +12,12 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals"),
   {
+    files: ["**/*.{js,jsx,mjs}"],
+    rules: {
+      "react/no-children-prop": "off",
+    },
+  },
+  {
     ignores: [
       "node_modules/**",
       ".next/**",

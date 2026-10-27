@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { Download, Save, Eye, Circle,Loader2 } from 'lucide-react';
+import { basePath } from '@/utils/basePath.mjs';
 export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap, handleGuardar, loadingStates }) {
     return (
         <tr className="hover:bg-gray-50 transition-colors">
@@ -56,7 +57,7 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
             <td className="px-6 py-4 ">
                 <div className="grid grid-row-2 gap-2 items-center justify-center">
                     <a
-                        href={`/ciidici/api/works/${trabajo.id}`}
+                        href={`${basePath}/api/works/${trabajo.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
@@ -66,7 +67,7 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
                     </a>
 
                     <a
-                        href={`/ciidici/api/works/${trabajo.id}?download=1`}
+                        href={`${basePath}/api/works/${trabajo.id}?download=1`}
                         className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
                     >
                         <Download size={16} />

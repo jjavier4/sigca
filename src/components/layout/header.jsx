@@ -5,6 +5,7 @@ import { Home, LogIn, LogOut, Menu, X, UserPlus, Settings, Users } from 'lucide-
 import MenuComponent from './menu';
 import Link from 'next/link';
 import { href } from '@/utils/route';
+import { basePath } from '@/utils/basePath.mjs';
 export default function Header({ usuario }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -44,7 +45,7 @@ export default function Header({ usuario }) {
                   <span>{usuario.rol}</span>
                 </Link>
                 <button
-                  onClick={() => signOut({ callbackUrl: process.env.NEXT_PUBLIC_APP_URL })}
+                  onClick={() => signOut({ callbackUrl: basePath })}
                   className="flex items-center bg-orange-400 text-blue-900 hover:bg-orange-500 px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg cursor-pointer "
                 >
                   <LogOut size={20} />

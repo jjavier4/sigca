@@ -1,45 +1,38 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: postgres_db_prod
     restart: always
     environment:
-      - POSTGRES_USER=sigca_user
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=sigca
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5432:5432"
     healthcheck:
-      # -h 127.0.0.1 es clave: durante la inicialización Postgres solo
-      # escucha por socket local; por TCP no responde hasta terminar tu script
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sigca_user -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 20
       start_period: 10s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nextjs_app_prod
-    restart: always  
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - ./uploads:/app/uploads
+    restart: always
+    env_file: .env
     environment:
-      - NODE_ENV=development
-      - UPLOAD_DIR=/app/uploads
-      - DATABASE_URL=postgresql://sigca_user:postgres@db:5432/sigca
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
-    # En producción solemos usar 'start' en lugar de 'dev'
-    command: npm run dev
+
 volumes:
   postgres_data:
+  uploads:

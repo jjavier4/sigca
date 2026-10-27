@@ -1,7 +1,10 @@
+import { basePath } from './src/utils/basePath.mjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    basePath: '/ciidici',
+    basePath,
     output: 'standalone',
+    serverExternalPackages: ['handlebars', 'puppeteer'],
     experimental: {
         serverActions: {
             bodySizeLimit: '10mb',
@@ -11,7 +14,7 @@ const nextConfig = {
     // middleware: con basePath, "/ciidici" se ve como "/" y se redirigiría a sí mismo.
     async redirects() {
         return [
-            { source: '/', destination: '/ciidici', basePath: false, permanent: false },
+            { source: '/', destination: basePath, basePath: false, permanent: false },
         ];
     },
     outputFileTracingExcludes: {

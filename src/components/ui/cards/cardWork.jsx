@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileText, Calendar, CheckCircle, XCircle, Clock, Coins, Trash2, FileCheckIcon, Edit2,Eye } from 'lucide-react';
 import { formatearFechaHora } from '@/utils/fechas';
+import { basePath } from '@/utils/basePath.mjs';
 
 // Componente Card de Trabajo
 export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEdit, ocupado = false }) {
@@ -150,7 +151,7 @@ export default function CardWork({ trabajo, getReferenciaPagoPDF, onDelete, onEd
           }
           {/*Consulta de PDF */}
           <a
-            href={`${process.env.NEXT_PUBLIC_APP_URL}/api/works/${trabajo.id}`}
+            href={`${basePath}/api/works/${trabajo.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"

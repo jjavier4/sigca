@@ -155,7 +155,7 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
             <p>Su trabajo será evaluado por nuestro comité de revisores. Le notificaremos cuando haya actualizaciones. En estado de revisión aún tiene tiempo de realizar modificaciones a su propuesta.</p>
 
             <center>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/author" class="button">Ver mis propuestas</a>
+              <a href="${process.env.APP_URL}/author" class="button">Ver mis propuestas</a>
             </center>
 
             <p>Atentamente,<br><strong>Comité Organizador CIIDiCI</strong></p>
@@ -185,7 +185,7 @@ export function emailPropuestaRecibida({ nombreAutor, tituloTrabajo }) {
  * Plantilla: Invitación a revisor (con token de registro)
  */
 export function emailInvitacionRevisor({ nombreRevisor, token }) {
-  const registroUrl = `${process.env.NEXT_PUBLIC_APP_URL}/register-revisor?token=${token}`;
+  const registroUrl = `${process.env.APP_URL}/register-revisor?token=${token}`;
   
   const html = `
     <!DOCTYPE html>
@@ -544,7 +544,7 @@ export function emailTrabajoRechazado({ nombreCompleto, titulo, motivo, califica
  * Plantilla: Verificación de correo electrónico
  */
 export function emailVerificacionCuenta({ nombreCompleto, token }) {
-  const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
   
   const html = `
     <!DOCTYPE html>
@@ -671,7 +671,7 @@ export function emailVerificacionCuenta({ nombreCompleto, token }) {
  * Plantilla: Restablecimiento de contraseña
  */
 export function emailRestablecerPassword({ nombreCompleto, token }) {
-  const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.APP_URL}/reset-password?token=${token}`;
   
   const html = `
     <!DOCTYPE html>

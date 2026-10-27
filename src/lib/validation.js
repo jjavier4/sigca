@@ -1,26 +1,5 @@
-import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { PUNTAJES_RUBRICA } from './rubrica';
-
-/**
- * Valida `data` contra un esquema zod.
- * Uso en route handlers y Server Actions:
- *   const { data, error } = validar(esquema, body);
- *   if (error) return error;
- * `error` es un NextResponse 400 con el primer mensaje de validación.
- */
-export function validar(schema, data) {
-  const result = schema.safeParse(data);
-  if (!result.success) {
-    return {
-      error: NextResponse.json(
-        { error: result.error.issues[0]?.message ?? 'Datos inválidos' },
-        { status: 400 }
-      ),
-    };
-  }
-  return { data: result.data };
-}
 
 // ── Primitivos ──────────────────────────────────────────────────────────────
 

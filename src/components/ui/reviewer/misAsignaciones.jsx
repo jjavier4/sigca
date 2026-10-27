@@ -7,6 +7,7 @@ import CardAssigment from '@/components/ui/reviewer/cardAssigment';
 import CardRubric from '@/components/ui/reviewer/cardRubric';
 import useAccion from '@/hooks/useAccion';
 import { evaluarAsignacion } from '@/actions/asignaciones';
+import { basePath } from '@/utils/basePath.mjs';
 
 export default function MisAsignaciones({ asignaciones, criteriosPorGrupo }) {
   const [filtroEstado, setFiltroEstado] = useState('TODAS');
@@ -37,7 +38,7 @@ export default function MisAsignaciones({ asignaciones, criteriosPorGrupo }) {
 
         <div className="w-full px-4 pt-4 bg-gray-50">
           <a
-            href={`${process.env.NEXT_PUBLIC_APP_URL}/api/works/${seleccionada.trabajo.id}`}
+            href={`${basePath}/api/works/${seleccionada.trabajo.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"

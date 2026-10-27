@@ -9,6 +9,7 @@ import ModalConfirm from '@/components/ui/utils/modalConfirm';
 import { EditWork } from '@/components/ui/autor/editWork';
 import useAccion from '@/hooks/useAccion';
 import { actualizarTrabajo, eliminarTrabajo } from '@/actions/trabajos';
+import { basePath } from '@/utils/basePath.mjs';
 
 export default function MisTrabajos({ trabajos }) {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function MisTrabajos({ trabajos }) {
 
   const generarReferenciaPago = async (trabajoId) => {
     await ejecutar(async () => {
-      const respuesta = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user/ref-pay`, {
+      const respuesta = await fetch(`${basePath}/api/user/ref-pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trabajoid: trabajoId }),

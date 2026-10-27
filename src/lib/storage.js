@@ -53,17 +53,6 @@ export async function saveFile(userId, storedFilename, buffer) {
     await rename(tmpPath, finalPath);
 }
 
-export async function deleteFile(userId, storedFilename) {
-    assertSegmento(userId);
-    assertSegmento(storedFilename);
-    const userDirectoryPath = path.join(UPLOAD_DIR, 'users_files', userId);
-    try {
-        await unlink(safePath(userDirectoryPath, storedFilename));
-    } catch (err) {
-        if (err.code !== 'ENOENT') throw err;
-    }
-}
-
 /**
  * archivo_url se guarda como /uploads/users_files/<userId>/<archivo>;
  * se resuelve dentro de UPLOAD_DIR y nunca fuera de él.

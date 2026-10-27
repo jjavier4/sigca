@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { signIn } from 'next-auth/react';
 import { Mail, Lock, User, FileText, CreditCard, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';

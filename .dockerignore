@@ -6,3 +6,6 @@ backups
 # env files (can opt-in for committing if needed)
 .env*
 .vs/
+docker-compose*.yml
+Dockerfile
+*.md
