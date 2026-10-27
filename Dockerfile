@@ -12,6 +12,15 @@ FROM base AS builder
 RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+ARG NEXTAUTH_SECRET="build_secret_placeholder"
+ARG NEXTAUTH_URL="http://localhost:3000"
+ARG NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+ENV DATABASE_URL=$DATABASE_URL \
+    NEXTAUTH_SECRET=$NEXTAUTH_SECRET \
+    NEXTAUTH_URL=$NEXTAUTH_URL \
+    NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 RUN npx prisma generate && npm run build
 
 FROM base AS runner

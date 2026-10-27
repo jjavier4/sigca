@@ -1,21 +1,25 @@
 steps:
-  # 1. Compilar la imagen Docker de la app
+  # Compilar la imagen Docker pasando valores por defecto para el build
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build',
+      '--build-arg', 'DATABASE_URL=postgresql://user:pass@localhost:5432/db',
+      '--build-arg', 'NEXTAUTH_SECRET=build_secret_placeholder',
+      '--build-arg', 'NEXTAUTH_URL=http://localhost:3000',
+      '--build-arg', 'NEXT_PUBLIC_APP_URL=http://localhost:3000',
       '-t',
-      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest',
+      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/app:latest',
       '.'
     ]
 
-  # 2. Subir la imagen a Artifact Registry
+  # Subir la imagen a Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'push',
-      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest'
+      'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/app:latest'
     ]
 
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/mi-app:latest'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/app:latest'
 options:
   logging: CLOUD_LOGGING_ONLY
