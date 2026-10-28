@@ -2,368 +2,195 @@
 
 Sistema web para la gestión integral de conferencias académicas del Congreso Internacional de Investigación y Divulgación de la Ciencia y la Ingeniería (CIIDiCI) del Instituto Tecnológico de Toluca.
 
-## 📋 Información del Proyecto
 
-- **Institución**: Instituto Tecnológico de Toluca
-- **Estudiante**: José Javier Palma Aguilar
-- **No. Control**: 20280807
-- **Carrera**: Ingeniería en Sistemas Computacionales
-- **Asesor Externo**: Dra. Eréndira Rendon Lara
-- **Periodo**: 8 de septiembre de 2025 - 8 de enero de 2026
 
-## 🎯 Objetivo
+## Objetivo
 
 Desarrollar un sistema de gestión de conferencias académicas que permita administrar de manera eficiente la convocatoria, envío de propuestas, revisión por pares, retroalimentación y validación de trabajos académicos, utilizando tecnologías de software libre.
 
-## 🚀 Tecnologías
+## Tecnologías
 
-### Stack Principal
+| Área | Tecnología |
+|---|---|
+| Framework | Next.js 15.5 (App Router, JavaScript), React 19 |
+| Arquitectura | Server Components y Server Actions; solo 3 route handlers (`auth`, PDF de trabajos, PDF de referencia de pago) |
+| Base de datos | PostgreSQL 16 |
+| ORM | Prisma 6 |
+| Autenticación | next-auth v4 (credenciales, sesión JWT de 8 h) |
+| Validación | Zod 4 |
+| Estilos | Tailwind CSS 4, íconos lucide-react, gráficas recharts |
+| Correo | Nodemailer (SMTP con STARTTLS) |
+| PDF | Puppeteer + plantillas Handlebars (`templates/`) |
+| Contenedores | Docker (desarrollo), Podman (producción) |
+| Nube | Google Cloud: Cloud Build, Artifact Registry y Compute Engine, con nginx como proxy |
 
-- **Frontend/Backend**: Next.js 14+ (App Router) con JavaScript
-- **Base de Datos**: PostgreSQL 15/16
-- **ORM**: Prisma
-- **Autenticación**: NextAuth.js
-- **Estilos**: Tailwind CSS
-- **Email**: Nodemailer con Gmail SMTP
-- **Visualización PDF**: React-PDF
-- **Validación**: Zod
+La aplicación se publica bajo el `basePath` `/ciidici`, que está definido en `src/utils/basePath.mjs`.
 
-### Entorno de Desarrollo
+## Estructura del Proyecto
 
-- **Contenedores**: Docker & Docker Compose
-- **Editor**: Visual Studio Code
-- **Control de Versiones**: Git
-- **Node.js**: v20.x LTS o superior
-
-## 📁 Estructura del Proyecto
 ```
-sigca-sistema/
+sigca/
 ├── src/
-│   ├── app/                      # Rutas de Next.js (App Router)
-│   │   ├── api/                 # API Routes
-│   │   │   ├── auth/           # Endpoints de autenticación
-│   │   │   ├── convocatorias/  # Gestión de convocatorias
-│   │   │   ├── ponencias/      # Gestión de papers
-│   │   │   ├── revisores/      # Asignación y gestión
-│   │   │   └── email/          # Sistema de notificaciones
-│   │   ├── auth/               # Páginas de autenticación
-│   │   ├── dashboard/          # Panel principal
-│   │   ├── convocatorias/      # Interfaz de convocatorias
-│   │   ├── ponencias/          # Gestión de submissions
-│   │   └── layout.js           # Layout principal
-│   ├── components/              # Componentes reutilizables
-│   │   ├── ui/                 # Componentes de interfaz
-│   │   ├── forms/              # Formularios
-│   │   └── pdf-viewer/         # Visor de PDF
-│   ├── lib/                     # Utilidades y configuraciones
-│   │   ├── db.js               # Cliente Prisma
-│   │   ├── auth.js             # Configuración NextAuth
-│   │   └── email.js            # Configuración Nodemailer
-│   ├── utils/                   # Funciones auxiliares
-│   └── middleware.js            # Middleware de Next.js
-├── prisma/
-│   ├── schema.prisma            # Esquema de base de datos
-│   └── migrations/              # Migraciones
+│   ├── app/
+│   │   ├── (app)/                 # Páginas protegidas por rol: admin, author, committee, reviewer
+│   │   ├── (auth)/                # login, register-revisor, reset-password, verify-email
+│   │   ├── api/                   # auth/[...nextauth], works/[id] (PDF), user/ref-pay (PDF)
+│   │   ├── about/, convocatories/, unauthorized/
+│   │   └── layout.js
+│   ├── actions/                   # Server Actions por módulo (auth, trabajos, asignaciones, dictámenes…)
+│   ├── components/                # layout/, providers/ y ui/ por rol
+│   ├── hooks/useAccion.js         # Ejecuta una Server Action y muestra la alerta del resultado
+│   ├── lib/                       # auth, db (Prisma), email, tokens, rate-limit, PDF, reglas de negocio
+│   │   └── data/                  # Consultas de lectura para los Server Components
+│   ├── utils/                     # Utilidades compartidas (basePath, fechas, evaluación…)
+│   └── middleware.js              # Protección de rutas por rol
+├── prisma/schema.prisma           # Refleja el esquema de db/init
+├── db/init/                       # SQL de creación: esquema, secuencias/funciones y admin inicial
+├── templates/                     # Plantillas Handlebars de los PDF
 ├── public/
-│   ├── uploads/                 # Archivos subidos
-│   └── pdfs/                    # PDFs de ponencias
-├── docker-compose.yml           # Configuración Docker
-├── .env.local                   # Variables de entorno (no commiteado)
-├── .gitignore
-├── package.json
-└── README.md
+├── Dockerfile                     # Imagen de producción (Next standalone + Chromium)
+├── cloudbuild.yaml                # Construcción y publicación en Artifact Registry
+├── docker-compose.yml             # Producción (VM con Podman)
+├── docker-compose.dev.yml         # Desarrollo local
+└── plan_despliege.md              # Guía de despliegue en Google Cloud
 ```
 
-## 🗄️ Modelo de Datos
+## Modelo de Datos
 
 ### Entidades Principales
 
-- **Usuario**: Gestión de usuarios con roles (AUTOR, REVISOR, COMITE, ADMIN)
-- **Convocatoria**: Llamados a papers con fechas y requisitos
-- **Ponencia**: Submissions de trabajos académicos
-- **Asignacion**: Relación revisor-ponencia
-- **Evaluacion**: Dictámenes y retroalimentación
-- **Notificacion**: Sistema de emails y alertas
+- **Usuarios**: roles AUTOR, REVISOR, COMITE y ADMIN, con verificación por correo y bloqueo de cuenta.
+- **Convocatorias**: periodos de recepción con fecha de cierre.
+- **Trabajos**: propuestas en PDF con coautores, niveles de IA y plagio, y estado (REGISTRADO, EN_REVISION, ACEPTADO, RECHAZADO).
+- **Asignaciones**: relación entre revisor y trabajo, con su calificación y comentario.
+- **Rúbricas**: criterios de evaluación.
+- **Tokens**: enlaces de verificación, restablecimiento e invitación, con tipo y vencimiento.
 
 ### Roles del Sistema
 
-- **AUTOR**: Envía y actualiza trabajos
-- **REVISOR**: Evalúa trabajos asignados
-- **COMITE**: Asigna revisores y valida trabajos
-- **ADMIN**: Administración completa del sistema
+- **AUTOR**: envía sus trabajos y consulta su estado.
+- **REVISOR**: evalúa los trabajos que tiene asignados (máximo 4 activos).
+- **COMITE**: registra IA y plagio, asigna revisores, emite dictámenes, invita revisores y administra a revisores y autores.
+- **ADMIN**: crea y administra usuarios de comité y revisores.
 
-## 🛠️ Instalación y Configuración
+En este sistema, "administrar" un usuario significa bloquear o desbloquear su cuenta.
+
+## 🛠️ Desarrollo local
 
 ### Prerrequisitos
-```bash
-# Verificar versiones
-node --version    # v20.x o superior
-npm --version     # v10.x o superior
-psql --version    # PostgreSQL 15 o 16
+
+- Node.js 22 y npm
+- Docker y Docker Compose
+
+### Variables de entorno
+
+Crea un archivo `.env` en la raíz. Nunca se sube al repositorio ni entra en la imagen.
+
+```env
+DATABASE_URL=postgresql://sigca_user:postgres@localhost:5432/sigca
+APP_URL=http://localhost:3000/ciidici
+NEXTAUTH_URL=http://localhost:3000/ciidici/api/auth
+NEXTAUTH_SECRET=generar-con-openssl-rand-base64-32
+
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=tu-email@gmail.com
+EMAIL_SERVER_PASSWORD=tu-app-password
+EMAIL_FROM=SIGCA <tu-email@gmail.com>
+
+POSTGRES_USER=user
+POSTGRES_PASSWORD=pass
+POSTGRES_DB=db
+
+PROJECT_ID=google_project
 ```
 
-### Instalación
+`NEXT_PUBLIC_APP_URL` ya no existe: los enlaces de los correos usan `APP_URL`.
 
-1. **Clonar el repositorio**
-```bash
-git clone [URL_DEL_REPOSITORIO]
-cd sigca-sistema
-```
+### Opción A: base en Docker y Next en el equipo (recomendada)
 
-2. **Instalar dependencias**
 ```bash
 npm install
-```
-
-3. **Configurar base de datos PostgreSQL**
-```sql
--- Conectarse a PostgreSQL
-psql -U postgres
-
--- Crear base de datos
-CREATE DATABASE sigca_db;
-
--- Crear usuario
-CREATE USER sigca_user WITH PASSWORD 'tu_password_seguro';
-
--- Otorgar privilegios
-GRANT ALL PRIVILEGES ON DATABASE sigca_db TO sigca_user;
-```
-
-4. **Configurar variables de entorno**
-
-Crear archivo `.env.local`:
-```env
-# Base de datos
-DATABASE_URL="postgresql://sigca_user:tu_password_seguro@localhost:5432/sigca_db"
-
-# NextAuth
-NEXTAUTH_SECRET="[generar con: openssl rand -base64 32]"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Email (Gmail SMTP)
-EMAIL_SERVER_HOST="smtp.gmail.com"
-EMAIL_SERVER_PORT="587"
-EMAIL_SERVER_USER="tu-email@gmail.com"
-EMAIL_SERVER_PASSWORD="tu-app-password"
-EMAIL_FROM="noreply@sigca.edu.mx"
-
-# Configuración
-NODE_ENV="development"
-MAX_FILE_SIZE="10485760"  # 10MB
-```
-
-5. **Inicializar base de datos**
-```bash
-# Generar cliente Prisma
+docker compose -f docker-compose.dev.yml up -d db
 npx prisma generate
-
-# Crear migraciones
-npx prisma migrate dev --name init
-
-# (Opcional) Abrir Prisma Studio
-npx prisma studio
-```
-
-6. **Iniciar servidor de desarrollo**
-```bash
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:3000`
+Con esta opción, puppeteer usa el Chromium que descargó `npm install`, así que los PDF funcionan.
 
-## 🐳 Docker
+### Opción B: todo en Docker
 
-### Desarrollo con Docker Compose
 ```bash
-# Iniciar contenedores
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener contenedores
-docker-compose down
-
-# Reconstruir
-docker-compose up -d --build
+docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml logs -f app
 ```
 
-## 📝 Scripts Disponibles
+Ese contenedor no trae Chromium, así que los PDF no se generan.
+
+En ambas opciones la aplicación queda en `http://localhost:3000/ciidici`.
+
+### Base de datos
+
+No se usa `prisma migrate`. Postgres ejecuta los scripts de `db/init/` cuando el volumen está vacío:
+
+1. `01-schema.sql`
+2. `02-SecuenciasFunciones.sql`
+3. `03-CreacionAdmin.sql`
+
+Si cambias el esquema, actualiza a la vez `db/init/01-schema.sql` y `prisma/schema.prisma`, y después ejecuta `npx prisma generate`. Para empezar con una base vacía:
+
 ```bash
-# Desarrollo
-npm run dev              # Iniciar servidor de desarrollo
-
-# Producción
-npm run build           # Construir para producción
-npm start               # Iniciar servidor de producción
-
-# Base de datos
-npx prisma generate     # Generar cliente Prisma
-npx prisma migrate dev  # Crear migración
-npx prisma migrate deploy # Aplicar migraciones en producción
-npx prisma studio       # Interfaz visual de BD
-npx prisma db push      # Sincronizar schema sin migración
-
-# Utilidades
-npm run lint            # Verificar código con ESLint
+docker compose -f docker-compose.dev.yml down -v
+docker compose -f docker-compose.dev.yml up -d db
 ```
 
-## 🔑 Funcionalidades Principales
+Para abrir una consola:
 
-### 1. Gestión de Convocatorias
-- Publicación de calls for papers
-- Configuración de fechas límite
-- Especificación de áreas temáticas
-- Requisitos y formatos
-
-### 2. Envío de Trabajos
-- Carga de PDFs
-- Control de versiones
-- Edición hasta fecha límite
-- Visualización integrada
-
-### 3. Sistema de Revisión
-- Asignación automática por áreas
-- Evaluación con rúbricas
-- Retroalimentación anónima
-- Sistema de comentarios
-
-### 4. Notificaciones
-- Emails automáticos
-- Plantillas HTML profesionales
-- Soporte para múltiples destinatarios
-- Confirmación de acciones
-
-### 5. Panel Administrativo
-- Métricas y estadísticas
-- Gestión de usuarios y roles
-- Control de workflow
-- Exportación de datos
-
-## 🔒 Seguridad
-
-- Hashing de contraseñas con bcrypt
-- Autenticación basada en sesiones (NextAuth)
-- Control de acceso basado en roles (RBAC)
-- Validación de entrada con Zod
-- Protección CSRF
-- Variables de entorno para credenciales
-
-## 📧 Sistema de Emails
-
-### Configuración Gmail SMTP
-
-1. Activar verificación en 2 pasos en tu cuenta Gmail
-2. Generar contraseña de aplicación en: https://myaccount.google.com/apppasswords
-3. Usar la contraseña generada en `EMAIL_SERVER_PASSWORD`
-
-### Plantillas Disponibles
-
-- Confirmación de registro
-- Notificación de nueva convocatoria
-- Confirmación de envío de trabajo
-- Asignación de revisor
-- Invitación a revisar
-- Retroalimentación disponible
-- Validación final
-
-## 🧪 Testing
 ```bash
-# Pruebas unitarias (por implementar)
-npm test
-
-# Pruebas de integración (por implementar)
-npm run test:integration
+docker compose -f docker-compose.dev.yml exec db psql -U sigca_user -d sigca
 ```
 
-## 📚 Documentación Adicional
+> `03-CreacionAdmin.sql` crea una cuenta de ejemplo con una contraseña conocida. Cámbiala antes de usar el sistema en producción.
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [NextAuth.js Documentation](https://next-auth.js.org)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs)
+### Scripts
 
-## 🤝 Contribución
-
-Este es un proyecto académico desarrollado como parte de la residencia profesional. Para contribuciones o sugerencias, contactar al asesor externo.
-
-## 📄 Licencia
-
-Este proyecto es desarrollado para el Instituto Tecnológico de Toluca bajo supervisión académica.
-
-## 👨‍💻 Autor
-
-**José Javier Palma Aguilar**  
-Ingeniería en Sistemas Computacionales  
-Instituto Tecnológico de Toluca  
-No. Control: 20280807
-
-## 📞 Contacto
-
-Para consultas sobre el proyecto:
-- **Asesor Externo**: Dra. Eréndira Rendon Lara
-- **Institución**: Instituto Tecnológico de Toluca
-- **Ubicación**: Metepec, Estado de México
-
----
-
-**Nota**: Este README se actualiza conforme avanza el desarrollo del proyecto durante el periodo de residencia profesional (septiembre 2025 - enero 2026).
-
-## Prisma important!!
 ```bash
-# 0. Instalar
-npm install @prisma/client
-npm install prisma --save-dev
-
-# 1. Inicializar Prisma en proyecto nuevo
-npx prisma init
-
-# 2. Editar prisma/schema.prisma
-
-# 3. Generar migraciones
-npx prisma migrate dev --name "descripcion_cambio"
-npx prisma db push
-# 4. Generas el cliente actualizado (este paso se puede omitir al ejecutar paso 3)
+npm run dev     # Servidor de desarrollo
+npm run build   # Compilación de producción (output standalone)
+npm run lint    # ESLint
 npx prisma generate
-
-# 5. Ejecutar tu app
-npm run dev
-
-#6. ver ui 
 npx prisma studio
 ```
-## Docker important!!
-```bash
-# Levantar servicios
-docker-compose up -d
 
-# Ver logs
-docker-compose logs -f app
+##  Despliegue
 
-# Detener servicios
-docker-compose down
+Producción corre en Google Cloud:
 
-# Reiniciar solo Next.js
-docker-compose restart app
+1. Cada *push* a `main` dispara Cloud Build.
+2. Cloud Build compila el `Dockerfile` y publica `app:latest` en Artifact Registry.
+3. Una VM con Debian 12 ejecuta `app` y `db` con Podman (`docker-compose.yml`).
+4. nginx, en la misma VM, termina HTTPS con certbot y reenvía `/ciidici` a `127.0.0.1:3000`.
 
-# Acceder a PostgreSQL directamente
-docker-compose exec db psql -U postgres -d sigca
+La guía completa, desde las cuentas de servicio hasta nginx, con la verificación, la actualización de versiones, los respaldos y los problemas conocidos, está en [plan_despliege.md](plan_despliege.md).
 
-# Ejecutar comandos npm
-docker-compose exec app npm install <paquete>
+## Seguridad
 
-# Resetear base de datos (¡cuidado!)
-docker-compose exec app npx prisma migrate reset
-```
-```bash
-#entrar a cmd contenedor 
-docker exec -it nextjs_app sh
+- Contraseñas con bcrypt y sesión JWT en una cookie `__Secure-` cuando se usa HTTPS.
+- Control de acceso por rol en tres lugares: el middleware, cada página (`requireSession`) y cada Server Action (`autorizarAccion`).
+- Validación de entradas con Zod en todas las Server Actions.
+- Tokens de un solo uso con vencimiento (15 min para verificación y restablecimiento, 7 días para invitaciones).
+- Límite de peticiones por IP en el login y en las acciones sensibles.
+- Protección CSRF de next-auth y verificación de `Origin` en las Server Actions.
+- Secretos solo en variables de entorno.
 
-#ejecutar schema o actualizaciones 
-npx prisma migrate dev --name "init"
+## Correo (Gmail SMTP)
 
-#salir
-exit
+1. Activa la verificación en 2 pasos en la cuenta de Gmail.
+2. Genera una contraseña de aplicación en https://myaccount.google.com/apppasswords.
+3. Úsala en `EMAIL_SERVER_PASSWORD`.
 
-```
+El sistema envía estos correos:
+- verificación de cuenta;
+- restablecimiento de contraseña;
+- invitación a revisores;
+- dictamen de aceptación o rechazo, con el PDF adjunto.
