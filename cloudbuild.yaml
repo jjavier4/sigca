@@ -3,10 +3,6 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build',
-      '--build-arg', 'DATABASE_URL=postgresql://user:pass@localhost:5432/db',
-      '--build-arg', 'NEXTAUTH_SECRET=build_secret_placeholder',
-      '--build-arg', 'NEXTAUTH_URL=http://localhost:3000',
-      '--build-arg', 'NEXT_PUBLIC_APP_URL=http://localhost:3000',
       '-t',
       'us-central1-docker.pkg.dev/$PROJECT_ID/repositorio-sigca/app:latest',
       '.'

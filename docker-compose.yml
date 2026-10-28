@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: docker.io/library/postgres:16-alpine
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ../db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -17,9 +17,7 @@ services:
       start_period: 10s
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: us-central1-docker.pkg.dev/${PROJECT_ID}/repositorio-sigca/app:latest
     restart: always
     env_file: .env
     environment:
