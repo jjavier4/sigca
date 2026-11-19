@@ -22,7 +22,7 @@ export default function FormPerfil({ numeroControlInicial }) {
   };
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-white rounded-lg py-8">
       <Alert {...alerta} />
 
       <div className="max-w-2xl mx-auto px-4">

@@ -36,14 +36,13 @@ export default function Footer() {
               Sistema de Gestión de Conferencias Académicas
             </p>
             <p className="text-xs text-gray-500">
-              Desarrollado por José Javier Palma Aguilar<br />
-              Instituto Tecnológico de Toluca - 2026
+              Desarrollado por Instituto Tecnológico de Toluca - {new Date().getFullYear()}
             </p>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
-          <p>&copy; 2026 Instituto Tecnológico de Toluca. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Instituto Tecnológico de Toluca. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

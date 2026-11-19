@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, FileText, AlertCircle, Edit2Icon } from 'lucide-react';
+import { Calendar, FileText, AlertCircle, Edit2Icon, Loader2 } from 'lucide-react';
 import Alert from '@/components/ui/utils/alert';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import FormTextArea from '@/components/ui/form/FormTextArea';
@@ -30,7 +30,7 @@ function validarFormulario(datos) {
   return errores;
 }
 
-export default function FormConvocatoria({ rutaPanel }) {
+export default function FormConvocatoria() {
   const router = useRouter();
   const [datos, setDatos] = useState(CONVOCATORIA_VACIA);
   const [errores, setErrores] = useState({});
@@ -48,7 +48,7 @@ export default function FormConvocatoria({ rutaPanel }) {
   };
 
   return (
-    <div className="max-w-1/2 mx-auto">
+    <div className=" lg:w-1/2 w-full mx-auto">
       <Alert {...alerta} />
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-6">
@@ -135,20 +135,25 @@ export default function FormConvocatoria({ rutaPanel }) {
         </div>
 
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => router.push(rutaPanel)}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
+          
           <button
             type="submit"
             disabled={pendiente}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
-            <FileText className="w-4 h-4" />
-            {pendiente ? 'Guardando...' : 'Guardar Convocatoria'}
+
+            {pendiente ?
+
+              <>
+                <Loader2 size={20} className=" text-white  animate-spin" />
+                Guardando
+              </>
+              :
+              <>
+                <FileText className="w-4 h-4" />
+                Guardar
+              </>
+            }
           </button>
         </div>
       </form>

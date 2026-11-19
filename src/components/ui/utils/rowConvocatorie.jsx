@@ -1,5 +1,6 @@
 import React from 'react'
 import { formatearDiaISO } from '@/utils/fechas'
+import { Pen,Eraser } from 'lucide-react'
 export default function RowConvocatorie({titulo, fecha_inicio, fecha_cierre, activa = true, totalTrabajos = 0, onEdit, onDelete}) {
     return (
         <tr className={activa ? '' : 'bg-gray-50 text-gray-400'}>
@@ -12,11 +13,17 @@ export default function RowConvocatorie({titulo, fecha_inicio, fecha_cierre, act
                     {activa ? 'Activa' : 'Inactiva'}
                 </span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-4 flex justify-around items-center gap-2 whitespace-nowrap">
                 {activa ? (
                     <>
-                        <button  onClick={onEdit} className="text-blue-600 hover:text-blue-800 mr-3">Editar</button>
-                        <button onClick={onDelete} className="text-red-600 hover:text-red-800">Desactivar</button>
+                        <button  onClick={onEdit} className="text-white bg-blue-600 hover:bg-blue-800 border border-blue-600 py-1 px-3 rounded cursor-pointer">
+                            <Pen size={16} className='sm:hidden'/>
+                            <span className=" hidden sm:inline">Editar</span>
+                        </button>
+                        <button onClick={onDelete} className="text-white bg-red-600 hover:bg-red-800 border border-red-600 py-1 px-3 rounded cursor-pointer ml-2">
+                            <Eraser size={16} className='sm:hidden'/>
+                            <span className=" hidden sm:inline">Desactivar</span>
+                        </button>
                     </>
                 ) : (
                     <span className="text-xs">Sin acciones</span>

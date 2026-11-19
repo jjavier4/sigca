@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Mail, Lock, User, FileText, CreditCard } from 'lucide-react';
+import { Mail, Lock, User, FileText, CreditCard,Loader2 } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
 import useAccion from '@/hooks/useAccion';
@@ -65,7 +65,7 @@ export default function FormUsuario() {
     };
 
     return (
-        <div className='flex flex-col items-center w-full max-w-1/2 mx-auto p-6 bg-white rounded-lg shadow-md'>
+        <div className='flex flex-col items-center w-full sm:w-1/2 mx-auto p-6 bg-white rounded-lg shadow-md'>
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Agregar Nuevo Usuario</h2>
             <Alert {...alerta} />
             <form onSubmit={handleSubmit} className="space-y-4 w-full" >
@@ -189,9 +189,14 @@ export default function FormUsuario() {
                 <button
                     type="submit"
                     disabled={pendiente}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                    {pendiente ? 'Registrando...' : 'Registrar Usuario'}
+                    {pendiente ?
+                        <>
+                            <Loader2 size={20} className=" text-white  animate-spin" />
+                            Registrando
+                        </>
+                        : 'Registrar Usuario'}
                 </button>
             </form>
         </div>

@@ -2,8 +2,7 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col">
-      <section className="bg-blue-900 min-h-screen text-white py-20">
+      <section className="bg-blue-900 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
             CIIDiCI
@@ -24,6 +23,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+
   );
 }

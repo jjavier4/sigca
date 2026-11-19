@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: postgres_db_prod
+    container_name: postgres_db_dev
     restart: always
     environment:
       - POSTGRES_USER=sigca_user
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=sigca_auth
       - POSTGRES_DB=sigca
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -13,19 +13,18 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      # -h 127.0.0.1 es clave: durante la inicialización Postgres solo
-      # escucha por socket local; por TCP no responde hasta terminar tu script
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sigca_user -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sigca_user -d sigca"]
       interval: 5s
       timeout: 5s
       retries: 20
       start_period: 10s
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-      target: deps
-    container_name: nextjs_app_prod
+      target: dev
+    container_name: nextjs_app_dev
     restart: always  
     ports:
       - "3000:3000"
@@ -40,7 +39,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # En producción solemos usar 'start' en lugar de 'dev'
     command: npm run dev
+
 volumes:
   postgres_data:

@@ -44,7 +44,7 @@ export default function AsignarRevisores({ trabajosSinAsignar, revisores }) {
   const revisoresIndispuestos = revisores.filter(r => r.estado === 'INDISPUESTO');
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 rounded-lg">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

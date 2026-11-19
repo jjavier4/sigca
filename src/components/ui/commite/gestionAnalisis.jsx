@@ -85,114 +85,111 @@ export default function GestionAnalisis({ trabajosPendientes, trabajosEvaluados 
     <div>
       <Alert {...alerta} />
 
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
-          Evaluación de IA y Plagio
-        </h2>
-        <p className="text-gray-600">
-          Trabajos pendientes: {trabajosPendientes.length} | Trabajos evaluados: {trabajosEvaluados.length}
-        </p>
-      </div>
-
-      {/* Sección de trabajos pendientes */}
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          Trabajos Pendientes de Análisis
-        </h3>
-        {trabajosPendientes.length === 0 ? (
-          <div className="bg-white text-gray-600 rounded-lg shadow-md p-8 text-center">
-            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <p className="text-gray-500">
-              No hay trabajos pendientes de análisis
-            </p>
-          </div>
-        ) : (
-          <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Trabajo / Convocatoria
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      PDF
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Nivel IA (%)
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Nivel Plagio (%)
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Acción
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {trabajosPendientes.map((trabajo) => (
-                    <RowAssessedIA
-                      key={trabajo.id}
-                      trabajo={trabajo}
-                      handleInputChange={handleInputChange}
-                      formDataMap={formDataMap}
-                      handleGuardar={handleGuardar}
-                      loadingStates={loadingStates}
-                    />
-                  ))}
-                </tbody>
-              </table>
+      <div className="mb-6 bg-white text-gray-600 rounded-lg shadow-md p-6">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            Evaluación de IA y Plagio
+          </h2>
+        {/* Sección de trabajos pendientes */}
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Trabajos Pendientes de Análisis <span className="text-sm text-gray-500">({trabajosPendientes.length})</span>
+          </h3>
+          {trabajosPendientes.length === 0 ? (
+            <div className="bg-white text-gray-600 rounded-lg shadow-md p-8 text-center">
+              <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p className="text-gray-500">
+                No hay trabajos pendientes de análisis
+              </p>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Sección de trabajos evaluados */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          Trabajos Evaluados
-        </h3>
-        {trabajosEvaluados.length === 0 ? (
-          <div className="bg-white text-gray-600 rounded-lg shadow-md p-8 text-center">
-            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <p className="text-gray-500">
-              No hay trabajos evaluados
-            </p>
-          </div>
-        ) : (
-          <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Trabajo / Convocatoria
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Nivel IA (%)
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Nivel Plagio (%)
-                    </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {trabajosEvaluados.map((trabajo) => (
-                    <RowUpdateIA
-                      key={`${trabajo.id}-${trabajo.nvl_ia}-${trabajo.nvl_plagio}`}
-                      trabajo={trabajo}
-                      handleActualizarIA={handleActualizarIA}
-                      loadingStates={loadingStates}
-                    />
-                  ))}
-                </tbody>
-              </table>
+          ) : (
+            <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Trabajo / Convocatoria
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        PDF
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Nivel IA (%)
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Nivel Plagio (%)
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Acción
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {trabajosPendientes.map((trabajo) => (
+                      <RowAssessedIA
+                        key={trabajo.id}
+                        trabajo={trabajo}
+                        handleInputChange={handleInputChange}
+                        formDataMap={formDataMap}
+                        handleGuardar={handleGuardar}
+                        loadingStates={loadingStates}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Sección de trabajos evaluados */}
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">
+            Trabajos Evaluados <span className="text-sm text-gray-500">({trabajosEvaluados.length})</span>
+          </h3>
+          {trabajosEvaluados.length === 0 ? (
+            <div className="bg-white text-gray-600 rounded-lg shadow-md p-8 text-center">
+              <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p className="text-gray-500">
+                No hay trabajos evaluados
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Trabajo / Convocatoria
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Nivel IA (%)
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Nivel Plagio (%)
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {trabajosEvaluados.map((trabajo) => (
+                      <RowUpdateIA
+                        key={`${trabajo.id}-${trabajo.nvl_ia}-${trabajo.nvl_plagio}`}
+                        trabajo={trabajo}
+                        handleActualizarIA={handleActualizarIA}
+                        loadingStates={loadingStates}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );

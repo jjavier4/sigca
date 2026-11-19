@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { User, Mail, PlusCircle, MinusCircleIcon, Send, Loader } from 'lucide-react';
+import { User, Mail, PlusCircle, MinusCircleIcon, Send, Loader2 } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import Alert from '@/components/ui/utils/alert';
 import useAccion from '@/hooks/useAccion';
@@ -60,7 +60,7 @@ export default function InvitarRevisores() {
   };
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-white py-8 rounded-lg">
       <Alert {...alerta} />
 
       <div className="max-w-6xl mx-auto px-4">
@@ -133,11 +133,11 @@ export default function InvitarRevisores() {
             <button
               type="submit"
               disabled={pendiente}
-              className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white py-4 px-6 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 not-disabled:cursor-pointer text-white py-4 px-6 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {pendiente ? (
                 <>
-                  <Loader className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Enviando invitaciones...
                 </>
               ) : (

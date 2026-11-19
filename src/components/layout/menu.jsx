@@ -1,13 +1,14 @@
 'use client';
 import React, { useState } from 'react';
 import {
-  Home, UserPlus, Settings, Users, LucideFileUp, FileCog,
+  Home, UserPlus, Settings, Users, LucideFileUp, FileCog,UserCheck,UserCircle,
   UserCog, Mail, FileDiff, ChevronDown, ChevronRight, Layers, FileCheck, AlignEndHorizontalIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { href } from '@/utils/route';
+import { userAgent } from 'next/server';
 
-export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
+export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol,user }) {
   const [openGroups, setOpenGroups] = useState({});
 
   // Función para alternar el estado de los grupos
@@ -20,7 +21,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
 
   const menuitems = (role) => {
     let baseUrl = href(role);
-    let items = [{ id: 'overview', icon: Home, label: 'Inicio', page: `${baseUrl}` }];
+    let items = [{ id: 'overview', icon: Home, label: 'Mi tablero', page: `${baseUrl}` }];
     if (role === 'COMITE' || role === 'ADMIN') {
       items.push(
         { id: 'add-user', group: 'user', icon: UserPlus, label: 'Agregar Usuario', page: `${baseUrl}/addUser` },
@@ -39,7 +40,7 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
         { id: 'assessed-ia', icon: AlignEndHorizontalIcon, group: 'work', label: 'Niveles de IA y Plagio', page: `${baseUrl}/assessed-ia` },
         { id: 'assign-work', group: 'work', icon: LucideFileUp, label: 'Asignar Trabajo', page: `${baseUrl}/assignconvocatorie` },
         { id: 'works-assessed', icon: FileCheck, group: 'work', label: 'Trabajos Calificados', page: `${baseUrl}/worksassessed` },
-        { id: 'manage-assessed', group: 'work', icon: FileCog, label: 'Gestionar Asignaciones', page: `${baseUrl}/manageassessed` },        
+        { id: 'manage-assessed', group: 'work', icon: FileCog, label: 'Gestionar Asignaciones', page: `${baseUrl}/manageassessed` },
         { id: 'rubric', icon: FileDiff, group: 'settings', label: 'Criterios Evaluacion', page: `${baseUrl}/rubric` },
         { id: 'send-mail', icon: Mail, group: 'settings', label: 'Invitar revisores', page: `${baseUrl}/sendmail` },
       )
@@ -85,10 +86,10 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
   return (
     <>
       <aside
-        className={`fixed top-20 left-0 h-[calc(100vh-5rem)] bg-white shadow-lg z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed top-20 left-0 h-[calc(100dvh-4rem)] bg-white shadow-lg z-20 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           } w-64`}
       >
-        <nav className="p-4 h-full overflow-y-auto">
+        <nav className="p-4 h-full overflow-y-auto flex flex-col">
           <ul className="space-y-2">
             {getProcessedItems().map((item) => {
 
@@ -147,6 +148,15 @@ export default function MenuComponent({ isSidebarOpen, toggleSidebar, rol }) {
               );
             })}
           </ul>
+          <div className="mt-auto pt-4 flex flex-col items-start bg-white gap-2 border-t border-gray-200 sticky bottom-0 z-10 ">
+            <span className="text-gray-600 flex justify-center items-center gap-2">
+              <UserCircle size={20} className="inline-block mr-2" />
+              Hola, <span className="font-semibold">{user}</span>
+            </span>
+            <span href={href(rol)} className="px-2 py-1 mt-2 mb-4 text-xs bg-blue-100 text-blue-800 rounded">
+              <span>{rol}</span>
+            </span>
+          </div>
         </nav>
       </aside>
 

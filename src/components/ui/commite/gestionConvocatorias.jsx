@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { FileText, Calendar, ListChecks } from 'lucide-react';
+import { FileText, Calendar, ListChecks, Loader2 } from 'lucide-react';
 import RowConvocatorie from '@/components/ui/utils/rowConvocatorie';
 import Alert from '@/components/ui/utils/alert';
 import ModalConfirm from '@/components/ui/utils/modalConfirm';
@@ -57,15 +57,13 @@ export default function GestionConvocatorias({ convocatorias }) {
         onCancelar={() => setConvocatoriaADesactivar(null)}
       />
       <Alert {...alerta} />
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">
-        Gestionar Convocatorias
-      </h2>
+
       {enEdicion ? (
-        <>
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">
+        <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden lg:w-1/2 w-full mx-auto">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 p-4">
             Actualizar Convocatoria: {enEdicion.titulo}
           </h2>
-          <form onSubmit={guardarEdicion} className="space-y-4">
+          <form onSubmit={guardarEdicion} className="space-y-4 p-5">
             <FormLabelInput
               title="Título"
               children={<FileText className="absolute left-3 top-3 text-black" size={20} />}
@@ -106,25 +104,30 @@ export default function GestionConvocatorias({ convocatorias }) {
               required={true}
             />
 
-            <div className="flex gap-4">
+            <div className="flex items-center justify-center gap-4">
               <button
                 type="submit"
                 disabled={pendiente}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                className="flex-1 not-disabled:cursor-pointer  bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 rounded-lg transition-all duration-300"
               >
-                {pendiente ? 'Actualizando...' : 'Actualizar'}
+                {pendiente ?
+                  <>
+                    <Loader2 size={20} className=" text-white  animate-spin inline mr-1" />
+                    Actualizando
+                  </> :
+                  'Actualizar'}
               </button>
               <button
                 type="button"
                 disabled={pendiente}
                 onClick={() => setEnEdicion(null)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
+                className="flex-1 cursor-pointer bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 rounded-lg transition-all duration-300"
               >
                 Cancelar
               </button>
             </div>
           </form>
-        </>
+        </div >
       ) : convocatorias.length === 0 ? (
         <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
           <div className="text-center py-12 px-6">
@@ -137,6 +140,9 @@ export default function GestionConvocatorias({ convocatorias }) {
       ) : (
         <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
           <div className="overflow-x-auto">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6 p-4">
+              Convocatorias Registradas
+            </h1>
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>

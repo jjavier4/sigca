@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle, MinusCircleIcon, AlertCircle } from 'lucide-react';
+import { Calendar, FileText, Clock, Tag, User, Pen, PlusCircle, MinusCircleIcon, AlertCircle,Loader2 } from 'lucide-react';
 import FormLabelInput from '@/components/ui/form/FormLabelInput';
 import { formatearDiaCalendario } from '@/utils/fechas';
 
@@ -180,7 +180,7 @@ export function ModalConvocatorie({ convocatoria, onClose, onEnviar, pendiente }
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r bg-blue-600 p-6 sticky top-0">
+        <div className=" bg-blue-900 p-6 sticky top-0">
           <div className="flex justify-between items-start">
             <h2 className="text-2xl font-bold text-white pr-4">
               {convocatoria.titulo}
@@ -312,7 +312,7 @@ export function ModalConvocatorie({ convocatoria, onClose, onEnviar, pendiente }
 
 
             <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors p-3">
-              {pendiente ? 'Enviando...' : 'Enviar Propuesta'}
+              {pendiente ? <> <Loader2 size={20} className=" text-white  animate-spin inline mr-2" />Enviando</> : 'Enviar Propuesta'}
             </button>
           </form>
         </div>

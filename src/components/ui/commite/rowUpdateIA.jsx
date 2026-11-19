@@ -95,7 +95,7 @@ export default function RowUpdateIA({
           type="number"
           min="0"
           max="100"
-          step="0.1"
+          step="1.0"
           value={nvl_plagio}
           onChange={(e) => setNvlPlagio(e.target.value)}
           disabled={!isEditing}
@@ -114,7 +114,7 @@ export default function RowUpdateIA({
           ) : !isEditing ? (
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
             >
               <Edit size={16} />
               Actualizar
@@ -124,11 +124,11 @@ export default function RowUpdateIA({
               <button
                 onClick={handleGuardar}
                 disabled={loadingStates[trabajo.id]}
-                className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2 not-disabled:cursor-pointer"
               >
                 {loadingStates[trabajo.id] ? (
                   <>
-                    <Loader2 className=" text-yellow-600 mx-auto mb-4 animate-spin" />
+                    <Loader2 className=" text-white animate-spin inline mr-2" />
                     Guardando
                   </>
                 ) : (
@@ -141,7 +141,7 @@ export default function RowUpdateIA({
               <button
                 onClick={handleCancelar}
                 disabled={loadingStates[trabajo.id]}
-                className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2 not-disabled:cursor-pointer"
               >
                 <X size={16} />
                 Cancelar

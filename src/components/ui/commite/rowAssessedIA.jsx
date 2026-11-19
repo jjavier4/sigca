@@ -60,7 +60,7 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
                         href={`${basePath}/api/works/${trabajo.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                        className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-600 text-blue-700 text-sm font-semibold hover:bg-blue-50 transition-colors "
                     >
                         <Eye size={16} />
                         Ver PDF
@@ -68,7 +68,7 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
 
                     <a
                         href={`${basePath}/api/works/${trabajo.id}?download=1`}
-                        className="bg-blue-600 hover:bg-blue-700  text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                        className="self-start inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-600 text-blue-700 text-sm font-semibold hover:bg-blue-50 transition-colors"
                     >
                         <Download size={16} />
                         Descargar
@@ -82,11 +82,11 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
                     type="number"
                     min="0"
                     max="100"
-                    step="0.1"
+                    step="1.0"
                     value={formDataMap[trabajo.id]?.nvl_ia || ''}
                     onChange={(e) => handleInputChange(trabajo.id, 'nvl_ia', e.target.value)}
                     placeholder="0-100"
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center"
                 />
             </td>
 
@@ -95,11 +95,11 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
                     type="number"
                     min="0"
                     max="100"
-                    step="0.1"
+                    step="1.0"
                     value={formDataMap[trabajo.id]?.nvl_plagio || ''}
                     onChange={(e) => handleInputChange(trabajo.id, 'nvl_plagio', e.target.value)}
                     placeholder="0-100"
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                    className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center"
                 />
             </td>
 
@@ -107,11 +107,11 @@ export default function RowAssessedIA({ trabajo, handleInputChange, formDataMap,
                 <button
                     onClick={() => handleGuardar(trabajo.id)}
                     disabled={loadingStates[trabajo.id]}
-                    className="bg-green-600 hover:bg-green-700 disabled:bg-yellow-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
+                    className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 inline-flex items-center gap-2"
                 >
                     {loadingStates[trabajo.id] ? (
                         <>
-                            <Loader2 size={16} className=" text-yellow-600  animate-spin" />
+                            <Loader2 size={16} className=" text-white  animate-spin" />
                             Guardando
                         </>
                     ) : (

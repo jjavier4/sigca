@@ -38,8 +38,7 @@ export default function GestionUsuarios({ usuarios }) {
                 onConfirmar={confirmarCambio}
                 onCancelar={() => setUsuarioACambiar(null)}
             />
-            <Alert {...alerta} />
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Usuarios COMITE</h2>
+            <Alert {...alerta} />            
             {usuarios.length === 0 ? (
                 <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
                     <div className="text-center py-12 px-6">
@@ -52,6 +51,7 @@ export default function GestionUsuarios({ usuarios }) {
             ) : (
                 <div className="bg-white text-gray-600 rounded-lg shadow-md overflow-hidden">
                     <div className="overflow-x-auto">
+                        <h2 className="text-3xl font-bold text-gray-800 mb-6 p-4">Gestionar Usuarios COMITE</h2>
                         <table className="w-full">
                             <thead className="bg-gray-50">
                                 <tr>

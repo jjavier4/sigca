@@ -5,5 +5,5 @@ import FormConvocatoria from '@/components/ui/commite/formConvocatoria';
 export default async function AddConvocatoriePage() {
   const session = await requireSession(['COMITE', 'ADMIN']);
 
-  return <FormConvocatoria rutaPanel={href(session.user.rol)} />;
+  return <FormConvocatoria />;
 }

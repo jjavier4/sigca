@@ -1,4 +1,4 @@
-import { FileText, Users, CheckCircle, Calendar } from 'lucide-react';
+import { FileText, Users, CheckCircle, LogIn } from 'lucide-react';
 import React from 'react'
 import Link from 'next/link';
 import { getSession } from '@/lib/auth-utils';
@@ -21,11 +21,6 @@ export default async function AboutPage() {
             icon: <CheckCircle className="w-8 h-8" />,
             title: "Proceso de Revisión",
             description: "Sistema estructurado de evaluación con retroalimentación directa y trazabilidad completa."
-        },
-        {
-            icon: <Calendar className="w-8 h-8" />,
-            title: "Gestión de Convocatorias",
-            description: "Publicación y administración dinámica de convocatorias con fechas límite y requisitos específicos."
         }
     ]
 
@@ -34,13 +29,12 @@ export default async function AboutPage() {
         { step: "2", title: "Envío de Propuestas", desc: "Los autores registran y envían sus trabajos académicos en formato PDF." },
         { step: "3", title: "Asignación de Revisores", desc: "El sistema asigna revisores especializados según el área temática del trabajo." },
         { step: "4", title: "Proceso de Revisión", desc: "Los revisores evalúan los trabajos y proporcionan retroalimentación estructurada." },
-        { step: "5", title: "Correcciones", desc: "Los autores realizan las modificaciones sugeridas dentro del plazo establecido." },
-        { step: "6", title: "Validación Final", desc: "El comité organizador valida y publica los trabajos aceptados." }
+        { step: "5", title: "Validación Final", desc: "El comité organizador valida y publica los trabajos aceptados." }
     ]
 
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
+        <div className="flex flex-col min-h-screen">
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 max-w-4xl">
                     <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">
@@ -70,7 +64,7 @@ export default async function AboutPage() {
                         Plataforma integral para la gestión eficiente de conferencias académicas con tecnología de código abierto
                     </p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                         {features.map((feature, index) => (
                             <div
                                 key={index}
@@ -116,7 +110,7 @@ export default async function AboutPage() {
                 </div>
             </section>
 
-            <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <section className="py-16 text-gray-800 bg-white ">
                 <div className="container mx-auto px-4 text-center">
                     <h2 className="text-4xl font-bold mb-6">
                         ¿Listo para participar?
@@ -124,7 +118,8 @@ export default async function AboutPage() {
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Únete a la comunidad académica del Instituto Tecnológico de Toluca y comparte tu investigación
                     </p>
-                    <Link href={baseUrl} className="bg-white text-blue-600 hover:bg-blue-50 px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                    <Link href={baseUrl} title="Comenzar Ahora" className="bg-white text-blue-900 hover:bg-blue-50 px-10 py-4 rounded-lg font-bold text-lg transition-all duration-300 cursor-pointer">
+                        <LogIn size={24} className='sm:hidden inline' />
                         <span className="font-semibold text-lg hidden sm:inline">Comenzar Ahora</span>
                     </Link>
                 </div>

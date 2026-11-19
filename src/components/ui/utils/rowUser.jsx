@@ -12,7 +12,7 @@ export default function RowUser({id, name, email, role, bloqueada, onEdit, onDel
                 </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap w-1/8 ">
-                <button onClick={onDelete} className={`w-full rounded border p-1 inline-flex items-center justify-center ${bloqueada ? 'bg-green-200 text-green-600 hover:text-green-800' : 'bg-red-200 text-red-600 hover:text-red-800'} cursor-pointer`}>
+                <button onClick={onDelete} className={`w-full rounded border p-1 inline-flex items-center justify-center text-white ${bloqueada ? 'bg-green-600  hover:bg-green-800 border-green-600' : 'bg-red-600 hover:bg-red-800 border border-red-600'} cursor-pointer`}>
                     {bloqueada ? 'Desbloquear Cuenta' : 'Bloquear Cuenta'}
                 </button>
             </td>

@@ -40,7 +40,7 @@ export default function ListaConvocatorias({ convocatorias, usuario }) {
           <div className="flex gap-3">
             <button
               onClick={() => setFiltro('todas')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'todas'
+              className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${filtro === 'todas'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
@@ -49,7 +49,7 @@ export default function ListaConvocatorias({ convocatorias, usuario }) {
             </button>
             <button
               onClick={() => setFiltro('abiertas')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'abiertas'
+              className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${filtro === 'abiertas'
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
@@ -58,8 +58,8 @@ export default function ListaConvocatorias({ convocatorias, usuario }) {
             </button>
             <button
               onClick={() => setFiltro('cerradas')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === 'cerradas'
-                ? 'bg-gray-600 text-white'
+              className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${filtro === 'cerradas'
+                ? 'bg-red-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
